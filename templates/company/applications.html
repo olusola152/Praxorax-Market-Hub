@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Student applications{% endblock %}
+
+{% block content %}
+<section class="page-head page-head--split">
+  <div>
+    <p class="record-label">Direct applications</p>
+    <h1 class="display">Students who applied</h1>
+    <p class="lede">These students joined on their own, with no university behind them.
+      Accept one and they work for you directly — you review their submissions yourself,
+      with no lecturer in the chain.</p>
+  </div>
+  <a class="btn btn--quiet" href="{{ url_for('company.projects') }}">All briefs</a>
+</section>
+
+{% if applications %}
+<div class="project-list">
+  {% for a in applications %}
+  <article class="project">
+    <div class="project-head">
+      <h2 class="project-title">{{ a.student_name }}</h2>
+      <span class="status status--{{ a.status }}">{{ a.status }}</span>
+    </div>
+    <p class="project-client">for {{ a.title }}</p>
+
+    <dl class="project-meta">
+      <div><dt>Applied</dt><dd>{{ a.created_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+      <div><dt>Deadline</dt><dd>{{ a.deadline.strftime('%d %b %Y') }}</dd></div>
+      <div><dt>Places</dt><dd>{{ a.placed }} of {{ a.max_students }} filled</dd></div>
+      {% if a.field_name %}<div><dt>Field</dt><dd>{{ a.field_name }}</dd></div>{% endif %}
+      {% if a.level %}<div><dt>Level</dt><dd>{{ a.level }}</dd></div>{% endif %}
+      {% if a.department %}<div><dt>Department</dt><dd>{{ a.department }}</dd></div>{% endif %}
+      <div><dt>Email</dt><dd class="mono">{{ a.student_email }}</dd></div>
+      {% if a.github_url %}<div><dt>GitHub</dt><dd><a href="{{ a.github_url }}" target="_blank" rel="noopener">{{ a.github_url }}</a></dd></div>{% endif %}
+    </dl>
+
+    <p class="prose prose--quote">{{ a.message }}</p>
+    {% if a.bio %}<p class="project-skills">{{ a.bio }}</p>{% endif %}
+
+    {% if a.status == 'pending' %}
+      {% if a.placed >= a.max_students %}
+      <p class="empty">This brief already has all its places filled.</p>
+      {% else %}
+      <div class="form-actions">
+        <form method="post" action="{{ url_for('company.decide_application', application_id=a.id, decision='accept') }}">
+          <button class="btn" type="submit">Accept onto the brief</button>
+        </form>
+        <form method="post" action="{{ url_for('company.decide_application', application_id=a.id, decision='decline') }}">
+          <button class="btn btn--quiet" type="submit">Decline</button>
+        </form>
+      </div>
+      {% endif %}
+    {% elif a.decided_at %}
+      <p class="mono">Decided {{ a.decided_at.strftime('%d %b %Y, %H:%M') }}</p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">No direct applications yet. They appear here as soon as an independent
+  student applies for one of your published briefs.</p>
+{% endif %}
+{% endblock %}

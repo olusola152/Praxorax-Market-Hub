@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} — {{ brand }}{% endblock %}
+{% block content %}
+<section class="panel panel--center">
+  <p class="record-label">Error {{ code }}</p>
+  <h1 class="display">{{ message }}</h1>
+  {% if detail %}<p class="lede lede--wide">{{ detail }}</p>{% endif %}
+  <a class="btn" href="{{ url_for('home') }}">Back to your dashboard</a>
+</section>
+{% endblock %}

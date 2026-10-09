@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" role="img"
+     aria-label="Work travelling from a company brief through a lecturer and university to a verified certificate">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0E2A21"/>
+      <stop offset="55%" stop-color="#1E4B3A"/>
+      <stop offset="100%" stop-color="#2A6047"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,.16)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,.04)"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="900" height="640" fill="url(#sky)"/>
+
+  <!-- faint drafting grid -->
+  <g stroke="rgba(255,255,255,.055)" stroke-width="1">
+    <path d="M0 0 V640"/>
+    <path d="M45 0 V640"/>
+    <path d="M90 0 V640"/>
+    <path d="M135 0 V640"/>
+    <path d="M180 0 V640"/>
+    <path d="M225 0 V640"/>
+    <path d="M270 0 V640"/>
+    <path d="M315 0 V640"/>
+    <path d="M360 0 V640"/>
+    <path d="M405 0 V640"/>
+    <path d="M450 0 V640"/>
+    <path d="M495 0 V640"/>
+    <path d="M540 0 V640"/>
+    <path d="M585 0 V640"/>
+    <path d="M630 0 V640"/>
+    <path d="M675 0 V640"/>
+    <path d="M720 0 V640"/>
+    <path d="M765 0 V640"/>
+    <path d="M810 0 V640"/>
+    <path d="M855 0 V640"/>
+    <path d="M900 0 V640"/>
+    <path d="M0 0 H900"/>
+    <path d="M0 45 H900"/>
+    <path d="M0 90 H900"/>
+    <path d="M0 135 H900"/>
+    <path d="M0 180 H900"/>
+    <path d="M0 225 H900"/>
+    <path d="M0 270 H900"/>
+    <path d="M0 315 H900"/>
+    <path d="M0 360 H900"/>
+    <path d="M0 405 H900"/>
+    <path d="M0 450 H900"/>
+    <path d="M0 495 H900"/>
+    <path d="M0 540 H900"/>
+    <path d="M0 585 H900"/>
+    <path d="M0 630 H900"/>
+  </g>
+
+  <!-- the chain -->
+  <g font-family="IBM Plex Mono, monospace" font-size="15" fill="#EAF3EC">
+    <g transform="translate(64 60)">
+      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
+      <text x="22" y="38" fill="#9A6F22" font-size="13">01</text>
+      <text x="62" y="38">Company posts a brief</text>
+    </g>
+    <path d="M290 122 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
+    <g transform="translate(64 148)">
+      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
+      <text x="22" y="38" fill="#9A6F22" font-size="13">02</text>
+      <text x="62" y="38">Lecturer takes it on</text>
+    </g>
+    <path d="M290 210 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
+    <g transform="translate(64 236)">
+      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
+      <text x="22" y="38" fill="#9A6F22" font-size="13">03</text>
+      <text x="62" y="38">Students build it</text>
+    </g>
+    <path d="M290 298 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
+    <g transform="translate(64 324)">
+      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
+      <text x="22" y="38" fill="#9A6F22" font-size="13">04</text>
+      <text x="62" y="38">Reviewed up the chain</text>
+    </g>
+    <path d="M516 417 H596" stroke="#9A6F22" stroke-width="2.5" stroke-dasharray="6 6"/>
+    <path d="M290 386 v31 h226" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="none" stroke-dasharray="4 5"/>
+  </g>
+
+  <!-- the certificate -->
+  <g transform="translate(596 404)">
+    <rect width="240" height="168" rx="6" fill="url(#glass)" stroke="rgba(255,255,255,.3)"/>
+    <rect x="18" y="24" width="120" height="9" rx="4" fill="#9A6F22"/>
+    <rect x="18" y="48" width="180" height="7" rx="3" fill="rgba(255,255,255,.4)"/>
+    <rect x="18" y="64" width="150" height="7" rx="3" fill="rgba(255,255,255,.28)"/>
+    <rect x="18" y="80" width="168" height="7" rx="3" fill="rgba(255,255,255,.28)"/>
+    <circle cx="196" cy="126" r="26" fill="none" stroke="#9A6F22" stroke-width="3"/>
+    <circle cx="196" cy="126" r="16" fill="#9A6F22" opacity=".35"/>
+    <path d="M186 126 l7 8 14 -17" stroke="#EAF3EC" stroke-width="3" fill="none"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

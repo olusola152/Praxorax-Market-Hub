@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "shared/cover.html" import cover %}
+{% block title %}{{ project.title }}{% endblock %}
+{% block content %}
+<p class="backlink"><a href="{{ url_for('student.browse') }}">Back to projects</a></p>
+<div class="detail-banner">{{ cover(project, tall=true) }}</div>
+<section class="page-head">
+  <p class="record-label">{{ project.field_name }}</p>
+  <h1 class="display">{{ project.title }}</h1>
+  <p class="lede">{{ project.company_name }}</p>
+</section>
+
+<section class="stat-grid">
+  <article class="stat"><p class="stat-num">{{ (project.deadline - today).days }}</p><p class="stat-label">Days left</p></article>
+  <article class="stat"><p class="stat-num">{{ project.max_students }}</p><p class="stat-label">Places</p></article>
+  <article class="stat"><p class="stat-num">{{ project.difficulty|capitalize }}</p><p class="stat-label">Difficulty</p></article>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">What needs building</h2>
+  <p class="prose">{{ project.description }}</p>
+  {% if project.deliverables %}<h3 class="panel-title">Deliverables</h3><p class="prose">{{ project.deliverables }}</p>{% endif %}
+  {% if project.skill_list %}<p class="project-skills">Skills: {{ project.skill_list }}</p>{% endif %}
+</section>
+
+<section class="panel">
+  <form method="post" action="{{ url_for('student.bookmark', project_id=project.id) }}">
+    <button class="btn btn--small btn--quiet" type="submit">{{ 'Remove from saved' if saved else 'Save this brief' }}</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">How to get on this project</h2>
+
+  {% if not independent %}
+  <p class="empty">A lecturer in {{ project.field_name }} at your university applies to the company. Once approved, they choose students from their field. Make sure your portfolio and GitHub link are up to date so you're an obvious pick.</p>
+
+  {% elif application and application.status == 'pending' %}
+  <p class="empty">You applied on {{ application.created_at.strftime('%d %b %Y') }}.
+    {{ project.company_name }} has not decided yet.</p>
+  <form method="post" action="{{ url_for('student.withdraw', application_id=application.id) }}">
+    <button class="btn btn--quiet" type="submit">Withdraw application</button>
+  </form>
+
+  {% elif application and application.status == 'accepted' %}
+  <p class="empty">You are on this brief. Open it from
+    <a href="{{ url_for('student.dashboard') }}">your dashboard</a> to submit work.</p>
+
+  {% else %}
+  <p class="lede">You joined on your own, so you apply straight to {{ project.company_name }}.
+    If they accept you, you work for them directly and send your files through this site.</p>
+  {% if application and application.status == 'declined' %}
+  <p class="empty">Your earlier application was declined on
+    {{ application.decided_at.strftime('%d %b %Y') }}. You can write a new one.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('student.apply', project_id=project.id) }}" novalidate>
+    {% if my_teams %}
+    <label class="field">
+      <span>Apply as</span>
+      <select name="team_id">
+        <option value="">Just me</option>
+        {% for t in my_teams %}
+        <option value="{{ t.id }}">{{ t.name }} ({{ t.size }} members)</option>
+        {% endfor %}
+      </select>
+      <em class="opt">A team needs the brief to have enough places for everyone on it.</em>
+    </label>
+    {% endif %}
+    <label class="field">
+      <span>Why you fit this brief</span>
+      <textarea name="message" rows="6" minlength="30" required
+        placeholder="What you have built before, which of the listed skills you have, and how you would approach this.">{{ application.message if application else '' }}</textarea>
+      <em class="opt">At least 30 characters. This is the only thing the company sees
+        besides your profile, so make it count.</em>
+    </label>
+    <button class="btn" type="submit">Apply for this brief</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

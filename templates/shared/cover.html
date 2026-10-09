@@ -1,0 +1,15 @@
+{# Cover art for a brief.
+   Prefers a real photo the company set, falls back to the field's tile, then
+   to a neutral placeholder. Used on the feed, the detail page and saved list. #}
+{% macro cover(project, tall=false) -%}
+  {%- if project.cover_url and project.cover_url.startswith('http') -%}
+    {%- set src = project.cover_url -%}
+  {%- elif project.cover_url -%}
+    {%- set src = url_for('static', filename=project.cover_url) -%}
+  {%- elif project.field_image -%}
+    {%- set src = url_for('static', filename=project.field_image) -%}
+  {%- else -%}
+    {%- set src = url_for('static', filename='img/brief-placeholder.svg') -%}
+  {%- endif -%}
+  <img class="cover {{ 'cover--tall' if tall }}" src="{{ src }}" alt="" loading="lazy" decoding="async">
+{%- endmacro %}

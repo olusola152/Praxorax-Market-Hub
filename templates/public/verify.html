@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Verify a certificate — {{ brand }}{% endblock %}
+{% block body_class %}gate{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Verification</p>
+  <h1 class="display">Check a certificate</h1>
+  <p class="lede lede--wide">Paste the reference from a {{ brand }} certificate. Works for both
+    the per-project certificates a company issues and the consolidated records a student generates.
+    No account needed.</p>
+</section>
+
+<section class="panel">
+  <form method="post" class="inline-form">
+    <label class="field">
+      <span>Reference number</span>
+      <input type="text" name="reference" value="{{ searched }}" required
+             placeholder="PX-1A2B3C4D5E" autocomplete="off">
+    </label>
+    <button class="btn" type="submit">Check it</button>
+  </form>
+
+  {% if searched %}
+    {% if result and not result.revoked_at %}
+    <div class="verify-result verify-result--good">
+      <p class="record-label">Valid</p>
+      <dl class="project-meta">
+        <div><dt>Issued to</dt><dd>{{ result.fullname }}</dd></div>
+        {% if result.project_title %}<div><dt>Project</dt><dd>{{ result.project_title }}</dd></div>
+        {% else %}<div><dt>Covers</dt><dd>{{ result.project_count }} completed project{{ '' if result.project_count == 1 else 's' }}</dd></div>{% endif %}
+        <div><dt>Issued</dt><dd>{{ result.issued_at.strftime('%d %B %Y') }}</dd></div>
+        <div><dt>Reference</dt><dd class="mono">{{ result.reference }}</dd></div>
+      </dl>
+    </div>
+    {% elif result %}
+    <div class="verify-result verify-result--bad">
+      <p class="record-label">Revoked</p>
+      <p>This reference was issued to {{ result.fullname }} but has since been revoked. Do not rely on it.</p>
+    </div>
+    {% else %}
+    <div class="verify-result verify-result--bad">
+      <p class="record-label">Not found</p>
+      <p>No certificate here carries that reference. Check for typing errors — references look like <span class="mono">PX-1A2B3C4D5E</span>.</p>
+    </div>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

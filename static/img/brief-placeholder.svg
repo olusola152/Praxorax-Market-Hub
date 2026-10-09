@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 440 280" role="img" aria-label="Project brief"
+     preserveAspectRatio="xMidYMid slice">
+  <rect width="440" height="280" fill="#17302A"/>
+  <g stroke="#3F7A63" stroke-width="2" fill="none" opacity=".55">
+    <rect x="128" y="64" width="184" height="152" rx="4"/>
+    <path d="M156 106 H284 M156 134 H284 M156 162 H240"/>
+  </g>
+</svg>

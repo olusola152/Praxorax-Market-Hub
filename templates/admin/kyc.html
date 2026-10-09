@@ -1,0 +1,50 @@
+{% extends "admin/_shell.html" %}
+{% set active_section = 'kyc' %}
+{% block title %}Company verification{% endblock %}
+{% block deck %}
+<section class="page-head">
+  <p class="record-label">Admin</p>
+  <h1 class="display">Company verification</h1>
+  <p class="lede">An unverified company can draft briefs but cannot publish them. Open the document, check the name matches, then decide.</p>
+</section>
+
+<div class="project-list">
+  {% for c in companies %}
+  <article class="project">
+    <div class="project-head">
+      <h2 class="project-title">{{ c.name }}</h2>
+      <span class="status status--{{ c.verification_status }}">{{ c.verification_status }}</span>
+    </div>
+    <p class="project-client">{{ c.contact_name }} · <span class="mono">{{ c.contact_email }}</span></p>
+
+    <dl class="project-meta">
+      <div><dt>Briefs</dt><dd>{{ c.project_count }}</dd></div>
+      <div><dt>Subscription</dt><dd>{{ c.subscription_status }}</dd></div>
+      {% if c.kyc_submitted_at %}<div><dt>Submitted</dt><dd>{{ c.kyc_submitted_at.strftime('%d %b %Y') }}</dd></div>{% endif %}
+      {% if c.decided_by_name %}<div><dt>Decided by</dt><dd>{{ c.decided_by_name }}</dd></div>{% endif %}
+    </dl>
+
+    {% if c.kyc_document_url %}
+    <p><a class="btn btn--small btn--quiet" href="{{ c.kyc_document_url }}" target="_blank" rel="noopener">Open the document</a></p>
+    {% else %}
+    <p class="empty">Nothing submitted yet.</p>
+    {% endif %}
+
+    {% if c.kyc_notes %}<p class="prose prose--quote">{{ c.kyc_notes }}</p>{% endif %}
+
+    {% if c.kyc_document_url and c.verification_status != 'verified' %}
+    <form method="post" action="{{ url_for('admin.decide_kyc', company_id=c.id, decision='verify') }}">
+      <button class="btn btn--small" type="submit">Verify</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.decide_kyc', company_id=c.id, decision='reject') }}">
+      <label class="field">
+        <span>Reason for rejecting</span>
+        <textarea name="notes" rows="2" placeholder="The document does not name this company."></textarea>
+      </label>
+      <button class="btn btn--small btn--quiet" type="submit">Reject</button>
+    </form>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}

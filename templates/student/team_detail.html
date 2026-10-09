@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ team.name }}{% endblock %}
+{% block content %}
+<p class="backlink"><a href="{{ url_for('teams.index') }}">All teams</a></p>
+
+<section class="page-head">
+  <p class="record-label">Team · {{ team.status }}</p>
+  <h1 class="display">{{ team.name }}</h1>
+  <p class="lede">Led by {{ team.lead_name }}{% if team.project_title %} · on {{ team.project_title }}{% endif %} · started {{ team.created_at.strftime('%d %b %Y') }}</p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Members</h2>
+  <table>
+    <tr><th>Name</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr>
+    {% for m in members %}
+    <tr>
+      <td>{{ m.fullname }}{% if m.level %} <span class="mono">{{ m.level }}</span>{% endif %}</td>
+      <td>{{ m.role }}</td>
+      <td><span class="status status--{{ m.status }}">{{ m.status }}</span></td>
+      <td>{{ m.joined_at.strftime('%d %b %Y') if m.joined_at else '—' }}</td>
+      <td style="text-align:right">
+        {% if team.me.role == 'lead' and m.user_id != team.created_by and m.status in ('active','invited') and team.status in ('forming','applied') %}
+        <form method="post" action="{{ url_for('teams.remove', team_id=team.id, user_id=m.user_id) }}">
+          <button class="btn btn--small btn--quiet" type="submit">Remove</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</section>
+
+{% if team.me.role == 'lead' and team.status in ('forming','applied') %}
+<section class="panel">
+  <h2 class="panel-title">Invite someone</h2>
+  <p class="lede">They need an account here already. Up to {{ max_members }} people on a team.</p>
+  <form method="post" action="{{ url_for('teams.invite', team_id=team.id) }}" class="inline-form">
+    <label class="field">
+      <span>Their email</span>
+      <input type="email" name="email" required>
+    </label>
+    <button class="btn" type="submit">Send invitation</button>
+  </form>
+</section>
+{% endif %}
+
+{% if placements %}
+<section class="panel">
+  <h2 class="panel-title">Placements</h2>
+  <p class="lede">This team is on a brief. Each member has their own placement page.</p>
+  <ul class="file-list">
+    {% for pl in placements %}
+    <li class="file-row">
+      <div>{{ pl.fullname }}</div>
+      {% if pl.fullname == user.email or true %}<a class="btn btn--small btn--quiet" href="{{ url_for('student.work', assignment_id=pl.id) }}">Open</a>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Leaving</h2>
+  {% if team.me.role == 'lead' %}
+    {% if team.status != 'active' %}
+    <form method="post" action="{{ url_for('teams.disband', team_id=team.id) }}">
+      <button class="btn btn--quiet" type="submit">Disband this team</button>
+    </form>
+    {% else %}
+    <p class="empty">This team is on a live brief and cannot be disbanded.</p>
+    {% endif %}
+  {% else %}
+    {% if team.status in ('forming','applied') %}
+    <form method="post" action="{{ url_for('teams.leave', team_id=team.id) }}">
+      <button class="btn btn--quiet" type="submit">Leave this team</button>
+    </form>
+    {% else %}
+    <p class="empty">You cannot leave a team that is already working on a brief.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock %}

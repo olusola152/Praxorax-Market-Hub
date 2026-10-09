@@ -1,0 +1,34 @@
+{# ---------------------------------------------------------------- admin rail
+   Administrators are watching a system, not reading a record, so this part of
+   the product looks and behaves differently: dark, dense, and navigable from
+   one fixed column instead of a row of links that would wrap at nine items. #}
+{% macro admin_rail(active) %}
+<nav class="rail" aria-label="Admin sections">
+  <p class="rail-mark">{{ brand }}<span>admin</span></p>
+
+  <p class="rail-group">Watch</p>
+  <a class="rail-link {{ 'rail-link--on' if active == 'dashboard' }}" href="{{ url_for('admin.dashboard') }}">Operations deck</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'activity' }}" href="{{ url_for('admin.activity') }}">Activity log</a>
+
+  <p class="rail-group">Decide</p>
+  <a class="rail-link {{ 'rail-link--on' if active == 'kyc' }}" href="{{ url_for('admin.kyc') }}">Company verification</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'subscriptions' }}" href="{{ url_for('admin.subscriptions') }}">Subscriptions</a>
+
+  <p class="rail-group">People</p>
+  <a class="rail-link {{ 'rail-link--on' if active == 'users' }}" href="{{ url_for('admin.users') }}">All accounts</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'public' }}" href="{{ url_for('admin.public_students') }}">Public students</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'universities' }}" href="{{ url_for('admin.universities') }}">Universities</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'companies' }}" href="{{ url_for('admin.companies') }}">Companies</a>
+
+  <p class="rail-group">Work</p>
+  <a class="rail-link {{ 'rail-link--on' if active == 'projects' }}" href="{{ url_for('admin.projects') }}">Briefs</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'placements' }}" href="{{ url_for('admin.placements') }}">Placements</a>
+
+  <div class="rail-foot">
+    <a href="{{ url_for('admin.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
+    <form method="post" action="{{ url_for('auth.logout') }}">
+  <button class="link-btn" type="submit">Sign out</button>
+</form>
+  </div>
+</nav>
+{% endmacro %}

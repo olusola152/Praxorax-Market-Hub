@@ -1,0 +1,90 @@
+{% extends "admin/_shell.html" %}
+{% set active_section = 'public' %}
+{% block title %}Public students — {{ brand }}{% endblock %}
+
+{% block deck %}
+<div class="deck-head">
+  <div>
+    <h1 class="deck-title">Public students</h1>
+    <p class="deck-sub">Students who joined on the main page with no university behind them.
+      Nobody supervises them and no subscription covers them, so a company accepting one is
+      taking them on directly.</p>
+  </div>
+  <form method="get" class="deck-filters" style="margin:0">
+    <input type="search" name="q" value="{{ search }}" placeholder="Name or email">
+    {% if state %}<input type="hidden" name="state" value="{{ state }}">{% endif %}
+    <button class="btn btn--quiet" type="submit">Search</button>
+  </form>
+</div>
+
+<div class="deck-filters">
+  <a class="deck-filter {{ 'deck-filter--on' if not state }}" href="{{ url_for('admin.public_students', q=search) }}">All <b>{{ totals.all }}</b></a>
+  <a class="deck-filter {{ 'deck-filter--on' if state == 'placed' }}" href="{{ url_for('admin.public_students', state='placed', q=search) }}">On a brief <b>{{ totals.placed }}</b></a>
+  <a class="deck-filter {{ 'deck-filter--on' if state == 'waiting' }}" href="{{ url_for('admin.public_students', state='waiting', q=search) }}">Waiting to hear <b>{{ totals.waiting }}</b></a>
+  <a class="deck-filter {{ 'deck-filter--on' if state == 'idle' }}" href="{{ url_for('admin.public_students', state='idle', q=search) }}">Not applied yet <b>{{ totals.idle }}</b></a>
+</div>
+
+<section class="deck-panel">
+  {% if rows %}
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Field</th>
+        <th>Applied</th>
+        <th>Placements</th>
+        <th>Finished</th>
+        <th>Last submission</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>
+          {{ r.fullname }}
+          {% if r.status == 'blocked' %}<span class="chip chip--bad">blocked</span>{% endif %}
+          <br><span class="mono">{{ r.email }}</span>
+          {% if r.headline %}<br><span class="mono">{{ r.headline }}</span>{% endif %}
+        </td>
+        <td>
+          {{ r.field_name or '—' }}
+          {% if r.level %}<br><span class="mono">{{ r.level }}</span>{% endif %}
+          {% if r.skills %}<br><span class="mono">{{ r.skills }} skills listed</span>{% endif %}
+        </td>
+        <td>
+          {{ r.applications }}
+          {% if r.waiting %}<br><span class="chip chip--wait">{{ r.waiting }} open</span>{% endif %}
+        </td>
+        <td>{{ r.placements }}</td>
+        <td>
+          {% if r.completed %}<span class="chip chip--good">{{ r.completed }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td class="mono">
+          {% if r.last_submission %}{{ r.last_submission.strftime('%d %b %Y') }}
+          {% else %}never{% endif %}
+        </td>
+        <td class="mono">{{ r.created_at.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">
+    {% if search or state %}No public student matches that.
+    {% else %}No public students yet. They appear here as soon as someone signs up as a student on the main page.{% endif %}
+  </p>
+  {% endif %}
+</section>
+
+{% if totals.idle and not state %}
+<section class="deck-panel">
+  <h2>{{ totals.idle }} signed up but never applied</h2>
+  <p class="note">Worth knowing. If this number keeps climbing while briefs stay open,
+    the problem is usually that too few briefs match what students can actually do —
+    check the fields companies are posting against the fields students are listing.</p>
+  <p><a class="btn btn--quiet" href="{{ url_for('admin.public_students', state='idle') }}">See who they are</a></p>
+</section>
+{% endif %}
+{% endblock %}

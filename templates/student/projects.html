@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "shared/cover.html" import cover %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Open briefs</p>
+  <h1 class="display">Projects</h1>
+  <p class="lede">Browse what companies are asking for. Your lecturer applies for these and places students — you can't apply directly.</p>
+</section>
+
+<form class="filters" method="get">
+  <label class="field">
+    <span>Search</span>
+    <input type="search" name="q" value="{{ search }}" placeholder="inventory, chatbot...">
+  </label>
+  <button class="btn btn--quiet" type="submit">Search</button>
+</form>
+
+{% if projects %}
+<div class="project-list">
+  {% for p in projects %}
+  <article class="project project--card">
+    <a class="cover-link" href="{{ url_for('student.project_detail', project_id=p.id) }}">
+      {{ cover(p) }}
+      {% if p.match_label %}<span class="cover-badge">{{ (p.match * 100)|round|int }}%</span>{% endif %}
+    </a>
+    <div class="project-head">
+      <h2 class="project-title"><a href="{{ url_for('student.project_detail', project_id=p.id) }}">{{ p.title }}</a></h2>
+      <span class="status">{{ p.field_name }}</span>
+    </div>
+    <p class="project-client">{{ p.company_name }}</p>
+    <dl class="project-meta">
+      <div><dt>Difficulty</dt><dd>{{ p.difficulty|capitalize }}</dd></div>
+      <div><dt>Deadline</dt><dd>{{ p.deadline.strftime('%d %b %Y') }}</dd></div>
+      <div><dt>Places</dt><dd>{{ p.max_students }}</dd></div>
+    </dl>
+    {% if p.skill_list %}<p class="project-skills">{{ p.skill_list }}</p>{% endif %}
+    {% if p.match_label %}
+    <p class="mono match-line">{{ (p.match * 100)|round|int }}% {{ p.match_label }} against your skills</p>
+    {% endif %}
+    <form method="post" action="{{ url_for('student.bookmark', project_id=p.id) }}">
+      <button class="btn btn--small btn--quiet" type="submit">{{ 'Saved ✓' if p.id in saved else 'Save' }}</button>
+    </form>
+    {% if independent %}
+      {% if applied.get(p.id) %}
+      <p class="mono">Your application: <span class="status status--{{ applied[p.id] }}">{{ applied[p.id] }}</span></p>
+      {% else %}
+      <p><a class="btn btn--small" href="{{ url_for('student.project_detail', project_id=p.id) }}">Apply for this</a></p>
+      {% endif %}
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">No open projects match that search.</p>
+{% endif %}
+{% endblock %}

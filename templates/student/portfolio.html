@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% from "shared/cover.html" import cover %}
+{% block title %}{{ profile.fullname }} — portfolio{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Portfolio</p>
+  <h1 class="display">{{ profile.fullname }}</h1>
+  <p class="lede">
+    {% if profile.headline %}{{ profile.headline }}{% else %}
+      {{ profile.field_name or 'Student' }}{% if profile.university_name %} · {{ profile.university_name }}{% else %} · independent{% endif %}
+    {% endif %}
+  </p>
+  <p class="mono portfolio-since">On {{ brand }} since {{ profile.joined_at.strftime('%B %Y') }}</p>
+</section>
+
+{% if work %}
+<section class="band band--stats">
+  <dl class="stat-row">
+    <div><dt>Projects completed</dt><dd>{{ summary.projects }}</dd></div>
+    <div><dt>Companies</dt><dd>{{ summary.companies }}</dd></div>
+    <div><dt>Certificates</dt><dd>{{ summary.certificates }}</dd></div>
+    <div><dt>Versions submitted</dt><dd>{{ summary.versions }}</dd></div>
+    <div><dt>Files delivered</dt><dd>{{ summary.files }}</dd></div>
+    {% if summary.median_days %}<div><dt>Typical length</dt><dd>{{ summary.median_days }} days</dd></div>{% endif %}
+  </dl>
+  {% if summary.skills %}
+  <p class="skill-line"><span class="record-label">Skills used</span> {{ summary.skills|join(' · ') }}</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if owner %}
+<section class="panel">
+  <h2 class="panel-title">Sharing and certificates</h2>
+
+  <form method="post" action="{{ url_for('portfolio.headline') }}" class="inline-form">
+    <label class="field">
+      <span>One-line headline <em class="opt">shown at the top</em></span>
+      <input type="text" name="headline" maxlength="160" value="{{ profile.headline or '' }}"
+             placeholder="Final-year CS student — Flask, Postgres, data dashboards">
+    </label>
+    <button class="btn btn--small" type="submit">Save</button>
+  </form>
+
+  <div class="share-row">
+    {% if profile.portfolio_public and profile.portfolio_token %}
+      <p class="lede">Your public link:</p>
+      <p class="mono share-link">{{ request.url_root.rstrip('/') }}{{ url_for('portfolio.public', token=profile.portfolio_token) }}</p>
+      <p class="card-foot">Anyone holding it sees your finished work and nothing else — no email, no placements in progress.</p>
+      <form method="post" action="{{ url_for('portfolio.share') }}">
+        <button class="btn btn--small btn--quiet" type="submit">Make it private again</button>
+      </form>
+    {% else %}
+      <p class="lede">Your portfolio is private. Create a link to send an employer without giving them a login.</p>
+      <form method="post" action="{{ url_for('portfolio.share') }}">
+        <button class="btn btn--small" type="submit">Create a public link</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="share-row">
+    <p class="lede">A certificate covers everything you have finished, as of the day it is issued, with a reference number anyone can check at <a href="{{ url_for('portfolio.verify') }}">/verify</a>.</p>
+
+    {% if work %}
+    <form method="post" action="{{ url_for('portfolio.issue') }}">
+      <button class="btn" type="submit">Generate a certificate</button>
+    </form>
+    {% else %}
+    {# Never a dead button. Say why it is not there. #}
+    <p class="empty">You have no completed projects yet, so there is nothing to
+      certify. A project counts once the company has approved your final
+      submission — not when you send it, and not while it is being reviewed.</p>
+    {% if pending %}
+    <p class="card-foot">In progress right now:</p>
+    <ul class="file-list">
+      {% for pl in pending %}
+      <li class="file-row">
+        <div>
+          <a href="{{ url_for('student.work', assignment_id=pl.id) }}">{{ pl.title }}</a>
+          <span class="mono">{{ pl.company_name }} · {{ pl.stage_text }}</span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
+  </div>
+
+  {% if certificates %}
+  <table>
+    <tr><th>Reference</th><th>Projects</th><th>Issued</th><th></th></tr>
+    {% for c in certificates %}
+    <tr>
+      <td class="mono">{{ c.reference }}</td>
+      <td>{{ c.project_count }}</td>
+      <td>{{ c.issued_at.strftime('%d %b %Y, %H:%M') }}</td>
+      <td style="text-align:right"><a href="{{ url_for('portfolio.certificate', reference=c.reference) }}">Open</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Completed work</h2>
+  {% if work %}
+  <div class="project-list">
+    {% for w in work %}
+    <article class="project project--card">
+      <div class="cover-link">{{ cover(w) }}</div>
+      <div class="project-head">
+        <h3 class="project-title">{{ w.title }}</h3>
+        <span class="status status--completed">completed</span>
+      </div>
+      <p class="project-client">{{ w.company_name }}{% if w.company_website %} · <a href="{{ w.company_website }}" target="_blank" rel="noopener">website</a>{% endif %}</p>
+
+      <dl class="project-meta">
+        <div><dt>Type</dt><dd>{{ w.field_name }} · {{ w.faculty }}</dd></div>
+        <div><dt>Level</dt><dd>{{ w.difficulty }}</dd></div>
+        <div><dt>Started</dt><dd>{{ w.assigned_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+        <div><dt>Completed</dt><dd>{% if w.completed_at %}{{ w.completed_at.strftime('%d %b %Y, %H:%M') }}{% else %}—{% endif %}</dd></div>
+        {% if w.days_taken is not none %}<div><dt>Took</dt><dd>{{ w.days_taken }} days</dd></div>{% endif %}
+        <div><dt>Worked</dt><dd>{{ w.worked_as }}</dd></div>
+        <div><dt>How joined</dt><dd>{{ w.route }}</dd></div>
+        {% if w.lecturer_name %}<div><dt>Supervised by</dt><dd>{{ w.lecturer_name }}{% if w.university_name %}, {{ w.university_name }}{% endif %}</dd></div>{% endif %}
+        <div><dt>Submitted</dt><dd>{{ w.version_count }} version{{ '' if w.version_count == 1 else 's' }}, {{ w.file_count }} file{{ '' if w.file_count == 1 else 's' }}</dd></div>
+        {% if w.last_submitted_at %}<div><dt>Last submission</dt><dd>{{ w.last_submitted_at.strftime('%d %b %Y, %H:%M') }}</dd></div>{% endif %}
+        {% if w.certificate_number %}<div><dt>Certificate</dt><dd class="mono">{{ w.certificate_number }}</dd></div>{% endif %}
+      </dl>
+
+      <p class="prose">{{ w.description }}</p>
+      {% if w.skills %}<p class="project-skills">{{ w.skills }}</p>{% endif %}
+
+      {% if owner %}
+      <p><a class="btn btn--small btn--quiet" href="{{ url_for('student.record', assignment_id=w.assignment_id) }}">Full record and files</a></p>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">
+    {% if owner %}Nothing finished yet. A project appears here once the company signs it off.
+    {% else %}This student has no completed projects on record yet.{% endif %}
+  </p>
+  {% endif %}
+</section>
+{% endblock %}

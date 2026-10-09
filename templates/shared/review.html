@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Review — {{ sub.title }}{% endblock %}
+{% block content %}
+<p class="backlink"><a href="{{ back_url }}">Back to inbox</a></p>
+<section class="page-head">
+  <p class="record-label">{{ sub.company_name }} · version {{ sub.version }}</p>
+  <h1 class="display">{{ sub.title }}</h1>
+  <p class="lede">{{ sub.student_name }}{% if sub.lecturer_name %}, supervised by {{ sub.lecturer_name }}{% else %}, working independently{% endif %}</p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Submitted work</h2>
+  <dl class="project-meta">
+    {% if sub.repo_url %}<div><dt>Repository</dt><dd class="mono">{{ sub.repo_url }}</dd></div>{% endif %}
+    <div><dt>Submitted</dt><dd>{{ sub.submitted_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+    <div><dt>Files</dt><dd>{{ files|length }}</dd></div>
+    <div><dt>Stage</dt><dd><span class="status status--{{ sub.stage }}">{{ sub.stage.replace('_',' ') }}</span></dd></div>
+  </dl>
+  {% if sub.notes %}<p class="prose prose--quote">{{ sub.notes }}</p>{% endif %}
+  {% if sub.repo_url %}
+  <p><a class="btn btn--small btn--quiet" href="{{ sub.repo_url }}" target="_blank" rel="noopener">Open repository</a></p>
+  {% endif %}
+</section>
+
+{% if files %}
+<section class="panel">
+  <h2 class="panel-title">The project files</h2>
+  <ul class="file-list">
+    {% for f in files %}
+    <li class="file-row">
+      <div>
+        <a href="{{ url_for('files.download', file_id=f.id) }}">{{ f.original_name }}</a>
+        <span class="mono">{{ human_size(f.size_bytes) }} · {{ f.uploaded_at.strftime('%d %b %Y, %H:%M') }}</span>
+        <span class="mono checksum" title="SHA-256 checksum">{{ f.sha256[:16] }}…</span>
+      </div>
+      <a class="btn btn--small btn--quiet" href="{{ url_for('files.download', file_id=f.id) }}">Download</a>
+    </li>
+    {% endfor %}
+  </ul>
+  <p style="margin-top:1rem">
+    <a class="btn" href="{{ url_for('files.archive', submission_id=sub.id) }}">Download everything as a .zip</a>
+  </p>
+</section>
+{% endif %}
+
+{% if timeline %}
+<section class="panel">
+  <h2 class="panel-title">Review trail</h2>
+  <ol class="trail">
+    {% for t in timeline %}
+    <li class="trail-item">
+      <div class="trail-head">
+        <strong>{{ t.fullname }}</strong>
+        <span class="role-tag role-tag--{{ t.reviewer_role }}">{{ t.reviewer_role }}</span>
+        <span class="mono">{{ t.action.replace('_',' ') }}{% if t.phase_title %} · {{ t.phase_title }}{% endif %} · {{ t.created_at.strftime('%d %b %H:%M') }}</span>
+      </div>
+      {% if t.comment %}<p class="trail-comment">{{ t.comment }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+
+{% if can_act %}
+<section class="panel">
+  <h2 class="panel-title">{{ action_title }}</h2>
+  <form method="post" novalidate>
+    <label class="field">
+      <span>Comment {% if forward_label %}<em class="opt">optional when passing it on</em>{% endif %}</span>
+      <textarea name="comment" rows="5" placeholder="What you checked, or what needs fixing."></textarea>
+    </label>
+    <div class="form-actions">
+      {% if forward_label %}
+      <button class="btn" type="submit" name="action" value="{{ forward_action }}">{{ forward_label }}</button>
+      {% endif %}
+      <button class="btn btn--quiet" type="submit" name="action" value="request_correction">Request correction</button>
+    </div>
+  </form>
+</section>
+
+{% if milestones is defined and milestones %}
+<section class="panel">
+  <h2 class="panel-title">Sign off a phase</h2>
+  <p class="lede">Happy with one phase but not ready to pass the whole submission on?
+    Say so here. The student is alerted straight away, so they are not left guessing
+    whether silence means approval.</p>
+
+  <form method="post" novalidate>
+    <label class="field">
+      <span>Which phase</span>
+      <select name="milestone_id" required>
+        {% for m in milestones %}
+        <option value="{{ m.id }}" {{ 'disabled' if m.status == 'done' }}>
+          {{ m.phase }}. {{ m.title }}{% if m.status == 'done' %} — already signed off{% endif %}
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span>Note for the student <em class="opt">optional</em></span>
+      <textarea name="comment" rows="3" placeholder="What you checked and why it passes."></textarea>
+    </label>
+    <button class="btn" type="submit" name="action" value="satisfied">Satisfied — no corrections needed</button>
+  </form>
+</section>
+{% endif %}
+{% else %}
+<p class="empty">This submission is not with you at the moment.</p>
+{% endif %}
+{% endblock %}

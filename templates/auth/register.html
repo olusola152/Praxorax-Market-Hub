@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Join — {{ brand }}{% endblock %}
+{% block body_class %}gate{% endblock %}
+{% block main_class %}gate-shell{% endblock %}
+
+{% block content %}
+<section class="gate-pitch">
+  <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
+  <h1 class="display">Join the<br>marketplace.</h1>
+  <p class="lede">Companies post real briefs. Universities get their own portal and bring their lecturers and students to deliver them. Students anywhere can join on their own and apply for work directly.</p>
+  <dl class="record-strip">
+    <div><dt>Company</dt><dd>Post briefs, approve supervisors</dd></div>
+    <div><dt>University</dt><dd>Issue lecturer codes, oversee placements</dd></div>
+    {% if 'student' in roles %}
+    <div><dt>Student</dt><dd>Apply for briefs yourself — free</dd></div>
+    {% endif %}
+  </dl>
+  <p class="lede" style="margin-top:1.6rem">
+    Lecturer? You join through your institution's portal.
+    <a href="{{ url_for('auth.join_index') }}">Find it here</a>.
+  </p>
+</section>
+
+<section class="card">
+  <p class="record-label">Sign up</p>
+  <h2 class="card-title">Create your account</h2>
+
+  <form method="post" novalidate id="signup">
+    <div class="role-picker">
+      <label class="role-option">
+        <input type="radio" name="role" value="company" {% if form.role != 'university' %}checked{% endif %}>
+        <span class="role-card"><strong>Company</strong><em>Post briefs for supervised student teams</em></span>
+      </label>
+      <label class="role-option">
+        <input type="radio" name="role" value="university" {% if form.role == 'university' %}checked{% endif %}>
+        <span class="role-card"><strong>University</strong><em>Bring your lecturers and students on board</em></span>
+      </label>
+      {% if 'student' in roles %}
+      <label class="role-option">
+        <input type="radio" name="role" value="student" {% if form.role == 'student' %}checked{% endif %}>
+        <span class="role-card"><strong>Student</strong><em>Join on your own and apply for briefs — no fee</em></span>
+      </label>
+      {% endif %}
+    </div>
+
+    <div class="field-group" data-role="company">
+      <label class="field">
+        <span>Company name</span>
+        <input type="text" name="company_name" value="{{ form.company_name or '' }}">
+      </label>
+    </div>
+
+    <div class="field-group" data-role="university" hidden>
+      <label class="field">
+        <span>Institution name</span>
+        <input type="text" name="university_name" value="{{ form.university_name or '' }}">
+      </label>
+      <label class="field">
+        <span>City</span>
+        <input type="text" name="city" value="{{ form.city or '' }}">
+      </label>
+    </div>
+
+    {% if 'student' in roles %}
+    <div class="field-group" data-role="student" hidden>
+      <label class="field">
+        <span>Course or area you work in</span>
+        <select name="field_id">
+          <option value="">Choose one…</option>
+          {% for f in fields %}
+          <option value="{{ f.id }}" {% if form.field_id == f.id|string %}selected{% endif %}>{{ f.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="field">
+        <span>Department <em class="opt">optional</em></span>
+        <input type="text" name="department" value="{{ form.department or '' }}">
+      </label>
+      <label class="field">
+        <span>Level or year <em class="opt">optional</em></span>
+        <input type="text" name="level" value="{{ form.level or '' }}" placeholder="300 level, graduate, self-taught…">
+      </label>
+      <p class="card-foot" style="margin-top:0">Studying at a university already on the platform?
+        <a href="{{ url_for('auth.join_index') }}">Join through its portal instead</a> so your lecturer can supervise you.</p>
+    </div>
+    {% endif %}
+
+    <label class="field" data-role="company university">
+      <span>Website <em class="opt">optional</em></span>
+      <input type="url" name="website" value="{{ form.website or '' }}" placeholder="https://">
+    </label>
+
+    <label class="field">
+      <span>Your full name</span>
+      <input type="text" name="fullname" value="{{ form.fullname or '' }}" required autocomplete="name">
+    </label>
+    <label class="field">
+      <span>Email</span>
+      <input type="email" name="email" value="{{ form.email or '' }}" required autocomplete="email">
+    </label>
+    <label class="field">
+      <span>Phone <em class="opt">optional</em></span>
+      <input type="tel" name="phone" value="{{ form.phone or '' }}">
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password">
+      </label>
+      <label class="field">
+        <span>Repeat password</span>
+        <input type="password" name="confirm" required minlength="8" autocomplete="new-password">
+      </label>
+    </div>
+
+    <button class="btn btn--full" type="submit">Create account</button>
+  </form>
+  <p class="card-foot">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280"
+     role="img" aria-label="Medicine" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#12332B"/>
+      <stop offset="100%" stop-color="#1C4A3E"/>
+    </linearGradient>
+  </defs>
+  <rect width="440" height="280" fill="url(#g)"/>
+  <g>
+    <path d="M20 40 H144 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.25"/>
+    <circle cx="144" cy="40" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 70 H222 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.32"/>
+    <circle cx="222" cy="70" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 100 H120 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.39"/>
+    <circle cx="120" cy="100" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 130 H198 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.46"/>
+    <circle cx="198" cy="130" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 160 H96 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.25"/>
+    <circle cx="96" cy="160" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 190 H174 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.32"/>
+    <circle cx="174" cy="190" r="4" fill="#54B08C" opacity=".7"/>
+    <path d="M20 220 H252 l24 -24 H400" stroke="#54B08C" stroke-width="2" fill="none" opacity="0.39"/>
+    <circle cx="252" cy="220" r="4" fill="#54B08C" opacity=".7"/>
+  </g>
+  <rect width="440" height="280" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+</svg>

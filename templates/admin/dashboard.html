@@ -1,0 +1,143 @@
+{% extends "admin/_shell.html" %}
+{% set active_section = 'dashboard' %}
+{% block title %}Operations deck — {{ brand }}{% endblock %}
+
+{% block deck %}
+<div class="deck-head">
+  <div>
+    <h1 class="deck-title">Operations deck</h1>
+    <p class="deck-sub">What is moving, what is stuck, and who is waiting on a decision.</p>
+  </div>
+  {% if stats.pending_kyc or stats.pending_subs %}
+  <a class="btn" href="{{ url_for('admin.kyc') }}">{{ stats.pending_kyc + stats.pending_subs }} waiting on you</a>
+  {% endif %}
+</div>
+
+<section class="board">
+  <div class="board-top">
+    <p class="board-count">{{ in_flight }}<span>submissions in the review chain</span></p>
+    {% if stalled %}
+    <span class="chip chip--bad">{{ stalled|length }} sitting over a week</span>
+    {% else %}
+    <span class="chip chip--good">Nothing overdue</span>
+    {% endif %}
+  </div>
+
+  {% if in_flight %}
+  <div class="board-rows">
+    {% for row in board %}
+    <div class="board-row board-row--{{ row.key }}">
+      <span class="board-row-label">{{ row.label }}</span>
+      <span class="board-bar"><i style="width: {{ row.share if row.n else 0 }}%"></i></span>
+      <span class="board-row-n">{{ row.n }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">No work is in the chain right now. Every submission has been decided.</p>
+  {% endif %}
+</section>
+
+<section class="tiles">
+  <a class="tile-stat {{ 'tile-stat--act' if stats.pending_kyc }}" href="{{ url_for('admin.kyc') }}">
+    <p class="tile-n">{{ stats.pending_kyc }}</p>
+    <p class="tile-label">Companies to verify</p>
+  </a>
+  <a class="tile-stat {{ 'tile-stat--act' if stats.pending_subs }}" href="{{ url_for('admin.subscriptions') }}">
+    <p class="tile-n">{{ stats.pending_subs }}</p>
+    <p class="tile-label">Subscriptions to activate</p>
+  </a>
+  <div class="tile-stat">
+    <p class="tile-n">{{ stats.open_requests }}</p>
+    <p class="tile-label">Lecturer requests open</p>
+  </div>
+  <div class="tile-stat">
+    <p class="tile-n">{{ stats.open_applications }}</p>
+    <p class="tile-label">Student applications open</p>
+  </div>
+  <a class="tile-stat" href="{{ url_for('admin.public_students') }}">
+    <p class="tile-n">{{ stats.independent }}</p>
+    <p class="tile-label">Public students</p>
+  </a>
+  <a class="tile-stat" href="{{ url_for('admin.placements') }}">
+    <p class="tile-n">{{ stats.completed }}</p>
+    <p class="tile-label">Projects completed</p>
+  </a>
+</section>
+
+<div class="deck-split">
+  <section class="deck-panel">
+    <h2>Held up</h2>
+    <p class="note">Submissions that have sat with one reviewer for more than a week. Every one of these is a student waiting.</p>
+    {% if stalled %}
+    <table>
+      <thead><tr><th>Student</th><th>Brief</th><th>Sitting with</th><th>Days</th></tr></thead>
+      <tbody>
+        {% for s in stalled %}
+        <tr>
+          <td>{{ s.student_name }}</td>
+          <td>{{ s.title }} <span class="mono">v{{ s.version }}</span></td>
+          <td>{{ s.stage.replace('with_', '')|capitalize }}</td>
+          <td><span class="chip {{ 'chip--bad' if s.days_waiting > 14 else 'chip--wait' }}">{{ s.days_waiting }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="empty">Nothing has been waiting more than a week.</p>
+    {% endif %}
+  </section>
+
+  <section class="deck-panel">
+    <h2>Signups</h2>
+    <p class="note">New accounts a week, over twelve weeks. Peak {{ peak }}.</p>
+    <svg class="spark" viewBox="0 0 600 100" preserveAspectRatio="none" role="img"
+         aria-label="Weekly signups over the last twelve weeks">
+      <polygon class="spark-area" points="0,100 {{ spark_points }} 600,100"/>
+      <polyline class="spark-line" points="{{ spark_points }}"/>
+    </svg>
+    <div class="spark-axis">
+      <span>{{ weeks[0].label if weeks }}</span>
+      <span>{{ weeks[-1].label if weeks }}</span>
+    </div>
+  </section>
+</div>
+
+<div class="deck-split">
+  <section class="deck-panel">
+    <h2>Newest accounts</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead>
+      <tbody>
+        {% for u in recent %}
+        <tr>
+          <td>{{ u.fullname }}<br><span class="mono">{{ u.email }}</span></td>
+          <td><span class="chip">{{ u.role }}</span></td>
+          <td><span class="chip {{ 'chip--bad' if u.status == 'blocked' else 'chip--good' }}">{{ u.status }}</span></td>
+          <td class="mono">{{ u.created_at.strftime('%d %b') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="deck-panel">
+    <h2>Recent activity</h2>
+    {% if activity %}
+    <table>
+      <tbody>
+        {% for a in activity %}
+        <tr>
+          <td>{{ a.action.replace('_', ' ') }}<br><span class="mono">{{ a.actor or 'system' }}</span></td>
+          <td class="mono">{{ a.created_at.strftime('%d %b %H:%M') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="note" style="margin:1rem 0 0"><a href="{{ url_for('admin.activity') }}">Full log</a></p>
+    {% else %}
+    <p class="empty">Nothing logged yet.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

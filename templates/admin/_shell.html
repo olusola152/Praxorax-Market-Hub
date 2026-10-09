@@ -1,0 +1,17 @@
+{# Every admin page extends this instead of base.html. It swaps the sage paper
+   for the dark deck and puts the rail on the left. #}
+{% extends "base.html" %}
+{% from "admin/_rail.html" import admin_rail %}
+
+{% block body_class %}deck{% endblock %}
+{% block main_class %}deck-main{% endblock %}
+
+{% block chrome %}
+{{ admin_rail(active_section|default('')) }}
+{% endblock %}
+
+{% block content %}
+<div class="deck-inner">
+  {% block deck %}{% endblock %}
+</div>
+{% endblock %}

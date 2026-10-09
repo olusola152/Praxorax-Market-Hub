@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block title %}{{ row.title }}{% endblock %}
+{% block content %}
+<p class="backlink"><a href="{{ url_for('student.dashboard') }}">Back to dashboard</a></p>
+<section class="page-head">
+  <p class="record-label">Placement · {{ row.status }}</p>
+  <h1 class="display">{{ row.title }}</h1>
+  <p class="lede">{{ row.company_name }}{% if row.lecturer_name %} · supervised by {{ row.lecturer_name }}{% else %} · you report to the company directly{% endif %} · due {{ row.deadline.strftime('%d %b %Y') }}</p>
+  <p><a class="btn btn--small btn--quiet" href="{{ url_for('student.record', assignment_id=row.id) }}">Full project record</a></p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Brief</h2>
+  <p class="prose">{{ row.description }}</p>
+  {% if row.deliverables %}<p class="prose">{{ row.deliverables }}</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Phases</h2>
+  <ol class="phases">
+    {% for m in milestones %}
+    <li class="phase phase--{{ m.status }}">
+      <div>
+        <strong>{{ m.title }}</strong>
+        <span class="mono">due {{ m.due_date.strftime('%d %b') }}{% if m.status != 'done' and m.due_date < today %} · overdue{% endif %}</span>
+        {% if m.status == 'done' and m.signed_off_at %}
+        <p class="phase-signoff">Signed off by {{ m.signer_name or 'your supervisor' }}
+          on {{ m.signed_off_at.strftime('%d %b %Y, %H:%M') }} — no corrections needed.</p>
+        {% endif %}
+        {% if m.note %}<p class="phase-note">{{ m.note }}</p>{% endif %}
+      </div>
+      <span class="status status--{{ m.status }}">{{ m.status.replace('_',' ') }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+{% if row.status == 'pending' %}
+<p class="flash flash--error">Your lecturer has placed you on this project, but
+  {{ row.company_name }} has not approved it yet. You cannot submit until they do.</p>
+{% elif row.status == 'cancelled' %}
+<p class="flash flash--error">{{ row.company_name }} declined this placement.</p>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Submit your work</h2>
+  {% if row.status in ('pending','cancelled') %}
+  <p class="empty">Submission opens once the company approves this placement.</p>
+  {% else %}
+  {% if held %}
+  {# Two live versions would leave reviewers arguing over which is current, so
+     the form is replaced by a plain statement of where the work has got to. #}
+  <div class="held-panel">
+    <p class="record-label">Version {{ held.version }} is {{ who_has_it[held.stage] }}</p>
+    <p class="lede">Sent {{ held.submitted_at.strftime('%d %b %Y, %H:%M') }}.
+      You can send a new version as soon as they respond — approving it, passing
+      it on, or asking for corrections.</p>
+    <ol class="chain">
+      {% for stage, label in [('with_lecturer', 'Supervisor'), ('with_university', 'University'), ('with_company', 'Company')] %}
+      <li class="chain-step {{ 'chain-step--now' if held.stage == stage }}{{ ' chain-step--done' if (stage == 'with_lecturer' and held.stage in ['with_university','with_company']) or (stage == 'with_university' and held.stage == 'with_company') }}">
+        {{ label }}
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+{% else %}
+<form method="post" enctype="multipart/form-data" novalidate>
+    {% if deliverables %}
+    <label class="field">
+      <span>Which deliverable is this for?</span>
+      <select name="deliverable_id">
+        <option value="">General progress — not a named deliverable</option>
+        {% for d in deliverables %}
+        <option value="{{ d.id }}">{{ d.title }} — due {{ d.due_date.strftime('%d %b %Y') }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% endif %}
+    {% if teammates %}
+    <p class="empty">This is team work. Once you submit, {{ teammates|map(attribute='fullname')|join(', ') }} must confirm before it leaves the team.</p>
+    {% endif %}
+    <label class="field">
+      <span>Project files</span>
+      <input type="file" name="files" multiple>
+      <em class="opt">Up to {{ max_file }} per file, {{ max_total }} in total. Put source
+        code in a .zip. These are stored on the platform and can be downloaded again
+        by you and by {{ row.company_name }}.</em>
+    </label>
+    <label class="field">
+      <span>Repository link <em class="opt">optional if you attached files</em></span>
+      <input type="url" name="repo_url" placeholder="https://github.com/yourname/project">
+    </label>
+    <label class="field">
+      <span>Notes for {% if row.lecturer_name %}your supervisor{% else %}the company{% endif %} <em class="opt">optional</em></span>
+      <textarea name="notes" rows="4"></textarea>
+    </label>
+    <button class="btn" type="submit">Submit version {{ submissions|length + 1 }}</button>
+  </form>
+{% endif %}
+  {% endif %}
+
+  {% if timeline %}
+  <h3 class="panel-title" style="margin-top:1.6rem">Review trail</h3>
+  <ol class="trail">
+    {% for t in timeline %}
+    <li class="trail-item">
+      <div class="trail-head">
+        <strong>{{ t.fullname }}</strong>
+        <span class="role-tag role-tag--{{ t.reviewer_role }}">{{ t.reviewer_role }}</span>
+        <span class="mono">{{ t.action.replace('_',' ') }}{% if t.phase_title %} · {{ t.phase_title }}{% endif %} · {{ t.created_at.strftime('%d %b %H:%M') }}</span>
+      </div>
+      {% if t.comment %}<p class="trail-comment">{{ t.comment }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% endif %}
+
+  {% if submissions %}
+  <table class="ledger" style="margin-top:1.4rem">
+    <thead><tr><th>Version</th><th>Repository</th><th>Stage</th><th>Submitted</th></tr></thead>
+    <tbody>
+      {% for s in submissions %}
+      <tr>
+        <td class="mono">v{{ s.version }}</td>
+        <td class="mono">{{ s.repo_url }}</td>
+        <td><span class="status status--{{ s.stage }}">{{ stage_label[s.stage] }}</span></td>
+        <td class="mono">{{ s.submitted_at.strftime('%d %b %Y') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">What you have sent</h2>
+  {% if submissions %}
+  <ol class="trail">
+    {% for sub in submissions %}
+    <li class="trail-item">
+      <div class="trail-head">
+        <strong>Version {{ sub.version }}</strong>
+        <span class="status status--{{ sub.stage }}">{{ stage_label.get(sub.stage, sub.stage) }}</span>
+        <span class="mono">{{ sub.submitted_at.strftime('%d %b %Y, %H:%M') }}</span>
+      </div>
+      {% if sub.notes %}<p class="trail-comment">{{ sub.notes }}</p>{% endif %}
+
+      {% if sub.confirmations %}
+      <div class="confirm-block">
+        <p class="record-label">Team sign-off</p>
+        <ul class="file-list">
+          {% for c in sub.confirmations %}
+          <li class="file-row">
+            <div>
+              <span>{{ c.fullname }}</span>
+              {% if c.comment %}<span class="mono">{{ c.comment }}</span>{% endif %}
+            </div>
+            <span class="status status--{{ c.decision }}">{{ c.decision }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if sub.my_confirmation and sub.my_confirmation.decision == 'pending' and sub.stage == 'awaiting_team' %}
+        <form method="post" action="{{ url_for('student.confirm', submission_id=sub.id, decision='confirm') }}">
+          <button class="btn btn--small" type="submit">Confirm — send it on</button>
+        </form>
+        <form method="post" action="{{ url_for('student.confirm', submission_id=sub.id, decision='reject') }}">
+          <label class="field">
+            <span>What needs changing?</span>
+            <textarea name="comment" rows="2"></textarea>
+          </label>
+          <button class="btn btn--small btn--quiet" type="submit">Ask for changes</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if sub.repo_url %}
+      <p class="mono"><a href="{{ sub.repo_url }}" target="_blank" rel="noopener">{{ sub.repo_url }}</a></p>
+      {% endif %}
+      {% if sub.files %}
+      <ul class="file-list">
+        {% for f in sub.files %}
+        <li class="file-row">
+          <div>
+            <a href="{{ url_for('files.download', file_id=f.id) }}">{{ f.original_name }}</a>
+            <span class="mono">{{ human_size(f.size_bytes) }}</span>
+          </div>
+          <a class="btn btn--small btn--quiet" href="{{ url_for('files.download', file_id=f.id) }}">Download</a>
+        </li>
+        {% endfor %}
+      </ul>
+      <p><a class="btn btn--small" href="{{ url_for('files.archive', submission_id=sub.id) }}">Download version {{ sub.version }} as .zip</a></p>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">Nothing submitted yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

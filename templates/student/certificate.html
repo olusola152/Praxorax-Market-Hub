@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Certificate {{ cert.reference }}{% endblock %}
+{% block body_class %}gate certificate-page{% endblock %}
+{% block main_class %}certificate-shell{% endblock %}
+
+{% block content %}
+<p class="no-print certificate-actions">
+  <button class="btn" onclick="window.print()">Print or save as PDF</button>
+  <a class="btn btn--quiet" href="{{ url_for('portfolio.verify') }}">Verify a reference</a>
+</p>
+
+{% if revoked %}
+<p class="no-print flash flash--error">This certificate was revoked on
+  {{ cert.revoked_at.strftime('%d %b %Y') }} and should not be relied on.</p>
+{% endif %}
+
+<article class="certificate {{ 'certificate--void' if revoked }}">
+  <header class="certificate-head">
+    <p class="certificate-brand">{{ brand }}</p>
+    <p class="certificate-kind">Record of completed project work</p>
+  </header>
+
+  <p class="certificate-lead">This certifies that</p>
+  <h1 class="certificate-name">{{ cert.fullname }}</h1>
+  <p class="certificate-lead">
+    completed {{ cert.project_count }} supervised
+    project{{ '' if cert.project_count == 1 else 's' }}
+    {% if snap.summary.companies %}for {{ snap.summary.companies }}
+      compan{{ 'y' if snap.summary.companies == 1 else 'ies' }}{% endif %}
+    through {{ brand }}, each reviewed and signed off by the company that
+    commissioned it.
+  </p>
+
+  <table class="certificate-table">
+    <thead>
+      <tr><th>Project</th><th>Company</th><th>Field</th><th>Started</th><th>Completed</th><th>Ref</th></tr>
+    </thead>
+    <tbody>
+      {% for p in snap.projects %}
+      <tr>
+        <td>{{ p.title }}</td>
+        <td>{{ p.company }}</td>
+        <td>{{ p.field }}</td>
+        <td>{{ p.started[:10] if p.started else '—' }}</td>
+        <td>{{ p.completed[:10] if p.completed else '—' }}</td>
+        <td class="mono">{{ p.certificate or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if snap.summary.skills %}
+  <p class="certificate-skills"><strong>Skills evidenced:</strong>
+    {{ snap.summary.skills|join(' · ') }}</p>
+  {% endif %}
+
+  <footer class="certificate-foot">
+    <div>
+      <p class="certificate-ref mono">{{ cert.reference }}</p>
+      <p class="certificate-small">Issued {{ cert.issued_at.strftime('%d %B %Y') }}</p>
+    </div>
+    <div class="certificate-verify">
+      <p class="certificate-small">Check this reference at</p>
+      <p class="mono">{{ request.url_root.rstrip('/') }}{{ url_for('portfolio.verify') }}</p>
+    </div>
+  </footer>
+</article>
+{% endblock %}

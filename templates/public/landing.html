@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}{{ brand }} — real projects, supervised practice, verified graduates{% endblock %}
+{% block body_class %}gate{% endblock %}
+{% block main_class %}landing{% endblock %}
+{% block chrome %}
+<header class="public-bar">
+  <a class="mark" href="{{ url_for('home') }}">
+    <span class="mark-seal" aria-hidden="true"></span>
+    <span class="mark-name">{{ brand }}</span>
+  </a>
+  <nav class="public-nav">
+    <a href="#how">How it works</a>
+    <a href="#who">Who it's for</a>
+    <a href="{{ url_for('auth.join_index') }}">Institutions</a>
+    <a class="btn btn--small" href="{{ url_for('auth.login') }}">Sign in</a>
+    <a class="btn btn--small btn--quiet" href="{{ url_for('auth.register') }}">Start free trial</a>
+  </nav>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="hero hero--split">
+  <div class="hero-copy">
+    <p class="hero-tag">Free for 7 days · no card needed</p>
+    <h1 class="display hero-title">Real projects.<br>Supervised practice.<br>Verified graduates.</h1>
+    <p class="lede lede--wide">Companies post the work they actually need doing. Lecturers
+      take it on and place their students. Anyone studying anywhere can join on their own and
+      apply directly. Every submission is reviewed, and every finished project leaves a record
+      an employer can check.</p>
+    <p class="hero-actions">
+      <a class="btn" href="{{ url_for('auth.register') }}">Start your free week</a>
+      <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Join as a student</a>
+    </p>
+    <p class="hero-note">Universities and companies get 7 days of everything, free.
+      Students never pay at all.</p>
+  </div>
+  <div class="hero-art">
+    <img src="{{ url_for('static', filename='img/hero-chain.svg') }}"
+         alt="Work moving from a company brief, through a lecturer and university, to a verified certificate"
+         width="900" height="640">
+  </div>
+</section>
+
+<section class="band band--tiles">
+  <h2 class="section-head">Work across every faculty</h2>
+  <p class="lede lede--wide">Briefs are posted by field, so a law student is never
+    shown a circuit board.</p>
+  <div class="tile-row">
+    {% for f in ['software-engineering','architecture','medicine','law','agriculture','mass-communication'] %}
+    <figure class="tile">
+      <img src="{{ url_for('static', filename='img/fields/' ~ f ~ '.svg') }}" alt="" loading="lazy">
+      <figcaption>{{ f.replace('-', ' ')|title }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="how" class="band">
+  <h2 class="section-head">How the work flows</h2>
+  <div class="flow">
+    <article class="flow-step"><p class="pitch-num">01</p><h3>Company posts a brief</h3>
+      <p>A real task with a deadline, required skills and a field of study. No fee to students, no bidding.</p></article>
+    <article class="flow-step"><p class="pitch-num">02</p><h3>Lecturer takes it on</h3>
+      <p>Any open brief. The lecturer assigns it to their own students as practical coursework.</p></article>
+    <article class="flow-step"><p class="pitch-num">03</p><h3>Students build it</h3>
+      <p>Four supervised phases against the deadline, with the lecturer tracking progress throughout.</p></article>
+    <article class="flow-step"><p class="pitch-num">04</p><h3>Work is reviewed</h3>
+      <p>Student to lecturer to university to company. Anyone in the chain can send it back for correction.</p></article>
+    <article class="flow-step"><p class="pitch-num">05</p><h3>Company approves</h3>
+      <p>A certificate is issued and the project lands in the student's verified portfolio.</p></article>
+  </div>
+</section>
+
+<section id="who" class="band band--alt">
+  <h2 class="section-head">Who subscribes</h2>
+  <div class="join-grid">
+    <article class="card">
+      <p class="record-label">Universities</p>
+      <h3 class="card-title">Give students real experience</h3>
+      <p class="lede">Get your own portal, issue passcodes to lecturers, and watch every placement your institution runs from one admin page. Students register free under your subscription.</p>
+      <p class="action-foot"><a class="btn btn--full" href="{{ url_for('auth.register') }}">Subscribe as a university</a></p>
+    </article>
+    <article class="card">
+      <p class="record-label">Companies</p>
+      <h3 class="card-title">Get real work delivered</h3>
+      <p class="lede">Post briefs to supervised student teams across every subscribed university. You review the finished work and decide whether it passes.</p>
+      <p class="action-foot"><a class="btn btn--full" href="{{ url_for('auth.register') }}">Subscribe as a company</a></p>
+    </article>
+  </div>
+  <p class="band-note">Students and lecturers do not subscribe. They join through their
+    institution's portal, free, once their university has subscribed.</p>
+</section>
+
+{% if universities %}
+<section class="band">
+  <h2 class="section-head">Institutions on the platform</h2>
+  <ul class="uni-list">
+    {% for u in universities %}
+    <li><a href="{{ url_for('portal.home', slug=u.slug) }}">{{ u.name }}{% if u.city %} <span>{{ u.city }}</span>{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="band band--cta">
+  <div class="cta-inner">
+    <h2 class="display">Try the whole thing for a week.</h2>
+    <p class="lede lede--wide">Post briefs, onboard lecturers, place students, review work —
+      everything a paid account does, for seven days, with nothing to pay and nobody to wait for.
+      Independent students need no trial at all; their side is simply free.</p>
+    <p class="hero-actions">
+      <a class="btn" href="{{ url_for('auth.register') }}">Start free — university or company</a>
+      <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Sign up as a student</a>
+    </p>
+  </div>
+</section>
+
+<footer class="portal-foot">
+  <p>{{ brand }} ·
+    <a href="{{ url_for('auth.login') }}">Sign in</a> ·
+    <a href="{{ url_for('auth.register') }}">Subscribe</a> ·
+    <a href="{{ url_for('portfolio.verify') }}">Verify a certificate</a></p>
+</footer>
+{% endblock %}

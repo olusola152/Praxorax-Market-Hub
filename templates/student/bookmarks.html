@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% from "shared/cover.html" import cover %}
+{% block title %}Saved briefs{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Saved</p>
+  <h1 class="display">Briefs you kept</h1>
+</section>
+
+{% if projects %}
+<div class="project-list">
+  {% for p in projects %}
+  <article class="project project--card">
+    <a class="cover-link" href="{{ url_for('student.project_detail', project_id=p.id) }}">{{ cover(p) }}</a>
+    <div class="project-head">
+      <h2 class="project-title"><a href="{{ url_for('student.project_detail', project_id=p.id) }}">{{ p.title }}</a></h2>
+      {% if p.match_label %}<span class="status status--match">{{ (p.match * 100)|round|int }}% {{ p.match_label }}</span>{% endif %}
+    </div>
+    <p class="project-client">{{ p.company_name }} · {{ p.field_name }}</p>
+    <dl class="project-meta">
+      <div><dt>Deadline</dt><dd>{{ p.deadline.strftime('%d %b %Y') }}{% if p.deadline < today %} · closed{% endif %}</dd></div>
+      <div><dt>Saved</dt><dd>{{ p.saved_at.strftime('%d %b %Y') }}</dd></div>
+      <div><dt>Status</dt><dd>{{ p.status }}</dd></div>
+    </dl>
+    {% if p.skill_list %}<p class="project-skills">{{ p.skill_list }}</p>{% endif %}
+    <form method="post" action="{{ url_for('student.bookmark', project_id=p.id) }}">
+      <button class="btn btn--small btn--quiet" type="submit">Remove</button>
+    </form>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">Nothing saved yet. Hit Save on any brief in the feed to keep it here.</p>
+{% endif %}
+{% endblock %}

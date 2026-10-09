@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Record — {{ row.title }}{% endblock %}
+
+{% block content %}
+<p class="backlink"><a href="{{ url_for('student.work', assignment_id=row.id) }}">Back to the placement</a></p>
+
+<section class="page-head">
+  <p class="record-label">Project record · placement #{{ row.id }}</p>
+  <h1 class="display">{{ row.title }}</h1>
+  <p class="lede">{{ row.company_name }} · {{ row.field_name }} ·
+    {% if row.lecturer_name %}supervised by {{ row.lecturer_name }}{% if row.university_name %}, {{ row.university_name }}{% endif %}
+    {% else %}independent placement, supervised by the company{% endif %}</p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Dates</h2>
+  <dl class="project-meta">
+    <div><dt>Brief posted</dt><dd>{{ row.project_created_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+    <div><dt>Published</dt><dd>{% if row.published_at %}{{ row.published_at.strftime('%d %b %Y') }}{% else %}—{% endif %}</dd></div>
+    <div><dt>You joined</dt><dd>{{ row.assigned_at.strftime('%d %b %Y, %H:%M') }}</dd></div>
+    <div><dt>Deadline</dt><dd>{{ row.deadline.strftime('%d %b %Y') }}{% if row.status != 'completed' and row.deadline < today %} · overdue{% endif %}</dd></div>
+    <div><dt>Completed</dt><dd>{% if row.completed_at %}{{ row.completed_at.strftime('%d %b %Y, %H:%M') }}{% else %}not yet{% endif %}</dd></div>
+    <div><dt>Placement status</dt><dd><span class="status status--{{ row.status }}">{{ row.status.replace('_',' ') }}</span></dd></div>
+    <div><dt>Brief status</dt><dd><span class="status status--{{ row.project_status }}">{{ row.project_status }}</span></dd></div>
+    <div><dt>How you joined</dt><dd>{{ 'Applied directly' if row.source == 'direct' else 'Placed by a lecturer' }}</dd></div>
+  </dl>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">The brief</h2>
+  <p class="prose">{{ row.description }}</p>
+  {% if row.deliverables %}<p class="prose">{{ row.deliverables }}</p>{% endif %}
+  <dl class="project-meta">
+    <div><dt>Difficulty</dt><dd>{{ row.difficulty }}</dd></div>
+    {% if row.company_website %}<div><dt>Company</dt><dd><a href="{{ row.company_website }}" target="_blank" rel="noopener">{{ row.company_website }}</a></dd></div>{% endif %}
+  </dl>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Phases</h2>
+  <ol class="phases">
+    {% for m in milestones %}
+    <li class="phase phase--{{ m.status }}">
+      <div>
+        <strong>{{ m.title }}</strong>
+        <span class="mono">due {{ m.due_date.strftime('%d %b %Y') }} · updated {{ m.updated_at.strftime('%d %b') }}</span>
+        {% if m.status == 'done' and m.signed_off_at %}
+        <p class="phase-signoff">Signed off by {{ m.signer_name or 'the supervisor' }}
+          on {{ m.signed_off_at.strftime('%d %b %Y, %H:%M') }}</p>
+        {% endif %}
+        {% if m.note %}<p class="phase-note">{{ m.note }}</p>{% endif %}
+      </div>
+      <span class="status status--{{ m.status }}">{{ m.status.replace('_',' ') }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Everything you submitted</h2>
+  <p class="lede">{{ all_files|length }} file{{ '' if all_files|length == 1 else 's' }} across
+    {{ submissions|length }} version{{ '' if submissions|length == 1 else 's' }} ·
+    {{ human_size(total_bytes) }} in total.</p>
+
+  {% for sub in submissions %}
+  <article class="version-block">
+    <div class="trail-head">
+      <strong>Version {{ sub.version }}</strong>
+      <span class="status status--{{ sub.stage }}">{{ stage_label.get(sub.stage, sub.stage) }}</span>
+      <span class="mono">sent {{ sub.submitted_at.strftime('%d %b %Y, %H:%M') }}</span>
+    </div>
+    {% if sub.notes %}<p class="trail-comment">{{ sub.notes }}</p>{% endif %}
+    {% if sub.repo_url %}<p class="mono"><a href="{{ sub.repo_url }}" target="_blank" rel="noopener">{{ sub.repo_url }}</a></p>{% endif %}
+
+    {% if sub.files %}
+    <ul class="file-list">
+      {% for f in sub.files %}
+      <li class="file-row">
+        <div>
+          <a href="{{ url_for('files.download', file_id=f.id) }}">{{ f.original_name }}</a>
+          <span class="mono">{{ human_size(f.size_bytes) }} · {{ f.uploaded_at.strftime('%d %b %Y, %H:%M') }}</span>
+          <span class="mono checksum" title="SHA-256 checksum">{{ f.sha256[:16] }}…</span>
+        </div>
+        <a class="btn btn--small btn--quiet" href="{{ url_for('files.download', file_id=f.id) }}">Download</a>
+      </li>
+      {% endfor %}
+    </ul>
+    <p><a class="btn btn--small" href="{{ url_for('files.archive', submission_id=sub.id) }}">Download version {{ sub.version }} as .zip</a></p>
+    {% else %}
+    <p class="empty">No files on this version — a repository link only.</p>
+    {% endif %}
+
+    {% if sub.trail %}
+    <ol class="trail">
+      {% for t in sub.trail %}
+      <li class="trail-item">
+        <div class="trail-head">
+          <strong>{{ t.fullname }}</strong>
+          <span class="role-tag role-tag--{{ t.reviewer_role }}">{{ t.reviewer_role }}</span>
+          <span class="mono">{{ t.action.replace('_',' ') }}{% if t.phase_title %} · {{ t.phase_title }}{% endif %} · {{ t.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+        </div>
+        {% if t.comment %}<p class="trail-comment">{{ t.comment }}</p>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+    {% endif %}
+  </article>
+  {% else %}
+  <p class="empty">You have not submitted anything on this placement yet.</p>
+  {% endfor %}
+</section>
+
+{% if certificate %}
+<section class="panel">
+  <h2 class="panel-title">Certificate</h2>
+  <dl class="project-meta">
+    <div><dt>Number</dt><dd class="mono">{{ certificate.certificate_number }}</dd></div>
+    <div><dt>Issued</dt><dd>{{ certificate.issued_at.strftime('%d %b %Y') }}</dd></div>
+  </dl>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Deliverables — {{ project.title }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Deliverables</p>
+  <h1 class="display">{{ project.title }}</h1>
+  <p class="lede">{{ project.company_name }} · brief deadline {{ project.deadline.strftime('%d %b %Y') }}</p>
+  <p class="lede">Break the brief into named pieces of work with their own due dates. A deliverable stays hidden from students while it is a draft — publish it when you want them to start.</p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Add one</h2>
+  <form method="post" action="{{ url_for('deliverables.create', project_id=project.id) }}">
+    <label class="field">
+      <span>Title</span>
+      <input type="text" name="title" minlength="4" required placeholder="Working prototype with login">
+    </label>
+    <label class="field">
+      <span>What is expected <em class="opt">optional</em></span>
+      <textarea name="description" rows="3"></textarea>
+    </label>
+    <label class="field">
+      <span>Due date</span>
+      <input type="date" name="due_date" required max="{{ project.deadline.isoformat() }}">
+    </label>
+    <button class="btn" type="submit">Save as draft</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Set so far</h2>
+  {% if deliverables %}
+  <div class="project-list">
+    {% for d in deliverables %}
+    <article class="project">
+      <div class="project-head">
+        <h3 class="project-title">{{ d.title }}</h3>
+        <span class="status status--{{ d.status }}">{{ d.status }}</span>
+      </div>
+      {% if d.description %}<p class="prose">{{ d.description }}</p>{% endif %}
+      <dl class="project-meta">
+        <div><dt>Due</dt><dd>{{ d.due_date.strftime('%d %b %Y') }}{% if d.due_date < today and d.status == 'published' %} · overdue{% endif %}</dd></div>
+        <div><dt>Set by</dt><dd>{{ d.author }}</dd></div>
+        <div><dt>Submissions</dt><dd>{{ d.submission_count }}</dd></div>
+        {% if d.published_at %}<div><dt>Published</dt><dd>{{ d.published_at.strftime('%d %b %Y') }}</dd></div>{% endif %}
+      </dl>
+      <div class="form-actions">
+        {% if d.status == 'draft' %}
+        <form method="post" action="{{ url_for('deliverables.change', deliverable_id=d.id, action='publish') }}">
+          <button class="btn btn--small" type="submit">Publish</button>
+        </form>
+        <form method="post" action="{{ url_for('deliverables.change', deliverable_id=d.id, action='delete') }}">
+          <button class="btn btn--small btn--quiet" type="submit">Delete</button>
+        </form>
+        {% elif d.status == 'published' %}
+        <form method="post" action="{{ url_for('deliverables.change', deliverable_id=d.id, action='archive') }}">
+          <button class="btn btn--small btn--quiet" type="submit">Archive</button>
+        </form>
+        {% endif %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">None yet. Students will fall back to the four standard phases until you add some.</p>
+  {% endif %}
+</section>
+{% endblock %}

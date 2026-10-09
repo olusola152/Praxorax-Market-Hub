@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Teams{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Teams</p>
+  <h1 class="display">Work with other students</h1>
+  <p class="lede">Group up before you apply. A company accepts the team as one, everyone gets their own placement, and nothing leaves the team until every member has confirmed it.</p>
+</section>
+
+{% if invites %}
+<section class="panel">
+  <h2 class="panel-title">Invitations waiting for you</h2>
+  {% for i in invites %}
+  <article class="project">
+    <div class="project-head">
+      <h3 class="project-title">{{ i.name }}</h3>
+      <span class="status status--pending">invited</span>
+    </div>
+    <p class="project-client">from {{ i.invited_by }} · {{ i.invited_at.strftime('%d %b %Y') }}</p>
+    <div class="form-actions">
+      <form method="post" action="{{ url_for('teams.respond', membership_id=i.membership_id, decision='accept') }}">
+        <button class="btn" type="submit">Join</button>
+      </form>
+      <form method="post" action="{{ url_for('teams.respond', membership_id=i.membership_id, decision='decline') }}">
+        <button class="btn btn--quiet" type="submit">Decline</button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Start a team</h2>
+  <form method="post" action="{{ url_for('teams.create') }}" class="inline-form">
+    <label class="field">
+      <span>Team name</span>
+      <input type="text" name="name" minlength="3" required placeholder="Night Shift Devs">
+    </label>
+    <button class="btn" type="submit">Create</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Your teams</h2>
+  {% if teams %}
+  <div class="project-list">
+    {% for t in teams %}
+    <article class="project">
+      <div class="project-head">
+        <h3 class="project-title"><a href="{{ url_for('teams.detail', team_id=t.id) }}">{{ t.name }}</a></h3>
+        <span class="status status--{{ t.status }}">{{ t.status }}</span>
+      </div>
+      <dl class="project-meta">
+        <div><dt>Members</dt><dd>{{ t.member_count }}</dd></div>
+        <div><dt>You are</dt><dd>{{ t.my_role }}</dd></div>
+        {% if t.project_title %}<div><dt>Brief</dt><dd>{{ t.project_title }}</dd></div>{% endif %}
+        <div><dt>Started</dt><dd>{{ t.created_at.strftime('%d %b %Y') }}</dd></div>
+      </dl>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">You are not on a team yet. Create one above, or wait to be invited.</p>
+  {% endif %}
+</section>
+{% endblock %}

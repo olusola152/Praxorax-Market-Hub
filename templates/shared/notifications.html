@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Messages</p>
+  <h1 class="display">Notifications</h1>
+</section>
+
+{% if rows %}
+<ul class="notif-list">
+  {% for n in rows %}
+  <li class="notif {% if not n.read_at %}notif--new{% endif %}">
+    <div>
+      {% if n.url %}<a href="{{ n.url }}">{{ n.body }}</a>{% else %}{{ n.body }}{% endif %}
+      <span class="mono">{{ n.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">Nothing yet.</p>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Email alerts</h2>
+  <form method="post" action="{{ url_for('settings.email_alerts') }}" class="inline-form">
+    <label class="field">
+      <span>
+        <input type="checkbox" name="email_notifications" style="width:auto"
+               {{ 'checked' if user_email_alerts }} onchange="this.form.submit()">
+        Also email me when something needs my attention
+      </span>
+    </label>
+    <noscript><button class="btn btn--small" type="submit">Save</button></noscript>
+  </form>
+  {% if not mail_configured %}
+  <p class="card-foot">Email is not switched on for this site yet, so nothing is
+    being sent. An administrator sets this up in the server configuration.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Verification{% endblock %}
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Verification</p>
+  <h1 class="display">Prove your company is real</h1>
+  <p class="lede">Students are placed on your briefs by their universities, so we check who is posting them. You can draft briefs before this is done — you just cannot publish them to students.</p>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Status</h2>
+  <dl class="project-meta">
+    <div><dt>Company</dt><dd>{{ company.name }}</dd></div>
+    <div><dt>Verification</dt><dd><span class="status status--{{ company.verification_status }}">{{ company.verification_status }}</span></dd></div>
+    {% if company.kyc_submitted_at %}<div><dt>Submitted</dt><dd>{{ company.kyc_submitted_at.strftime('%d %b %Y') }}</dd></div>{% endif %}
+    {% if company.kyc_decided_at %}<div><dt>Decided</dt><dd>{{ company.kyc_decided_at.strftime('%d %b %Y') }}</dd></div>{% endif %}
+  </dl>
+
+  {% if company.verification_status == 'verified' %}
+  <p class="empty">You are verified. Briefs can be published.</p>
+  {% elif company.verification_status == 'rejected' %}
+  <p class="prose prose--quote">{{ company.kyc_notes }}</p>
+  <p class="lede">Fix what is described above and submit a new document.</p>
+  {% elif company.kyc_document_url %}
+  <p class="empty">Under review. Nothing more for you to do.</p>
+  {% endif %}
+</section>
+
+{% if company.verification_status != 'verified' %}
+<section class="panel">
+  <h2 class="panel-title">{{ 'Send a new document' if company.kyc_document_url else 'Send your document' }}</h2>
+  <form method="post">
+    <label class="field">
+      <span>Link to your registration document</span>
+      <input type="url" name="kyc_document_url" required
+             value="{{ company.kyc_document_url or '' }}"
+             placeholder="https://drive.google.com/…">
+      <em class="opt">CAC certificate, certificate of incorporation, or equivalent. Make sure the link opens without a login.</em>
+    </label>
+    <button class="btn" type="submit">Submit for review</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

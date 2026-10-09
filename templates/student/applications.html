@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Your applications — StudentProjectHub{% endblock %}
+
+{% block content %}
+<section class="page-head page-head--split">
+  <div>
+    <p class="record-label">Your record</p>
+    <h1 class="display">Applications</h1>
+  </div>
+  <a class="btn" href="{{ url_for('student.browse') }}">Find work</a>
+</section>
+
+{% if applications %}
+<div class="project-list">
+  {% for a in applications %}
+  <article class="project">
+    <div class="project-head">
+      <h2 class="project-title">{{ a.title }}</h2>
+      <span class="status status--{{ a.status }}">{{ a.status }}</span>
+    </div>
+    <p class="project-client">{{ a.client_name }}</p>
+    <dl class="project-meta">
+      <div><dt>Applied</dt><dd>{{ a.applied_at.strftime('%d %b %Y') }}</dd></div>
+      <div><dt>Deadline</dt><dd>{{ a.deadline.strftime('%d %b %Y') }}</dd></div>
+    </dl>
+    <p class="project-skills">{{ a.cover_letter[:180] }}{% if a.cover_letter|length > 180 %}…{% endif %}</p>
+    {% if a.status == 'pending' %}
+    <form method="post" action="{{ url_for('student.withdraw', application_id=a.id) }}">
+      <button class="btn btn--small btn--quiet" type="submit">Withdraw</button>
+    </form>
+    {% elif a.status == 'accepted' and a.assignment_id %}
+    <p><a class="btn btn--small" href="{{ url_for('student.work', assignment_id=a.assignment_id) }}">Open the placement</a></p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+{% if independent %}
+<p class="empty">You haven't applied for anything yet. Browse the open briefs and apply
+  to any that fit — the company decides, and no subscription is involved.</p>
+{% else %}
+<p class="empty">Your lecturer places you on projects, so there is nothing to apply for
+  here. Keep your profile and GitHub link current so you are an obvious pick.</p>
+{% endif %}
+{% endif %}
+{% endblock %}
