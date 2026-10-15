@@ -24,8 +24,10 @@ from flask import current_app, url_for
 from db import execute, query
 
 # A slot cannot be proposed for the past, and nobody can agree to something
-# starting in the next few minutes, so there is a floor.
-MIN_NOTICE = timedelta(minutes=15)
+# starting in the next few minutes, so there is a floor. It is configurable
+# because the right value in production is a nuisance when you are walking a
+# client through the whole flow in one sitting — see MIN_NOTICE_MINUTES.
+MIN_NOTICE_FALLBACK = timedelta(minutes=15)
 
 # How long after the start time the room stays open. People are late, calls
 # overrun, and a room that locks on the dot is a support ticket.
@@ -56,6 +58,47 @@ PART_LABEL = {
 
 def now():
     return datetime.now(timezone.utc)
+
+
+def min_notice():
+    """How far ahead a session must start, as a timedelta."""
+    try:
+        minutes = current_app.config["MIN_NOTICE_MINUTES"]
+    except Exception:            # outside an app context, use the default
+        return MIN_NOTICE_FALLBACK
+    return timedelta(minutes=max(int(minutes), 0))
+
+
+def too_soon(starts_at):
+    """True when a proposed slot is inside the notice period.
+
+    With the notice set to 0 this still refuses a time in the past — booking
+    backwards is a mistake at any setting, not a thing to allow for demos.
+    """
+    return starts_at < now() + min_notice()
+
+
+def earliest():
+    """The soonest a session may start, for the form's own `min` and label.
+
+    Rounded up to the next whole minute: a picker cannot express seconds, so
+    an un-rounded value would mark a time as allowed that the server then
+    refuses by a few seconds.
+    """
+    moment = now() + min_notice()
+    if moment.second or moment.microsecond:
+        moment = moment.replace(second=0, microsecond=0) + timedelta(minutes=1)
+    return moment
+
+
+def notice_message():
+    """The refusal, phrased for whatever the notice is set to."""
+    minutes = int(min_notice().total_seconds() // 60)
+    if minutes == 0:
+        return "Choose a time in the future."
+    if minutes == 1:
+        return "Choose a time at least a minute from now."
+    return f"Choose a time at least {minutes} minutes from now."
 
 
 # --------------------------------------------------------------- local time

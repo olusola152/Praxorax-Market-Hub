@@ -95,7 +95,8 @@ def placement(assignment_id):
     return render_template(
         "shared/presentation_placement.html", chain=chain,
         sessions=pres.for_assignment(assignment_id),
-        may_propose=pres.may_propose(g.user, chain), helper=pres, **_shell())
+        may_propose=pres.may_propose(g.user, chain), helper=pres,
+        notice_minutes=int(pres.min_notice().total_seconds() // 60), **_shell())
 
 
 @presentations_bp.route("/placement/<int:assignment_id>/propose", methods=["POST"])
@@ -127,8 +128,8 @@ def propose(assignment_id):
         title = f"Project presentation — {chain['title']}"[:160]
     if not starts_at:
         errors.append("Pick a date and time for the session.")
-    elif starts_at < pres.now() + pres.MIN_NOTICE:
-        errors.append("Choose a time at least 15 minutes from now.")
+    elif pres.too_soon(starts_at):
+        errors.append(pres.notice_message())
     elif starts_at > pres.now() + MAX_AHEAD:
         errors.append("That is more than four months away.")
     if not 10 <= duration <= 240:
@@ -289,8 +290,8 @@ def reschedule(presentation_id):
     errors = []
     if not starts_at:
         errors.append("Pick a new date and time.")
-    elif starts_at < pres.now() + pres.MIN_NOTICE:
-        errors.append("Choose a time at least 15 minutes from now.")
+    elif pres.too_soon(starts_at):
+        errors.append(pres.notice_message())
     elif starts_at > pres.now() + MAX_AHEAD:
         errors.append("That is more than four months away.")
     if not 10 <= duration <= 240:

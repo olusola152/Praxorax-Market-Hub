@@ -172,6 +172,7 @@
     <label class="field">
       <span>New date and time</span>
       <input type="datetime-local" name="starts_at" required
+             min="{{ helper.form_value(helper.earliest()) }}"
              value="{{ helper.form_value(session.starts_at) }}">
     </label>
     <label class="field">

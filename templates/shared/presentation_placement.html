@@ -28,8 +28,12 @@
     </label>
     <label class="field">
       <span>Date and time</span>
-      <input type="datetime-local" name="starts_at" required>
-      <em class="opt">Local time. Everyone invited is asked to agree before it is confirmed.</em>
+      <input type="datetime-local" name="starts_at" required
+             min="{{ helper.form_value(helper.earliest()) }}">
+      <em class="opt">Local time{% if notice_minutes %}, at least {{ notice_minutes }}
+        minute{{ 's' if notice_minutes != 1 }} from now — the earliest you can
+        book is {{ helper.fmt(helper.earliest()) }}{% endif %}. Everyone invited
+        is asked to agree before it is confirmed.</em>
     </label>
     <label class="field">
       <span>Length in minutes</span>

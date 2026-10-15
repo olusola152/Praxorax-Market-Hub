@@ -965,6 +965,24 @@ TIMEZONE=Africa/Lagos
 
 Set it to where the institution actually is or everyone books an hour off.
 
+### Booking ahead
+
+A session must start at least fifteen minutes from now, so nobody confirms a
+meeting that is already starting. That is right in production and a nuisance
+when you are walking a client through the whole flow in one sitting, so it is
+a setting:
+
+```
+MIN_NOTICE_MINUTES=15     # 0 while demonstrating; put it back before real use
+```
+
+At 0 you can book a session for a minute from now and go straight through
+proposing, agreeing, joining and recording the outcome. A time in the **past**
+is refused at any setting — booking backwards is a mistake, not a demo.
+
+The booking form shows the floor and sets the date picker's own minimum, so
+the browser refuses an impossible time before the server has to.
+
 ### The room window
 
 Open from 20 minutes before the start to an hour after the end. People are

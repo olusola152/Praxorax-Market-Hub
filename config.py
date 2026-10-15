@@ -68,6 +68,12 @@ class Config:
     # link instead and none of the rest of this changes.
     JITSI_DOMAIN = os.environ.get("JITSI_DOMAIN", "meet.jit.si")
 
+    # How far ahead a session must be booked. Fifteen minutes stops anyone
+    # confirming a meeting that is already starting, which is right in
+    # production and a nuisance while demonstrating the flow in one sitting —
+    # set it to 0 to book a session for a minute from now, then put it back.
+    MIN_NOTICE_MINUTES = max(int(os.environ.get("MIN_NOTICE_MINUTES", "15")), 0)
+
     # ------------------------------------------------------------ email
     # Alerts also go out by email when this is on and a host is set.
     # Supabase cannot send these — its email service only covers auth mail

@@ -16,7 +16,8 @@ import os
 os.environ.setdefault("DATABASE_URL",
                       "postgresql://postgres:test@127.0.0.1:5432/smtest")
 os.environ.update(SECRET_KEY="test", DEMO_MODE="false", UPLOAD_FOLDER="/tmp/up13",
-                  TIMEZONE="Africa/Lagos", MAIL_ENABLED="false")
+                  TIMEZONE="Africa/Lagos", MAIL_ENABLED="false",
+                  MIN_NOTICE_MINUTES="15")
 
 from datetime import datetime, timedelta, timezone
 
@@ -505,6 +506,71 @@ step("a session that does not exist is a 404",
      student.get("/presentations/999999").status_code == 404)
 step("a placement that does not exist is a 404",
      student.get("/presentations/placement/999999").status_code == 404)
+
+# --------------------------------------------------- the notice period
+# Fifteen minutes is right in production and a nuisance when demonstrating
+# the flow, so it is configurable. What must not be configurable away is
+# booking backwards.
+with app.app_context():
+    step("the floor is 15 minutes by default",
+         int(pres.min_notice().total_seconds() // 60) == 15)
+    step("and the refusal says so",
+         pres.notice_message() == "Choose a time at least 15 minutes from now.")
+    step("a slot 5 minutes out is too soon",
+         pres.too_soon(datetime.now(timezone.utc) + timedelta(minutes=5)))
+    step("one 30 minutes out is not",
+         not pres.too_soon(datetime.now(timezone.utc) + timedelta(minutes=30)))
+    step("the earliest offered is a whole minute",
+         pres.earliest().second == 0 and pres.earliest().microsecond == 0)
+    step("and is never before the floor",
+         pres.earliest() >= datetime.now(timezone.utc) + pres.min_notice()
+         - timedelta(seconds=1))
+
+r = student.get(f"/presentations/placement/{AID}")
+# The template wraps that sentence across lines, and HTML collapses the
+# whitespace, so the check has to as well — otherwise it tests the line
+# width of the template rather than what the reader sees.
+flat = " ".join(r.data.decode().split())
+step("the booking form states the floor",
+     "at least 15 minutes from now" in flat)
+step("and caps the picker so the browser refuses it first",
+     b'min="' in r.data)
+
+app.config["MIN_NOTICE_MINUTES"] = 0
+with app.app_context():
+    step("set to 0, the floor goes", int(pres.min_notice().total_seconds()) == 0)
+    step("and the refusal is reworded",
+         pres.notice_message() == "Choose a time in the future.")
+    step("a slot a minute out is now allowed",
+         not pres.too_soon(datetime.now(timezone.utc) + timedelta(minutes=1)))
+    step("but the past is still refused",
+         pres.too_soon(datetime.now(timezone.utc) - timedelta(minutes=1)))
+
+soon = (datetime.now(pres.ZoneInfo("Africa/Lagos"))
+        + timedelta(minutes=2)).strftime("%Y-%m-%dT%H:%M")
+with app.app_context():
+    before = scalar("SELECT COUNT(*) FROM presentations WHERE assignment_id=%s", (AID,))
+company.post(f"/presentations/placement/{AID}/propose",
+             data={"title": "Demo run", "starts_at": soon, "duration_mins": "30"})
+with app.app_context():
+    step("so a session two minutes out books with the floor off",
+         scalar("SELECT COUNT(*) FROM presentations WHERE assignment_id=%s",
+                (AID,)) == before + 1)
+
+past = (datetime.now(pres.ZoneInfo("Africa/Lagos"))
+        - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M")
+with app.app_context():
+    before = scalar("SELECT COUNT(*) FROM presentations WHERE assignment_id=%s", (AID,))
+r = company.post(f"/presentations/placement/{AID}/propose",
+                 data={"title": "Yesterday", "starts_at": past,
+                       "duration_mins": "30"}, follow_redirects=True)
+with app.app_context():
+    step("while a session in the past is still refused",
+         scalar("SELECT COUNT(*) FROM presentations WHERE assignment_id=%s",
+                (AID,)) == before)
+step("with a message that fits the setting", b"time in the future" in r.data)
+
+app.config["MIN_NOTICE_MINUTES"] = 15
 
 # ------------------------------------------------------------ the join window
 with app.app_context():
