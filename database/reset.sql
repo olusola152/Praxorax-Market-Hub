@@ -19,6 +19,9 @@
 -- your uploads/submissions/ folder too, or you will keep orphaned files.
 
 DROP TABLE IF EXISTS
+    -- v9
+    presentation_attendees,
+    presentations,
     -- v6
     portfolio_certificates,
     -- v5 / v4

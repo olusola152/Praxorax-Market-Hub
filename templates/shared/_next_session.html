@@ -1,0 +1,30 @@
+{# The soonest presentation, for the top of a dashboard.
+
+   A defence is the one appointment on this platform that cannot be caught up
+   on later, so it sits above the statistics rather than among them, and it
+   says plainly whether anything is still wanted from the reader. #}
+{% set upcoming = next_session() %}
+{% if upcoming %}
+<section class="panel panel--ask">
+  <h2 class="panel-title">Next presentation</h2>
+  <p class="lede">
+    <strong>{{ upcoming.title }}</strong> — {{ pres_helper.fmt(upcoming.starts_at) }}
+    <span class="pstate pstate--{{ upcoming.status }}">{{ pres_helper.STATUS_LABEL[upcoming.status] }}</span>
+  </p>
+  <p class="muted small">
+    {{ upcoming.student_name }} presenting to {{ upcoming.company_name }}.
+    You are {{ pres_helper.PART_LABEL[upcoming.part]|lower }}.
+    {% if upcoming.response == 'pending' %}
+      You have not said yet whether this time works.
+    {% elif upcoming.status == 'confirmed' %}
+      The room opens 20 minutes before.
+    {% endif %}
+  </p>
+  <p>
+    <a class="btn btn--small" href="{{ url_for('presentations.room', presentation_id=upcoming.id) }}">
+      {% if upcoming.response == 'pending' %}Answer it{% else %}Open the session{% endif %}
+    </a>
+    <a class="btn btn--small btn--quiet" href="{{ url_for('presentations.index') }}">All presentations</a>
+  </p>
+</section>
+{% endif %}

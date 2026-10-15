@@ -1,0 +1,90 @@
+{% extends shell|default("base.html") %}
+{% set active_section = 'presentations' %}
+{% block title %}Presentations — {{ chain.title }}{% endblock %}
+
+{% block content %}
+<div class="{{ 'deck-inner' if deck }}">
+<section class="page-head">
+  <p class="record-label">Presentations</p>
+  <h1 class="display">{{ chain.title }}</h1>
+  <p class="lede">
+    {{ chain.student_name }} presenting to {{ chain.company_name }}{% if chain.lecturer_name %},
+    supervised by {{ chain.lecturer_name }}{% endif %}.
+  </p>
+  <p class="lede">The student defends the work over a video call. The company
+    watches and decides{% if chain.lecturer_name %}; the supervising lecturer sits
+    in{% endif %}. Whatever is agreed here — the time, who turned up, what the
+    company decided — stays on the record.</p>
+</section>
+
+{% if may_propose %}
+<section class="panel">
+  <h2 class="panel-title">Book a session</h2>
+  <form method="post" action="{{ url_for('presentations.propose', assignment_id=chain.assignment_id) }}">
+    <label class="field">
+      <span>What it is called</span>
+      <input type="text" name="title" maxlength="160"
+             value="Project presentation — {{ chain.title }}">
+    </label>
+    <label class="field">
+      <span>Date and time</span>
+      <input type="datetime-local" name="starts_at" required>
+      <em class="opt">Local time. Everyone invited is asked to agree before it is confirmed.</em>
+    </label>
+    <label class="field">
+      <span>Length in minutes</span>
+      <input type="number" name="duration_mins" min="10" max="240" step="5" value="30">
+    </label>
+    <label class="field">
+      <span>What will be covered <em class="opt">optional</em></span>
+      <textarea name="agenda" rows="3"
+        placeholder="Walk through the prototype, then the data model, then questions."></textarea>
+    </label>
+
+    <fieldset class="field">
+      <span>Where the call happens</span>
+      <label class="radio">
+        <input type="radio" name="provider" value="jitsi" checked>
+        Built in — opens inside {{ brand }}. No account and no download for anyone.
+      </label>
+      <label class="radio">
+        <input type="radio" name="provider" value="external">
+        A link I will paste — Zoom, Teams, Meet or Whereby.
+      </label>
+      <input type="url" name="external_url" placeholder="https://zoom.us/j/..."
+             pattern="https://.+">
+    </fieldset>
+
+    <button class="btn" type="submit">Propose this session</button>
+  </form>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">Sessions on this placement</h2>
+  {% if sessions %}
+  <table class="ledger">
+    <thead><tr><th>When</th><th>Session</th><th>Where</th><th>State</th><th>Outcome</th><th></th></tr></thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td>{{ helper.fmt(s.starts_at) }}<br>
+            <span class="muted small">{{ s.duration_mins }} min</span></td>
+        <td>{{ s.title }}<br>
+            <span class="muted small">proposed by {{ s.proposed_by_name }}</span></td>
+        <td>{% if s.provider == 'jitsi' %}Built-in video{% else %}Outside link{% endif %}</td>
+        <td><span class="pstate pstate--{{ s.status }}">{{ helper.STATUS_LABEL[s.status] }}</span></td>
+        <td>{% if s.outcome %}{{ helper.OUTCOME_LABEL[s.outcome] }}{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td><a class="btn btn--small" href="{{ url_for('presentations.room', presentation_id=s.id) }}">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Nothing booked yet.
+    {% if may_propose %}Use the form above to put a time forward.
+    {% else %}The student, the company or the supervising lecturer can book one.{% endif %}</p>
+  {% endif %}
+</section>
+</div>
+{% endblock %}

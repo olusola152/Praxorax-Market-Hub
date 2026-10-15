@@ -145,7 +145,8 @@ def main():
             missing = []
             for table in ("users", "projects", "assignments", "submissions",
                           "submission_files", "teams", "deliverables",
-                          "portfolio_certificates"):
+                          "portfolio_certificates", "presentations",
+                          "presentation_attendees"):
                 try:
                     scalar(f"SELECT COUNT(*) FROM {table}")
                 except Exception:

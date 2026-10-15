@@ -27,6 +27,7 @@
       <a href="{{ url_for('teams.index') }}">Teams</a>
       <a href="{{ url_for('student.bookmarks') }}">Saved</a>
       <a href="{{ url_for('portfolio.mine') }}">Portfolio</a>
+      <a href="{{ url_for('presentations.index') }}">Presentations</a>
       <a href="{{ url_for('student.profile') }}">Profile</a>
       <a href="{{ url_for('student.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'lecturer' %}
@@ -34,6 +35,7 @@
       <a href="{{ url_for('lecturer.browse') }}">Find projects</a>
       <a href="{{ url_for('lecturer.students') }}">Students</a>
       <a href="{{ url_for('lecturer.inbox') }}">Inbox</a>
+      <a href="{{ url_for('presentations.index') }}">Presentations</a>
       <a href="{{ url_for('lecturer.profile') }}">Profile</a>
       <a href="{{ url_for('lecturer.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'university' %}
@@ -44,6 +46,7 @@
       <a href="{{ url_for('university.passcodes') }}">Passcodes</a>
       <a href="{{ url_for('university.inbox') }}">Inbox</a>
       <a href="{{ url_for('university.placements') }}">Placements</a>
+      <a href="{{ url_for('presentations.index') }}">Presentations</a>
       <a href="{{ url_for('university.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'company' %}
       <a href="{{ url_for('company.dashboard') }}">Dashboard</a>
@@ -51,7 +54,7 @@
       <a href="{{ url_for('company.verification') }}">Verification</a>
       <a href="{{ url_for('company.projects') }}">Projects</a>
       <a href="{{ url_for('company.requests') }}">Requests</a>
-      <a href="{{ url_for('company.requests') }}">Requests</a>
+      <a href="{{ url_for('presentations.index') }}">Presentations</a>
       <a href="{{ url_for('company.inbox') }}">Inbox</a>
       <a href="{{ url_for('company.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'admin' %}

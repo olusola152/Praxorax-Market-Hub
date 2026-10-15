@@ -1877,3 +1877,127 @@ a.tile-stat:hover { border-color: var(--deck-dim); }
   cursor: pointer;
 }
 .deck .rail-foot .link-btn:hover { color: var(--deck-text); }
+/* ======================================================================
+   PRESENTATIONS
+   A defence is an appointment, a call, and then a record. The page shows
+   all three in that order, so the styling has to work for a form, an
+   embedded video and a table of what happened — on paper and on the deck.
+   ====================================================================== */
+
+/* Small type used throughout the feature for provenance lines: who proposed
+   what, when, and on whose authority. */
+.muted  { color: var(--ink-soft); }
+.small  { font-size: .8rem; }
+.prewrap { white-space: pre-wrap; margin: .4rem 0 0; }
+.plain  { list-style: none; padding: 0; margin: .6rem 0 0; }
+.plain li { padding: .3rem 0; border-bottom: 1px solid var(--line); }
+.plain li:last-child { border-bottom: 0; }
+
+.sub {
+  font-family: var(--mono);
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 1.3rem 0 .3rem;
+}
+
+/* Two forms in one panel — accept above, decline below — need air between
+   them or the second reads as part of the first. */
+.stack { margin-top: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+
+.radio {
+  display: block;
+  font-size: .9rem;
+  font-weight: 400;
+  margin: .35rem 0;
+  color: var(--ink);
+}
+.radio input { margin-right: .5rem; }
+
+.back { font-size: .85rem; color: var(--ink-soft); }
+
+.btn--go { background: var(--seal); border-color: var(--seal); }
+.btn--danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn--danger:hover { background: var(--danger); color: #fff; }
+
+.yes { color: var(--seal); font-weight: 600; }
+.no  { color: var(--danger); font-weight: 600; }
+
+/* The panel that asks something of the reader is marked, because a page with
+   six panels hides the one that needs an answer. */
+.panel--ask { border-left: 3px solid var(--brass); }
+
+/* Where a session has got to. Six states, each a different kind of news, so
+   they are coloured rather than merely labelled. */
+.pstate {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .18rem .5rem;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.pstate--proposed  { border-color: var(--brass); color: var(--brass); }
+.pstate--confirmed { border-color: var(--seal); color: var(--seal);
+                     background: var(--seal-soft); }
+.pstate--live      { border-color: var(--danger); color: #fff;
+                     background: var(--danger); }
+.pstate--held      { border-color: var(--seal); color: var(--seal); }
+.pstate--missed,
+.pstate--cancelled { border-color: var(--line); color: var(--ink-soft); }
+
+.verdict {
+  font-family: var(--display);
+  font-size: 1.35rem;
+  margin: 0;
+}
+.verdict--passed    { color: var(--seal); }
+.verdict--rework    { color: var(--danger); }
+.verdict--undecided { color: var(--ink-soft); }
+
+/* The call. A fixed height rather than an aspect ratio: a video grid that
+   reflows as people join should not make the page jump under the reader. */
+.panel--call { padding: 0; overflow: hidden; }
+.panel--call .panel-title { padding: 1rem 1.3rem 0; }
+.panel--call .muted { padding: 0 1.3rem 1rem; }
+
+.call-frame {
+  width: 100%;
+  min-height: 560px;
+  background: #0C1714;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.call-frame iframe { display: block; border: 0; }
+
+@media (max-width: 640px) {
+  .call-frame { min-height: 420px; }
+}
+
+/* ---- the same, on the dark deck -------------------------------------- */
+.deck .muted  { color: var(--deck-dim); }
+.deck .sub    { color: var(--deck-dim); }
+.deck .radio  { color: #EAF2ED; }
+.deck .back   { color: var(--deck-dim); }
+.deck .plain li { border-bottom-color: var(--deck-line); }
+.deck .stack  { border-top-color: var(--deck-line); }
+.deck .yes    { color: var(--deck-mint); }
+.deck .panel--ask { border-left-color: var(--deck-brass); }
+
+.deck .pstate { border-color: var(--deck-line); color: var(--deck-dim); }
+.deck .pstate--proposed  { border-color: var(--deck-brass); color: var(--deck-brass); }
+.deck .pstate--confirmed { border-color: var(--deck-mint); color: var(--deck-mint);
+                           background: transparent; }
+.deck .pstate--held      { border-color: var(--deck-mint); color: var(--deck-mint); }
+
+.deck .verdict--passed { color: var(--deck-mint); }
+.deck .call-frame { border-color: var(--deck-line); }

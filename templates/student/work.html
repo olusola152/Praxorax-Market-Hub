@@ -6,7 +6,8 @@
   <p class="record-label">Placement · {{ row.status }}</p>
   <h1 class="display">{{ row.title }}</h1>
   <p class="lede">{{ row.company_name }}{% if row.lecturer_name %} · supervised by {{ row.lecturer_name }}{% else %} · you report to the company directly{% endif %} · due {{ row.deadline.strftime('%d %b %Y') }}</p>
-  <p><a class="btn btn--small btn--quiet" href="{{ url_for('student.record', assignment_id=row.id) }}">Full project record</a></p>
+  <p><a class="btn btn--small btn--quiet" href="{{ url_for('student.record', assignment_id=row.id) }}">Full project record</a>
+     <a class="btn btn--small btn--quiet" href="{{ url_for('presentations.placement', assignment_id=row.id) }}">Presentations</a></p>
 </section>
 
 <section class="panel">

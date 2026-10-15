@@ -48,6 +48,7 @@ def create_app():
     from routes.deliverables import deliverables_bp
     from routes.files import files_bp
     from routes.portfolio import portfolio_bp
+    from routes.presentations import presentations_bp
     from routes.settings import settings_bp
     from routes.teams import teams_bp
     from routes.lecturer import lecturer_bp
@@ -57,12 +58,27 @@ def create_app():
 
     for bp in (auth_bp, portal_bp, student_bp, lecturer_bp, university_bp,
                company_bp, admin_bp, files_bp, teams_bp,
-               deliverables_bp, portfolio_bp, settings_bp):
+               deliverables_bp, portfolio_bp, presentations_bp, settings_bp):
         app.register_blueprint(bp)
 
     @app.context_processor
     def inject_labels():
         return {"role_labels": ROLE_LABELS, "brand": app.config["BRAND"]}
+
+    @app.context_processor
+    def inject_next_session():
+        """The soonest presentation, for the reminder on a dashboard.
+
+        Handed over as a function rather than a value so the query only runs
+        on the three templates that ask for it, not on every page render.
+        """
+        import presentations as pres
+
+        def next_session():
+            user = g.get("user")
+            return pres.next_up(user["id"]) if user else None
+
+        return {"next_session": next_session, "pres_helper": pres}
 
     @app.context_processor
     def inject_trial():

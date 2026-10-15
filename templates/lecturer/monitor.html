@@ -6,6 +6,7 @@
   <p class="record-label">{{ row.title }} · {{ row.company_name }}</p>
   <h1 class="display">{{ row.student_name }}</h1>
   <p class="lede">Status {{ row.status }} · project due {{ row.deadline.strftime('%d %b %Y') }}{% if row.github_url %} · {{ row.github_url }}{% endif %}</p>
+  <p><a class="btn btn--small btn--quiet" href="{{ url_for('presentations.placement', assignment_id=row.id) }}">Presentations</a></p>
 </section>
 
 <section class="panel">

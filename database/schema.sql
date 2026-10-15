@@ -6,6 +6,7 @@
 -- Kept in step with every migration, so re-running this really does start
 -- clean. database/reset.sql holds the same list on its own.
 DROP TABLE IF EXISTS
+  presentation_attendees, presentations,
   portfolio_certificates, submission_confirmations, team_members, teams, deliverables, bookmarks,
   file_downloads, submission_files, project_applications,
   certificates, assessments, reviews, notifications,

@@ -1,0 +1,72 @@
+{% extends shell|default("base.html") %}
+{% set active_section = 'presentations' %}
+{% block title %}Presentations — {{ brand }}{% endblock %}
+
+{% block content %}
+<div class="{{ 'deck-inner' if deck }}">
+<section class="page-head">
+  <p class="record-label">Presentations</p>
+  {% if oversight %}
+  <h1 class="display">Presentations</h1>
+  <p class="lede">Every defence you are answerable for — the ones still to
+    happen first, then the record of the ones that have. You are not in these
+    rooms; the record is here either way.</p>
+  {% else %}
+  <h1 class="display">My presentations</h1>
+  <p class="lede">Every session you are in the room for — the ones still to
+    happen first, then the record of the ones that have.</p>
+  {% endif %}
+</section>
+
+{% set waiting = [] if oversight else sessions | selectattr('response', 'equalto', 'pending')
+                          | selectattr('status', 'in', ['proposed', 'confirmed']) | list %}
+{% if waiting %}
+<section class="panel panel--ask">
+  <h2 class="panel-title">Waiting on you</h2>
+  <p class="muted">{{ waiting|length }}
+    {{ 'session needs' if waiting|length == 1 else 'sessions need' }} you to
+    agree to the time before {{ 'it is' if waiting|length == 1 else 'they are' }} confirmed.</p>
+  <ul class="plain">
+    {% for s in waiting %}
+    <li><a href="{{ url_for('presentations.room', presentation_id=s.id) }}">{{ s.title }}</a>
+      — {{ helper.fmt(s.starts_at) }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2 class="panel-title">All of them</h2>
+  {% if sessions %}
+  <table class="ledger">
+    <thead><tr><th>When</th><th>Session</th><th>Your part</th><th>State</th><th>Outcome</th><th></th></tr></thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td>{{ helper.fmt(s.starts_at) }}<br>
+            <span class="muted small">{{ s.duration_mins }} min</span></td>
+        <td>{{ s.title }}<br>
+            <span class="muted small">{{ s.student_name }} · {{ s.company_name }}</span></td>
+        <td>{{ helper.PART_LABEL[s.part] }}</td>
+        <td><span class="pstate pstate--{{ s.status }}">{{ helper.STATUS_LABEL[s.status] }}</span>
+            {% if s.response == 'pending' and s.status in ('proposed','confirmed') %}
+              <br><span class="muted small">your answer needed</span>
+            {% endif %}</td>
+        <td>{% if s.outcome %}{{ helper.OUTCOME_LABEL[s.outcome] }}{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td><a class="btn btn--small" href="{{ url_for('presentations.room', presentation_id=s.id) }}">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  {% if oversight %}
+  <p class="muted">Nothing booked yet. A student, a supervising lecturer or a
+    company books a session from the placement page, and it appears here.</p>
+  {% else %}
+  <p class="muted">No presentations yet. Once you are placed on a brief, you or
+    the company can book one from the placement page.</p>
+  {% endif %}
+  {% endif %}
+</section>
+</div>
+{% endblock %}

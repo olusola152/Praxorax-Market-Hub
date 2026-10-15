@@ -864,3 +864,120 @@ The fourth filter is the useful one. A climbing "never applied" number while
 briefs sit open usually means the briefs being posted do not match what
 students can actually do — worth comparing the fields companies post against
 the fields students list.
+
+---
+
+## Update — project presentations
+
+Run `database/migration_v9.sql` after v8. Additive — nothing is dropped.
+
+A student defends their work to the company over a video call, with the
+supervising lecturer in the room. This was the missing step: work travelled up
+the chain as files and comments, and the company approved or rejected it
+without ever hearing the student explain it.
+
+### The shape of it
+
+A presentation hangs off a placement. Three people are in the room — the
+student presenting, the company hosting, the lecturer observing. An
+independent student has no lecturer, so it is a two-person call rather than a
+broken three-person one.
+
+Nothing is confirmed until everyone has agreed to the time:
+
+1. **Proposed** — the student, the company or the supervising lecturer puts a
+   slot forward. Whoever proposes it has agreed by proposing, so they are not
+   asked to confirm their own suggestion.
+2. **Confirmed** — the last outstanding person says yes. One yes out of three
+   does not confirm anything.
+3. **Live** — the first person opens the room.
+4. **Held** — the company records what the work came to.
+
+Declining cancels the slot and keeps the reason, so the next proposal can
+avoid the clash. Moving a confirmed session puts it back to proposed and asks
+everyone again: a new time is a new question, and silently keeping an old yes
+would put someone in a room they never agreed to.
+
+### Who may do what
+
+| | Propose | Agree | Join | Record the outcome | Cancel |
+|---|---|---|---|---|---|
+| Student on the placement | yes | yes | yes | **no** | own proposals |
+| Supervising lecturer | yes | yes | yes | **no** | own proposals |
+| Company owning the brief | yes | yes | yes | **yes** | yes |
+| The university above | no | no | no | no | no |
+| Administrator | yes | — | — | yes | yes |
+
+The lecturer cannot record the outcome. A supervisor marking their own
+student's defence as accepted on the company's behalf is the single thing this
+record exists to prevent.
+
+The university sees every defence by its own students — status, attendance and
+outcome — without being in the call. It answers for its students, so it needs
+the record, not a seat.
+
+### The call itself
+
+Embedded Jitsi by default. No account, no download, no API key, and it opens
+inside the page rather than throwing people out to another site.
+
+```
+JITSI_DOMAIN=meet.jit.si
+```
+
+`meet.jit.si` is a free public service. It rate-limits embedded use and changes
+without notice, so **point this at your own Jitsi install before a client
+depends on it** — a 10-dollar droplet runs one. There is a link beside the
+embedded call that opens the same room in a browser tab, for anyone whose
+network blocks the iframe.
+
+Anyone who prefers Zoom, Teams, Meet or Whereby pastes a link instead, and
+nothing else about the feature changes. Only https links to those known hosts
+are accepted; a link to anywhere else is refused rather than cleaned up,
+because these are rendered as something three people will click.
+
+### What is on the record
+
+The video is not the record. Everything that has to survive the call is
+written by the server:
+
+* who was invited, and in what part
+* who agreed to the time, and when
+* who actually opened the room, when they first arrived and when they were
+  last seen — so someone who arrived and stayed reads differently from someone
+  who looked in at the end
+* what the company decided (accepted / needs rework / held with no decision /
+  not held), the notes, who decided it and when
+
+Attendance is written when the room is opened, not claimed by the browser, and
+the video only loads after that write — so it cannot be dodged by sitting on
+the page with the call open. An outcome cannot be quietly overwritten once
+saved.
+
+### Times and timezones
+
+`<input type="datetime-local">` carries no timezone, so what someone types is
+read as local time, converted once, and stored as UTC:
+
+```
+TIMEZONE=Africa/Lagos
+```
+
+Set it to where the institution actually is or everyone books an hour off.
+
+### The room window
+
+Open from 20 minutes before the start to an hour after the end. People are
+late and calls overrun; a room that locks on the dot is a support ticket. A
+proposed, cancelled or finished session never opens, and the room name — the
+only thing that would let a stranger walk into a defence — is never rendered
+on the page until someone with a right to be there has gone in.
+
+### Where to find it
+
+* **Presentations** in the top navigation for students, lecturers, companies
+  and universities; in the rail for administrators.
+* The **next session** appears at the top of the student, lecturer and company
+  dashboards, saying plainly whether an answer is still wanted.
+* **Book / view** from a placement: the student's work page, the lecturer's
+  monitor page, and the company's progress table.

@@ -9,7 +9,7 @@
 </section>
 {% if students %}
 <table class="ledger">
-  <thead><tr><th>Student</th><th>University</th><th>Supervisor</th><th>Phases done</th><th>Status</th><th>GitHub</th></tr></thead>
+  <thead><tr><th>Student</th><th>University</th><th>Supervisor</th><th>Phases done</th><th>Status</th><th>GitHub</th><th>Presentation</th></tr></thead>
   <tbody>
     {% for s in students %}
     <tr>
@@ -17,6 +17,7 @@
       <td>{{ s.lecturer_name }}</td><td class="mono">{{ s.done }}/{{ s.total }}</td>
       <td><span class="status status--{{ s.status }}">{{ s.status }}</span></td>
       <td class="mono">{{ s.github_url or '—' }}</td>
+      <td><a class="btn btn--small btn--quiet" href="{{ url_for('presentations.placement', assignment_id=s.assignment_id) }}">Book / view</a></td>
     </tr>
     {% endfor %}
   </tbody>

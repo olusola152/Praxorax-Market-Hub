@@ -6,11 +6,14 @@
 -- is removed.
 --
 -- DESTRUCTIVE for: placements, submissions, uploaded file records, phases,
--- reviews, requests, applications, teams, certificates and notifications.
+-- reviews, requests, applications, teams, presentations, certificates and
+-- notifications.
 
 BEGIN;
 
 -- Work and everything hanging off it. Order matters: children first.
+DELETE FROM presentation_attendees;
+DELETE FROM presentations;
 DELETE FROM submission_confirmations;
 DELETE FROM file_downloads;
 DELETE FROM submission_files;

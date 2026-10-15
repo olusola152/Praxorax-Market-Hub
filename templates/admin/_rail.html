@@ -23,12 +23,13 @@
   <p class="rail-group">Work</p>
   <a class="rail-link {{ 'rail-link--on' if active == 'projects' }}" href="{{ url_for('admin.projects') }}">Briefs</a>
   <a class="rail-link {{ 'rail-link--on' if active == 'placements' }}" href="{{ url_for('admin.placements') }}">Placements</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'presentations' }}" href="{{ url_for('presentations.index') }}">Presentations</a>
 
   <div class="rail-foot">
     <a href="{{ url_for('admin.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     <form method="post" action="{{ url_for('auth.logout') }}">
-  <button class="link-btn" type="submit">Sign out</button>
-</form>
+      <button class="link-btn" type="submit">Sign out</button>
+    </form>
   </div>
 </nav>
 {% endmacro %}

@@ -14,6 +14,7 @@ psql -d smtest -f database/migration_v5.sql
 psql -d smtest -f database/migration_v6.sql
 psql -d smtest -f database/migration_v7.sql
 psql -d smtest -f database/migration_v8.sql
+psql -d smtest -f database/migration_v9.sql
 
 export DATABASE_URL="postgresql://postgres:PASSWORD@127.0.0.1:5432/smtest"
 export SECRET_KEY=test
@@ -28,6 +29,7 @@ export UPLOAD_FOLDER=/tmp/uploads
 | `test_v4_modules.py` | an **empty** database | teams, deliverables, company KYC, bookmarks and match scoring |
 | `test_v4_pages.py` | `python seed_demo.py` run first | the pages those four modules added |
 | `test_v5_trial.py` | an **empty** database | the 7-day trial, its expiry, and the imagery |
+| `test_v13_presentations.py` | `python seed_demo.py` run first | project presentations: proposing, agreeing, the join window, attendance, and who may record the outcome |
 | `test_v12_admin_deck.py` | `python seed_demo.py` run first | the admin deck, the chain board, and the public students view |
 | `test_v11_email.py` | `python seed_demo.py`, and `pip install aiosmtpd` | email alerts, against a real SMTP server on localhost — nothing mocked |
 | `test_v10_missing_files.py` | `python seed_demo.py` run first | downloads when a file record outlives its file |

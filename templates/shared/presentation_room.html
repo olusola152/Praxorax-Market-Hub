@@ -1,0 +1,251 @@
+{% extends shell|default("base.html") %}
+{% set active_section = 'presentations' %}
+{% block title %}{{ session.title }} — presentation{% endblock %}
+
+{% block content %}
+<div class="{{ 'deck-inner' if deck }}">
+<section class="page-head">
+  <p class="record-label">Project presentation</p>
+  <h1 class="display">{{ session.title }}</h1>
+  <p class="lede">
+    {{ session.company_name }} · {{ helper.fmt(session.starts_at) }} ·
+    {{ session.duration_mins }} minutes
+    <span class="pstate pstate--{{ session.status }}">{{ helper.STATUS_LABEL[session.status] }}</span>
+  </p>
+  {% if part %}
+    <p class="lede">You are in this room as <strong>{{ helper.PART_LABEL[part.part]|lower }}</strong>.</p>
+  {% else %}
+    <p class="lede">You are watching this on behalf of {{ g.university.name if g.university else 'the platform' }}. You are not in the call.</p>
+  {% endif %}
+</section>
+
+{# ------------------------------------------------------------------ the call #}
+{% if request.args.get('live') and joinable %}
+<section class="panel panel--call">
+  <h2 class="panel-title">Live</h2>
+  {% if session.provider == 'jitsi' %}
+    <div id="call" class="call-frame" data-domain="{{ jitsi_domain }}"
+         data-room="{{ session.room_name }}"
+         data-name="{{ g.user.fullname }}"
+         data-email="{{ g.user.email }}"
+         data-subject="{{ session.title }}"></div>
+    <noscript>
+      <p class="muted">The built-in call needs JavaScript. Open
+        <a href="https://{{ jitsi_domain }}/{{ session.room_name }}" target="_blank"
+           rel="noopener">the room in a new tab</a> instead.</p>
+    </noscript>
+    <p class="muted small">
+      Trouble with the embedded call? Open
+      <a href="https://{{ jitsi_domain }}/{{ session.room_name }}" target="_blank"
+         rel="noopener">the same room in a new tab</a> — it is the same meeting.
+    </p>
+  {% else %}
+    <p>This session runs on an outside platform.</p>
+    <p><a class="btn" href="{{ session.external_url }}" target="_blank" rel="noopener">Open the meeting</a></p>
+    <p class="muted small">{{ session.external_url }}</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{# --------------------------------------------------------------- joining in #}
+<section class="panel">
+  <h2 class="panel-title">The room</h2>
+  {% if joinable and not request.args.get('live') %}
+    <p>The room is open. Your arrival is recorded when you go in.</p>
+    <form method="post" action="{{ url_for('presentations.join', presentation_id=session.id) }}">
+      <button class="btn btn--go" type="submit">Join the presentation</button>
+    </form>
+  {% elif joinable %}
+    <p class="muted">You are in the room. Closing this page leaves the call.</p>
+  {% elif part %}
+    <p class="muted">{{ why_not }}</p>
+    {% if session.status == 'proposed' %}
+      <p class="muted small">Once everyone has agreed to the time, the room opens
+        20 minutes before {{ helper.fmt(session.starts_at) }}.</p>
+    {% endif %}
+  {% else %}
+    <p class="muted">This room is for the student, the company and the supervising
+      lecturer. You can see the record of it here, including who attended and
+      what was decided.</p>
+  {% endif %}
+
+  {% if session.agenda %}
+    <h3 class="sub">What will be covered</h3>
+    <p class="prewrap">{{ session.agenda }}</p>
+  {% endif %}
+</section>
+
+{# ----------------------------------------------------------------- who is in #}
+<section class="panel">
+  <h2 class="panel-title">Who is invited</h2>
+  <table class="ledger">
+    <thead><tr><th>Name</th><th>Part</th><th>Agreed to the time</th><th>Attended</th></tr></thead>
+    <tbody>
+      {% for person in people %}
+      <tr>
+        <td>{{ person.fullname }}<br><span class="muted small">{{ person.role }}</span></td>
+        <td>{{ helper.PART_LABEL[person.part] }}</td>
+        <td>
+          {% if person.response == 'accepted' %}<span class="yes">Yes</span>
+          {% elif person.response == 'declined' %}<span class="no">Declined</span>
+          {% else %}<span class="muted">Not answered yet</span>{% endif %}
+        </td>
+        <td>
+          {% if person.joined_at %}{{ helper.fmt(person.joined_at) }}
+          {% else %}<span class="muted">—</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted small">Proposed by {{ session.proposed_by_name }}
+    ({{ session.proposed_by_role }}) on {{ helper.fmt(session.created_at) }}.</p>
+</section>
+
+{# ------------------------------------------------------- agreeing to the time #}
+{% if part and session.status in ('proposed', 'confirmed') and part.response != 'accepted' %}
+<section class="panel panel--ask">
+  <h2 class="panel-title">Does {{ helper.fmt(session.starts_at) }} work for you?</h2>
+  <form method="post" action="{{ url_for('presentations.respond', presentation_id=session.id) }}">
+    <input type="hidden" name="answer" value="accept">
+    <button class="btn btn--go" type="submit">Yes, that works</button>
+  </form>
+  <form method="post" action="{{ url_for('presentations.respond', presentation_id=session.id) }}" class="stack">
+    <input type="hidden" name="answer" value="decline">
+    <label class="field">
+      <span>Why not, so a better time can be found <em class="opt">optional</em></span>
+      <input type="text" name="reason" maxlength="300" placeholder="Lectures until 4pm that day">
+    </label>
+    <button class="btn btn--quiet" type="submit">I cannot make it</button>
+  </form>
+</section>
+{% endif %}
+
+{# ------------------------------------------------------------------- outcome #}
+{% if session.status == 'held' or session.status == 'missed' %}
+<section class="panel">
+  <h2 class="panel-title">Outcome</h2>
+  {% if session.outcome %}
+    <p class="verdict verdict--{{ session.outcome }}">{{ helper.OUTCOME_LABEL[session.outcome] }}</p>
+  {% else %}
+    <p class="verdict verdict--rework">Not held</p>
+  {% endif %}
+  {% if session.outcome_notes %}<p class="prewrap">{{ session.outcome_notes }}</p>{% endif %}
+  <p class="muted small">Recorded by {{ session.outcome_by_name or 'the platform' }}
+    on {{ helper.fmt(session.outcome_at) }}.</p>
+</section>
+{% endif %}
+
+{% if may_decide and session.status in ('confirmed', 'live', 'missed') %}
+<section class="panel">
+  <h2 class="panel-title">Record what happened</h2>
+  <p class="muted">Only {{ session.company_name }} can set this, because it is
+    the company's judgement of the work. The student and the supervising
+    lecturer are told as soon as you save it.</p>
+  <form method="post" action="{{ url_for('presentations.outcome', presentation_id=session.id) }}">
+    <label class="field">
+      <span>Outcome</span>
+      <select name="outcome" required>
+        <option value="">Choose…</option>
+        <option value="passed">Accepted — the work was defended</option>
+        <option value="rework">Needs rework — come back with changes</option>
+        <option value="undecided">Held, no decision yet</option>
+        <option value="missed">Not held — the session did not happen</option>
+      </select>
+    </label>
+    <label class="field">
+      <span>Notes for the student and lecturer <em class="opt">optional</em></span>
+      <textarea name="outcome_notes" rows="4"
+        placeholder="Strong demo. Tighten the error handling before the final submission."></textarea>
+    </label>
+    <button class="btn" type="submit">Save the outcome</button>
+  </form>
+</section>
+{% endif %}
+
+{# -------------------------------------------------------- moving, cancelling #}
+{% if part and session.status in ('proposed', 'confirmed') %}
+<section class="panel">
+  <h2 class="panel-title">Move it</h2>
+  <p class="muted">A new time is a new question, so everyone is asked again.</p>
+  <form method="post" action="{{ url_for('presentations.reschedule', presentation_id=session.id) }}">
+    <label class="field">
+      <span>New date and time</span>
+      <input type="datetime-local" name="starts_at" required
+             value="{{ helper.form_value(session.starts_at) }}">
+    </label>
+    <label class="field">
+      <span>Length in minutes</span>
+      <input type="number" name="duration_mins" min="10" max="240" step="5"
+             value="{{ session.duration_mins }}">
+    </label>
+    <button class="btn btn--quiet" type="submit">Propose this time instead</button>
+  </form>
+</section>
+{% endif %}
+
+{% if may_cancel and session.status in ('proposed', 'confirmed', 'live') %}
+<section class="panel">
+  <h2 class="panel-title">Call it off</h2>
+  <form method="post" action="{{ url_for('presentations.cancel', presentation_id=session.id) }}">
+    <label class="field">
+      <span>Reason <em class="opt">optional</em></span>
+      <input type="text" name="reason" maxlength="300">
+    </label>
+    <button class="btn btn--danger" type="submit">Cancel this presentation</button>
+  </form>
+</section>
+{% endif %}
+
+{% if session.decline_reason %}
+<p class="muted small">Reason given: {{ session.decline_reason }}</p>
+{% endif %}
+
+<p><a class="back" href="{{ url_for('presentations.index') }}">All my presentations</a></p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if request.args.get('live') and joinable and session.provider == 'jitsi' %}
+<script src="https://{{ jitsi_domain }}/external_api.js"></script>
+<script>
+// The call is a room on a video server, embedded here. Nothing that has to
+// survive the meeting lives inside it — attendance and the outcome were
+// already written by the server — so if this fails to load, the record of the
+// session is still correct and the fallback link below still works.
+(function () {
+  var mount = document.getElementById('call');
+  if (!mount || typeof JitsiMeetExternalAPI === 'undefined') { return; }
+
+  var api = new JitsiMeetExternalAPI(mount.dataset.domain, {
+    roomName: mount.dataset.room,
+    parentNode: mount,
+    width: '100%',
+    height: 560,
+    userInfo: { displayName: mount.dataset.name, email: mount.dataset.email },
+    configOverwrite: {
+      subject: mount.dataset.subject,
+      prejoinPageEnabled: false,
+      disableDeepLinking: true,
+      startWithAudioMuted: false,
+      startWithVideoMuted: false
+    },
+    interfaceConfigOverwrite: {
+      SHOW_JITSI_WATERMARK: false,
+      SHOW_BRAND_WATERMARK: false,
+      DEFAULT_BACKGROUND: '#0C1714',
+      TOOLBAR_BUTTONS: [
+        'microphone', 'camera', 'desktop', 'fullscreen', 'hangup', 'chat',
+        'raisehand', 'tileview', 'settings', 'videoquality'
+      ]
+    }
+  });
+
+  // Leaving the call returns to the record of it rather than a blank frame.
+  api.addEventListener('readyToClose', function () {
+    window.location = '{{ url_for('presentations.room', presentation_id=session.id) }}';
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

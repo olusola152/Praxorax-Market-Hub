@@ -399,7 +399,8 @@ def progress(project_id):
         abort(404)
 
     students = query(
-        """SELECT a.id, a.status, u.fullname, sp.github_url, sp.level,
+        """SELECT a.id, a.id AS assignment_id, a.status, u.fullname,
+                  sp.github_url, sp.level,
                   uni.name AS university_name, lec.fullname AS lecturer_name,
                   (SELECT COUNT(*) FROM milestones m
                     WHERE m.assignment_id=a.id AND m.status='done') AS done,

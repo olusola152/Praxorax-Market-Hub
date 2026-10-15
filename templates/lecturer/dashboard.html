@@ -23,6 +23,9 @@
   <article class="stat {% if stats.overdue %}stat--warn{% endif %}"><p class="stat-num">{{ stats.overdue }}</p><p class="stat-label">Overdue phases</p></article>
 </section>
 
+{% include "shared/_next_session.html" %}
+
+
 {% if g.university %}
 <section class="panel">
   <h2 class="panel-title">Invite your students</h2>

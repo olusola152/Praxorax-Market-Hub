@@ -55,6 +55,19 @@ class Config:
     # localhost.
     BASE_URL = os.environ.get("BASE_URL", "http://127.0.0.1:5000").rstrip("/")
 
+    # ------------------------------------------------------- presentations
+    # Presentation times are typed and read in this timezone. The database
+    # stores UTC; only the display and the parsing use this. Set it to where
+    # the institution actually is, or everyone books an hour off.
+    TIMEZONE = os.environ.get("TIMEZONE", "Africa/Lagos")
+
+    # The video server that hosts a defence. meet.jit.si needs no account and
+    # no API key, which is why it is the default — but it is a public service
+    # that rate-limits embedded use, so point this at your own Jitsi install
+    # before a client depends on it. Anyone who prefers Zoom or Meet pastes a
+    # link instead and none of the rest of this changes.
+    JITSI_DOMAIN = os.environ.get("JITSI_DOMAIN", "meet.jit.si")
+
     # ------------------------------------------------------------ email
     # Alerts also go out by email when this is on and a host is set.
     # Supabase cannot send these — its email service only covers auth mail

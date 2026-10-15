@@ -1,0 +1,16 @@
+{# The admin deck's chrome without claiming the `content` block.
+
+   admin/_shell.html owns `content` and gives its children a `deck` block,
+   which is right for pages that only administrators ever see. Pages shared
+   with the other four roles cannot be written against two different block
+   names, so they fill `content` and extend this instead: same dark shell,
+   same rail, same place in the deck — one template, four audiences. #}
+{% extends "base.html" %}
+{% from "admin/_rail.html" import admin_rail %}
+
+{% block body_class %}deck{% endblock %}
+{% block main_class %}deck-main{% endblock %}
+
+{% block chrome %}
+{{ admin_rail(active_section|default('')) }}
+{% endblock %}
