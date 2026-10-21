@@ -63,7 +63,11 @@ def create_app():
 
     @app.context_processor
     def inject_labels():
-        return {"role_labels": ROLE_LABELS, "brand": app.config["BRAND"]}
+        # trial_days is here so the public copy can offer a trial only when
+        # one is actually on. A site that advertises a free week and then
+        # hands out a pending account is worse than one that never mentioned it.
+        return {"role_labels": ROLE_LABELS, "brand": app.config["BRAND"],
+                "trial_days": app.config["TRIAL_DAYS"]}
 
     @app.context_processor
     def inject_next_session():

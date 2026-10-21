@@ -999,3 +999,49 @@ on the page until someone with a right to be there has gone in.
   dashboards, saying plainly whether an answer is still wanted.
 * **Book / view** from a placement: the student's work page, the lecturer's
   monitor page, and the company's progress table.
+
+---
+
+## Update — the free trial is off by default
+
+No migration. `TRIAL_DAYS` now defaults to **0**, and the trial machinery from
+v5 is untouched behind it.
+
+### What 0 does
+
+* A university or company that signs up lands on `subscription_status =
+  'pending'` and waits for an administrator, rather than getting a free week.
+  The signup message and the welcome email both say so, so nobody is left
+  wondering why nothing works yet.
+* Nothing on the public site offers a trial. The landing page's hero, its
+  closing band and the nav button all read from `trial_days`, so the copy
+  follows the setting instead of advertising something the signup form will
+  not honour.
+* **A trial already running still ends on its own date.** Switching the
+  setting off stops new ones being granted; it does not reach back and cut
+  short an account that was promised a week. The countdown bar keeps telling
+  that account the truth until it expires.
+
+### Turning it back on
+
+```
+TRIAL_DAYS=7
+```
+
+One line. The free-week copy returns with it, and the number in that copy is
+read from the setting rather than written into the templates — set it to 14
+and the site says fourteen days.
+
+### Cutting existing trials short
+
+Not done automatically, on purpose. If you do want every running trial ended
+now, that is a deliberate act and a single statement:
+
+```sql
+UPDATE universities SET subscription_status = 'expired'
+ WHERE subscription_status = 'trial';
+UPDATE companies    SET subscription_status = 'expired'
+ WHERE subscription_status = 'trial';
+```
+
+Those accounts go read-only immediately, so tell them first.

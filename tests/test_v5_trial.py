@@ -119,4 +119,68 @@ step("landing page shows the hero art", b"hero-chain.svg" in r.data)
 step("landing page shows faculty tiles", b"img/fields/architecture.svg" in r.data)
 step("landing page sells the free week", b"free week" in r.data.lower())
 
+# ------------------------------------------------- trials switched off
+# TRIAL_DAYS=0 has to remove the offer as well as the grant. A site that
+# advertises a free week and then hands out a pending account is worse than
+# one that never mentioned a trial.
+app.config["TRIAL_DAYS"] = 0
+
+r = pub.get("/")
+copy = r.data.lower()
+step("with trials off, the landing page stops selling a free week",
+     b"free week" not in copy and b"free trial" not in copy
+     and b"free for 7 days" not in copy)
+step("and still gives institutions a way in",
+     b"register your institution or company" in copy)
+step("students are still told they never pay", b"never pay" in copy)
+
+off = app.test_client()
+r = off.post("/register", data={"role": "company", "fullname": "No Trial Ltd",
+                                "email": "notrial@v5.test", "password": "password123",
+                                "confirm": "password123",
+                                "company_name": "No Trial Ltd"},
+             follow_redirects=True)
+step("a company can still sign up", r.status_code == 200, r.status_code)
+with app.app_context():
+    row = query("""SELECT subscription_status, subscribed_until
+                     FROM companies WHERE name='No Trial Ltd'""", one=True)
+step("but it lands on pending, not trial",
+     row and row["subscription_status"] == "pending", row)
+step("with no free period attached", row and row["subscribed_until"] is None)
+step("and is told an administrator activates it",
+     b"administrator activates your subscription" in r.data)
+step("no trial countdown is shown to it", b"trial-bar" not in r.data)
+
+with app.app_context():
+    import mailer
+    step("the welcome email stops promising a trial",
+         "free trial" not in mailer.WELCOME_NO_TRIAL["company"]
+         and "free trial" not in mailer.WELCOME_NO_TRIAL["university"])
+    step("and says what actually happens next",
+         "administrator activates" in mailer.WELCOME_NO_TRIAL["company"])
+
+# Switching the setting off must not reach back and cut short a trial that
+# was already promised.
+with app.app_context():
+    # The university in this suite was expired on purpose further up, to
+    # prove expiry works, so the surviving trial is the company's.
+    still = query("""SELECT name, subscribed_until FROM companies
+                      WHERE subscription_status='trial'
+                      UNION ALL
+                     SELECT name, subscribed_until FROM universities
+                      WHERE subscription_status='trial'""")
+step("trials already running are left alone", len(still) > 0,
+     [r["name"] for r in still])
+step("and keep the end date they were promised",
+     all(r["subscribed_until"] is not None for r in still))
+
+r = co.get("/company/dashboard")
+step("that account still sees its countdown with trials switched off",
+     b"trial-bar" in r.data, r.status_code)
+
+app.config["TRIAL_DAYS"] = 7
+r = pub.get("/")
+step("turning it back on restores the offer",
+     b"free week" in r.data.lower())
+
 print(f"\n{P} passed, {F} failed")

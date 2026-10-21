@@ -137,6 +137,25 @@ WELCOME = {
     "admin": "Your administrator account is ready.",
 }
 
+# The same two messages for a site with trials switched off. Only the sentence
+# about what access they have changes — a new account is pending until an
+# administrator activates it, and saying so at signup saves a support email
+# asking why nothing works yet.
+WELCOME_NO_TRIAL = {
+    "company": (
+        "Your account is ready. Post a brief and universities will bring their "
+        "students to it. Two things happen before a brief can go live: we "
+        "verify your company — send your registration document from the "
+        "Verification page — and an administrator activates your subscription. "
+        "We will be in touch about both."),
+    "university": (
+        "Your institution is registered. An administrator will activate your "
+        "subscription and be in touch. Once it is live you issue passcodes so "
+        "your lecturers can join, and they take on company briefs and place "
+        "your students on them. Every submission passes through you before it "
+        "reaches the company."),
+}
+
 
 def send_welcome(app, to_address, to_name, role):
     """One message when an account is created, saying what to do next.
@@ -144,7 +163,11 @@ def send_welcome(app, to_address, to_name, role):
     Not a notification — there is no in-app equivalent and nothing to link to
     beyond the dashboard — so it is sent directly rather than through notify().
     """
-    body = WELCOME.get(role)
+    if app.config.get("TRIAL_DAYS"):
+        body = WELCOME.get(role)
+    else:
+        body = WELCOME_NO_TRIAL.get(role) or WELCOME.get(role)
+
     if not body or not configured(app):
         return False
     brand = app.config["BRAND"]

@@ -42,9 +42,14 @@ class Config:
     OPEN_STUDENT_SIGNUP = _flag("OPEN_STUDENT_SIGNUP", True)
 
     # A university or company that signs up gets this many days free, with no
-    # payment and no admin step. Set to 0 to switch trials off; existing
-    # trials then simply run out on their own dates.
-    TRIAL_DAYS = int(os.environ.get("TRIAL_DAYS", "7"))
+    # payment and no admin step. 0 switches trials off: new accounts start as
+    # 'pending' and wait for an administrator, nothing on the site offers a
+    # trial, and any trial already running still ends on its own date rather
+    # than being cut short.
+    #
+    # Off by default. Turning it on is one line, and the copy that advertises
+    # it comes back with it.
+    TRIAL_DAYS = max(int(os.environ.get("TRIAL_DAYS", "0")), 0)
 
     # The product name. Everything user-facing reads this, so renaming is a
     # one-line change rather than a hunt through templates.

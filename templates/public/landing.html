@@ -13,7 +13,7 @@
     <a href="#who">Who it's for</a>
     <a href="{{ url_for('auth.join_index') }}">Institutions</a>
     <a class="btn btn--small" href="{{ url_for('auth.login') }}">Sign in</a>
-    <a class="btn btn--small btn--quiet" href="{{ url_for('auth.register') }}">Start free trial</a>
+    <a class="btn btn--small btn--quiet" href="{{ url_for('auth.register') }}">{{ 'Start free trial' if trial_days else 'Get started' }}</a>
   </nav>
 </header>
 {% endblock %}
@@ -21,18 +21,19 @@
 {% block content %}
 <section class="hero hero--split">
   <div class="hero-copy">
-    <p class="hero-tag">Free for 7 days · no card needed</p>
+    <p class="hero-tag">{% if trial_days %}Free for {{ trial_days }} days · no card needed{% else %}Supervised project work, end to end{% endif %}</p>
     <h1 class="display hero-title">Real projects.<br>Supervised practice.<br>Verified graduates.</h1>
     <p class="lede lede--wide">Companies post the work they actually need doing. Lecturers
       take it on and place their students. Anyone studying anywhere can join on their own and
       apply directly. Every submission is reviewed, and every finished project leaves a record
       an employer can check.</p>
     <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">Start your free week</a>
+      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your institution or company' }}</a>
       <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Join as a student</a>
     </p>
-    <p class="hero-note">Universities and companies get 7 days of everything, free.
-      Students never pay at all.</p>
+    <p class="hero-note">{% if trial_days %}Universities and companies get {{ trial_days }} days of
+      everything, free.{% else %}Universities and companies register here and we set the
+      account up with you.{% endif %} Students never pay at all.</p>
   </div>
   <div class="hero-art">
     <img src="{{ url_for('static', filename='img/hero-chain.svg') }}"
@@ -104,12 +105,20 @@
 
 <section class="band band--cta">
   <div class="cta-inner">
+    {% if trial_days %}
     <h2 class="display">Try the whole thing for a week.</h2>
     <p class="lede lede--wide">Post briefs, onboard lecturers, place students, review work —
-      everything a paid account does, for seven days, with nothing to pay and nobody to wait for.
-      Independent students need no trial at all; their side is simply free.</p>
+      everything a paid account does, for {{ trial_days }} days, with nothing to pay and nobody
+      to wait for. Independent students need no trial at all; their side is simply free.</p>
+    {% else %}
+    <h2 class="display">Put your students on real work.</h2>
+    <p class="lede lede--wide">Post briefs, onboard lecturers, place students, review work —
+      every submission supervised and every finished project left on the record. Register your
+      institution or company and we will set the account up with you. Students pay nothing,
+      whether their university is here or they joined on their own.</p>
+    {% endif %}
     <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">Start free — university or company</a>
+      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start free — university or company' if trial_days else 'Register — university or company' }}</a>
       <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Sign up as a student</a>
     </p>
   </div>
