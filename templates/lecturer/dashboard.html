@@ -16,9 +16,9 @@
 
 <section class="stat-grid">
   <article class="stat"><p class="stat-num">{{ stats.available }}</p><p class="stat-label">Open in your fields</p></article>
-  <article class="stat"><p class="stat-num">{{ stats.pending }}</p><p class="stat-label">Awaiting approval</p></article>
-  <article class="stat"><p class="stat-num">{{ stats.approved }}</p><p class="stat-label">Approved</p></article>
+  <article class="stat {% if stats.waiting %}stat--act{% endif %}"><p class="stat-num">{{ stats.waiting }}</p><p class="stat-label">Waiting on your review</p></article>
   <article class="stat"><p class="stat-num">{{ stats.pending }}</p><p class="stat-label">Requests pending</p></article>
+  <article class="stat"><p class="stat-num">{{ stats.approved }}</p><p class="stat-label">Requests approved</p></article>
   <article class="stat"><p class="stat-num">{{ stats.students }}</p><p class="stat-label">Students placed</p></article>
   <article class="stat {% if stats.overdue %}stat--warn{% endif %}"><p class="stat-num">{{ stats.overdue }}</p><p class="stat-label">Overdue phases</p></article>
 </section>

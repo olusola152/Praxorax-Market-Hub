@@ -1045,3 +1045,94 @@ UPDATE companies    SET subscription_status = 'expired'
 ```
 
 Those accounts go read-only immediately, so tell them first.
+
+---
+
+## Update — the mark and the artwork
+
+No migration. Replace the files.
+
+### The mark
+
+PraxoraX had no logo — `.mark-seal` drew two circles in CSS, which is why it
+could not appear in a browser tab or anywhere an image was needed. There is
+now a real one.
+
+Four arcs closing into a ring around a brass centre: the four parties a project
+passes through — student, supervisor, university, client — and the seal they
+produce between them. **The ring only closes when all four have signed.** That
+is the platform's whole mechanic drawn once.
+
+It lives in `static/img/seal.svg`, and `.mark-seal` loads it as a background
+image. The markup did not change, so all nine places that used the old CSS
+circles — the header, the three sign-in gates, the four institution portal
+pages and the landing header — picked it up at once.
+
+`static/img/favicon.svg` is the same mark inverted onto a seal-green plate. It
+carries its own ground because a browser tab may be light or dark and the page
+has no say in which; its arcs are wider and its gaps narrower so four arcs
+still read as four at 16px.
+
+### The hero
+
+Was four identical numbered glass bars. Now it is the certificate — paper on a
+seal-green plate, with the serial that makes it checkable, beside the four
+countersignatures that had to close before it could exist.
+
+The thing this platform produces is a record an employer can verify, so the
+record is the picture. A diagram of the software persuades nobody.
+
+### The faculty tiles
+
+Two problems. The motifs had drifted off their subjects, so Software
+Engineering showed broadcast rings while Medicine showed a commit graph. And
+each tile was drawn on its own coloured ground, so six tiles in a row read as
+six unrelated products.
+
+Now every tile sits on the **same seal-green ground**, the accent says which of
+six discipline families a field belongs to, and the drawing says what the field
+actually is — a commit graph for computing, an ECG for medicine, a truss for
+civil engineering, a double helix for biochemistry, ruled columns for
+accounting, ploughed rows for agriculture.
+
+They are generated rather than hand-drawn, so the set cannot drift again:
+
+```bash
+python tools/make_field_tiles.py
+```
+
+### Layout faults this turned up
+
+`.hero` was written centred and `.hero--split` was added later without undoing
+it, so the two-column hero inherited centring it was never meant to have: a
+narrow ragged column of centred text beside a small picture. Fixing it exposed
+the same fault twice more — **a media query adds no specificity**, so the
+later two-column rule was beating the single-column mobile rule as well.
+
+Also fixed:
+
+* The primary button on the green closing band inherited `background:
+  var(--seal)` — the band's own colour — so the main call to action was
+  invisible. On that band it now inverts. The secondary button has to restate
+  its text colour there or equal specificity makes the later rule win and it
+  vanishes in turn; `test_v14_identity.py` checks that it still does.
+* The two "Who subscribes" cards left their buttons at different heights,
+  which reads as a mistake rather than as two choices. The footers are pushed
+  to the bottom so the pair line up, and the buttons are sized to their words
+  instead of stretched into bars of unequal length.
+* With one institution listed, the auto-fill grid stranded a single small card
+  against the left margin. The row centres.
+* Five columns of prose gave three-word lines; the flow wraps to three, then
+  two.
+* The certificate check at `/verify` had no branding at all. Whoever lands
+  there arrived holding a reference, often an employer checking a candidate,
+  and may never have seen the site — it now carries the mark and a way back.
+
+### A bug the screenshots found
+
+The lecturer dashboard read `stats.approved`, which the route never set, so
+that tile rendered blank; `stats.pending` was shown twice under two different
+labels; and `stats.waiting` — submissions sitting with that lecturer, the one
+number on the page that asks them to act — was computed and never displayed.
+All six tiles now carry a distinct, correct number, and the actionable one is
+marked in seal green rather than the brass that means something has gone wrong.

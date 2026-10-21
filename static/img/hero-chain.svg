@@ -1,98 +1,133 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 640" role="img"
-     aria-label="Work travelling from a company brief through a lecturer and university to a verified certificate">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img"
+     aria-label="A certificate of supervised practice, stamped with the PraxoraX seal, beside the four signatures that produced it: student, supervisor, university and company">
+  <!-- The hero.
+
+       The thing PraxoraX actually produces is a record an employer can check,
+       so the record is the picture rather than a diagram of the software. The
+       certificate is paper on a deep seal-green plate; the ladder down the
+       left is the chain of countersignatures that had to close before the
+       paper could exist.
+
+       Text uses generic families on purpose. An SVG loaded through <img>
+       cannot fetch the site's webfonts, so Georgia and the monospace stack
+       are what will actually render. -->
   <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0E2A21"/>
-      <stop offset="55%" stop-color="#1E4B3A"/>
-      <stop offset="100%" stop-color="#2A6047"/>
+    <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B2219"/>
+      <stop offset="58%" stop-color="#1E4B3A"/>
+      <stop offset="100%" stop-color="#2D6A4D"/>
     </linearGradient>
-    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="rgba(255,255,255,.16)"/>
-      <stop offset="100%" stop-color="rgba(255,255,255,.04)"/>
+    <linearGradient id="paper" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#FDFCF9"/>
+      <stop offset="100%" stop-color="#F2EFE7"/>
     </linearGradient>
+    <linearGradient id="brassband" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8A6118"/>
+      <stop offset="45%" stop-color="#C79A3E"/>
+      <stop offset="100%" stop-color="#8A6118"/>
+    </linearGradient>
+    <filter id="lift" x="-20%" y="-20%" width="150%" height="160%">
+      <feDropShadow dx="10" dy="18" stdDeviation="18"
+                    flood-color="#04120C" flood-opacity=".46"/>
+    </filter>
   </defs>
 
-  <rect width="900" height="640" fill="url(#sky)"/>
+  <rect width="900" height="600" fill="url(#plate)"/>
 
-  <!-- faint drafting grid -->
-  <g stroke="rgba(255,255,255,.055)" stroke-width="1">
-    <path d="M0 0 V640"/>
-    <path d="M45 0 V640"/>
-    <path d="M90 0 V640"/>
-    <path d="M135 0 V640"/>
-    <path d="M180 0 V640"/>
-    <path d="M225 0 V640"/>
-    <path d="M270 0 V640"/>
-    <path d="M315 0 V640"/>
-    <path d="M360 0 V640"/>
-    <path d="M405 0 V640"/>
-    <path d="M450 0 V640"/>
-    <path d="M495 0 V640"/>
-    <path d="M540 0 V640"/>
-    <path d="M585 0 V640"/>
-    <path d="M630 0 V640"/>
-    <path d="M675 0 V640"/>
-    <path d="M720 0 V640"/>
-    <path d="M765 0 V640"/>
-    <path d="M810 0 V640"/>
-    <path d="M855 0 V640"/>
-    <path d="M900 0 V640"/>
-    <path d="M0 0 H900"/>
-    <path d="M0 45 H900"/>
-    <path d="M0 90 H900"/>
-    <path d="M0 135 H900"/>
-    <path d="M0 180 H900"/>
-    <path d="M0 225 H900"/>
-    <path d="M0 270 H900"/>
-    <path d="M0 315 H900"/>
-    <path d="M0 360 H900"/>
-    <path d="M0 405 H900"/>
-    <path d="M0 450 H900"/>
-    <path d="M0 495 H900"/>
-    <path d="M0 540 H900"/>
-    <path d="M0 585 H900"/>
-    <path d="M0 630 H900"/>
+  <!-- Drafting grid. Faint enough to be texture, not pattern. -->
+  <g stroke="#FFFFFF" stroke-opacity=".05" stroke-width="1">
+    <path d="M45 0V600M90 0V600M135 0V600M180 0V600M225 0V600M270 0V600M315 0V600
+             M360 0V600M405 0V600M450 0V600M495 0V600M540 0V600M585 0V600M630 0V600
+             M675 0V600M720 0V600M765 0V600M810 0V600M855 0V600"/>
+    <path d="M0 45H900M0 90H900M0 135H900M0 180H900M0 225H900M0 270H900M0 315H900
+             M0 360H900M0 405H900M0 450H900M0 495H900M0 540H900M0 585H900"/>
   </g>
 
-  <!-- the chain -->
-  <g font-family="IBM Plex Mono, monospace" font-size="15" fill="#EAF3EC">
-    <g transform="translate(64 60)">
-      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
-      <text x="22" y="38" fill="#9A6F22" font-size="13">01</text>
-      <text x="62" y="38">Company posts a brief</text>
+  <!-- The chain of signatures. -->
+  <g font-family="ui-monospace, 'IBM Plex Mono', monospace">
+    <path d="M96 128 V518" stroke="#FFFFFF" stroke-opacity=".16" stroke-width="1.5"/>
+
+    <g transform="translate(96 128)">
+      <circle r="13" fill="#1E4B3A" stroke="#C79A3E" stroke-width="2"/>
+      <path d="M-5.5 .5 l4 4.5 7.5 -9" fill="none" stroke="#C79A3E"
+            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="30" y="-2" font-size="16" fill="#F0F6F1">Adaeze Obi</text>
+      <text x="30" y="18" font-size="12.5" fill="#9FBDAC">student · submitted the work</text>
     </g>
-    <path d="M290 122 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
-    <g transform="translate(64 148)">
-      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
-      <text x="22" y="38" fill="#9A6F22" font-size="13">02</text>
-      <text x="62" y="38">Lecturer takes it on</text>
+
+    <g transform="translate(96 258)">
+      <circle r="13" fill="#1E4B3A" stroke="#C79A3E" stroke-width="2"/>
+      <path d="M-5.5 .5 l4 4.5 7.5 -9" fill="none" stroke="#C79A3E"
+            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="30" y="-2" font-size="16" fill="#F0F6F1">Dr Bello Ajayi</text>
+      <text x="30" y="18" font-size="12.5" fill="#9FBDAC">supervisor · signed each phase</text>
     </g>
-    <path d="M290 210 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
-    <g transform="translate(64 236)">
-      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
-      <text x="22" y="38" fill="#9A6F22" font-size="13">03</text>
-      <text x="62" y="38">Students build it</text>
+
+    <g transform="translate(96 388)">
+      <circle r="13" fill="#1E4B3A" stroke="#C79A3E" stroke-width="2"/>
+      <path d="M-5.5 .5 l4 4.5 7.5 -9" fill="none" stroke="#C79A3E"
+            stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="30" y="-2" font-size="16" fill="#F0F6F1">University of Lagos</text>
+      <text x="30" y="18" font-size="12.5" fill="#9FBDAC">institution · countersigned</text>
     </g>
-    <path d="M290 298 v26" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-dasharray="4 5"/>
-    <g transform="translate(64 324)">
-      <rect width="452" height="62" rx="5" fill="url(#glass)" stroke="rgba(255,255,255,.22)"/>
-      <text x="22" y="38" fill="#9A6F22" font-size="13">04</text>
-      <text x="62" y="38">Reviewed up the chain</text>
+
+    <g transform="translate(96 518)">
+      <circle r="13" fill="#C79A3E"/>
+      <path d="M-5.5 .5 l4 4.5 7.5 -9" fill="none" stroke="#143024"
+            stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="30" y="-2" font-size="16" fill="#F6E7C4">Pettof Technologies</text>
+      <text x="30" y="18" font-size="12.5" fill="#C79A3E">client · accepted the work</text>
     </g>
-    <path d="M516 417 H596" stroke="#9A6F22" stroke-width="2.5" stroke-dasharray="6 6"/>
-    <path d="M290 386 v31 h226" stroke="rgba(255,255,255,.35)" stroke-width="2" fill="none" stroke-dasharray="4 5"/>
   </g>
 
-  <!-- the certificate -->
-  <g transform="translate(596 404)">
-    <rect width="240" height="168" rx="6" fill="url(#glass)" stroke="rgba(255,255,255,.3)"/>
-    <rect x="18" y="24" width="120" height="9" rx="4" fill="#9A6F22"/>
-    <rect x="18" y="48" width="180" height="7" rx="3" fill="rgba(255,255,255,.4)"/>
-    <rect x="18" y="64" width="150" height="7" rx="3" fill="rgba(255,255,255,.28)"/>
-    <rect x="18" y="80" width="168" height="7" rx="3" fill="rgba(255,255,255,.28)"/>
-    <circle cx="196" cy="126" r="26" fill="none" stroke="#9A6F22" stroke-width="3"/>
-    <circle cx="196" cy="126" r="16" fill="#9A6F22" opacity=".35"/>
-    <path d="M186 126 l7 8 14 -17" stroke="#EAF3EC" stroke-width="3" fill="none"
-          stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- The artefact itself. -->
+  <g transform="translate(352 90) rotate(-1.4)" filter="url(#lift)">
+    <rect width="470" height="424" rx="3" fill="url(#paper)"/>
+    <rect width="470" height="9" fill="url(#brassband)"/>
+
+    <!-- what it is -->
+    <text x="38" y="62" font-family="ui-monospace, 'IBM Plex Mono', monospace"
+          font-size="11.5" letter-spacing="2.6" fill="#7B6230">CERTIFICATE OF SUPERVISED PRACTICE</text>
+    <path d="M38 78 H432" stroke="#D9D2C2" stroke-width="1"/>
+
+    <!-- who and what -->
+    <text x="38" y="116" font-family="Georgia, 'Times New Roman', serif"
+          font-size="15" fill="#6D7A72">Awarded to</text>
+    <text x="38" y="156" font-family="Georgia, 'Times New Roman', serif"
+          font-size="33" font-weight="700" fill="#13201A">Adaeze Obi</text>
+    <text x="38" y="190" font-family="Georgia, 'Times New Roman', serif"
+          font-size="15" fill="#6D7A72">for completing, under supervision,</text>
+    <text x="38" y="224" font-family="Georgia, 'Times New Roman', serif"
+          font-size="22" font-style="italic" fill="#1E4B3A">Pharmacy inventory system</text>
+
+    <!-- the particulars -->
+    <g font-family="ui-monospace, 'IBM Plex Mono', monospace" font-size="11.5">
+      <path d="M38 254 H270" stroke="#E3DDCE" stroke-width="1"/>
+      <text x="38" y="276" fill="#8A948C">INSTITUTION</text>
+      <text x="38" y="294" font-size="13.5" fill="#13201A">University of Lagos</text>
+      <path d="M38 312 H270" stroke="#E3DDCE" stroke-width="1"/>
+      <text x="38" y="334" fill="#8A948C">CLIENT</text>
+      <text x="38" y="352" font-size="13.5" fill="#13201A">Pettof Technologies</text>
+    </g>
+
+    <!-- the seal, pressed into the corner -->
+    <g transform="translate(362 290)">
+      <circle r="56" fill="#9A6F22" opacity=".07"/>
+      <g fill="none" stroke="#9A6F22" stroke-width="8.5" stroke-linecap="round">
+        <path d="M31.5 -24.6 A40 40 0 0 1 31.5 24.6"/>
+        <path d="M24.6 31.5 A40 40 0 0 1 -24.6 31.5"/>
+        <path d="M-31.5 24.6 A40 40 0 0 1 -31.5 -24.6"/>
+        <path d="M-24.6 -31.5 A40 40 0 0 1 24.6 -31.5"/>
+      </g>
+      <circle r="16.5" fill="#9A6F22"/>
+    </g>
+
+    <!-- the serial, which is what makes it checkable -->
+    <path d="M38 388 H432" stroke="#D9D2C2" stroke-width="1"/>
+    <text x="38" y="408" font-family="ui-monospace, 'IBM Plex Mono', monospace"
+          font-size="12.5" fill="#1E4B3A">PX-7K2M9Q4X1B</text>
+    <text x="432" y="408" text-anchor="end"
+          font-family="ui-monospace, 'IBM Plex Mono', monospace"
+          font-size="11" fill="#8A948C">praxorax.com/verify</text>
   </g>
 </svg>

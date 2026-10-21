@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+     aria-label="PraxoraX">
+  <!-- The mark: four arcs closing into a ring around a brass centre.
+
+       The arcs are the four parties a project passes through — student,
+       lecturer, university, company — and the ring only closes when all four
+       have signed. The brass centre is the seal itself, the thing the
+       platform actually produces.
+
+       Drawn on a 64 grid with heavy strokes so it survives at 16px in a
+       browser tab. No gradients, no shadow: a seal is stamped, not lit. -->
+  <g fill="none" stroke="#1E4B3A" stroke-width="5.5" stroke-linecap="round">
+    <path d="M50.91 17.23 A24 24 0 0 1 50.91 46.77"/>
+    <path d="M46.77 50.91 A24 24 0 0 1 17.23 50.91"/>
+    <path d="M13.09 46.77 A24 24 0 0 1 13.09 17.23"/>
+    <path d="M17.23 13.09 A24 24 0 0 1 46.77 13.09"/>
+  </g>
+
+  <circle cx="32" cy="32" r="10" fill="#9A6F22"/>
+</svg>

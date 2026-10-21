@@ -131,7 +131,7 @@ step("with trials off, the landing page stops selling a free week",
      b"free week" not in copy and b"free trial" not in copy
      and b"free for 7 days" not in copy)
 step("and still gives institutions a way in",
-     b"register your institution or company" in copy)
+     b"register your organisation" in copy)
 step("students are still told they never pay", b"never pay" in copy)
 
 off = app.test_client()

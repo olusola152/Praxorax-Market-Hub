@@ -34,6 +34,9 @@ def dashboard():
         "pending": scalar(
             "SELECT COUNT(*) FROM project_requests WHERE lecturer_id=%s AND status='pending'",
             (uid,)),
+        "approved": scalar(
+            "SELECT COUNT(*) FROM project_requests WHERE lecturer_id=%s AND status='approved'",
+            (uid,)),
         "students": scalar("SELECT COUNT(*) FROM assignments WHERE lecturer_id=%s", (uid,)),
         "waiting": scalar(
             """SELECT COUNT(*) FROM submissions s

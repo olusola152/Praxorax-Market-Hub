@@ -2,21 +2,36 @@
      role="img" aria-label="Cybersecurity" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#10303F"/>
-      <stop offset="100%" stop-color="#17455A"/>
+      <stop offset="0%" stop-color="#132A21"/>
+      <stop offset="100%" stop-color="#1F4336"/>
     </linearGradient>
+    <clipPath id="c"><rect width="440" height="280"/></clipPath>
   </defs>
   <rect width="440" height="280" fill="url(#g)"/>
-  <g>
-    <path d="M20 230 L45 70 L70 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M70 230 L95 70 L120 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M120 230 L145 70 L170 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M170 230 L195 70 L220 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M220 230 L245 70 L270 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M270 230 L295 70 L320 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M320 230 L345 70 L370 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M370 230 L395 70 L420 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M20 230 H420" stroke="#3F9B8E" stroke-width="3" opacity=".7"/>
+  <g clip-path="url(#c)">
+    <g stroke="#5DA8C0" fill="none" stroke-width="2.5" opacity=".65">
+    <path d="M178 132 V108 a42 42 0 0 1 84 0 V132"/>
+    </g>
+    <rect x="156" y="132" width="128" height="94" rx="8" fill="#5DA8C0" opacity=".22"/>
+    <rect x="156" y="132" width="128" height="94" rx="8" fill="none" stroke="#5DA8C0" stroke-width="2" opacity=".6"/>
+    <circle cx="220" cy="172" r="9" fill="#5DA8C0" opacity=".85"/>
+    <path d="M220 181 V200" stroke="#5DA8C0" stroke-width="4" opacity=".85" stroke-linecap="round"/>
+    <g stroke="#5DA8C0" stroke-width="1" opacity=".22">
+    <path d="M40 40 V240"/>
+    <path d="M68 40 V240"/>
+    <path d="M96 40 V240"/>
+    <path d="M124 40 V240"/>
+    <path d="M152 40 V240"/>
+    <path d="M180 40 V240"/>
+    <path d="M208 40 V240"/>
+    <path d="M236 40 V240"/>
+    <path d="M264 40 V240"/>
+    <path d="M292 40 V240"/>
+    <path d="M320 40 V240"/>
+    <path d="M348 40 V240"/>
+    <path d="M376 40 V240"/>
+    <path d="M404 40 V240"/>
+    </g>
   </g>
-  <rect width="440" height="280" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+  <rect width="440" height="280" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="2"/>
 </svg>

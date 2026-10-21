@@ -28,7 +28,7 @@
       apply directly. Every submission is reviewed, and every finished project leaves a record
       an employer can check.</p>
     <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your institution or company' }}</a>
+      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your organisation' }}</a>
       <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Join as a student</a>
     </p>
     <p class="hero-note">{% if trial_days %}Universities and companies get {{ trial_days }} days of
@@ -37,8 +37,8 @@
   </div>
   <div class="hero-art">
     <img src="{{ url_for('static', filename='img/hero-chain.svg') }}"
-         alt="Work moving from a company brief, through a lecturer and university, to a verified certificate"
-         width="900" height="640">
+         alt="A certificate of supervised practice stamped with the PraxoraX seal, beside the four signatures that produced it: the student, their supervisor, the university and the client"
+         width="900" height="600">
   </div>
 </section>
 
@@ -118,7 +118,7 @@
       whether their university is here or they joined on their own.</p>
     {% endif %}
     <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start free — university or company' if trial_days else 'Register — university or company' }}</a>
+      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your organisation' }}</a>
       <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Sign up as a student</a>
     </p>
   </div>

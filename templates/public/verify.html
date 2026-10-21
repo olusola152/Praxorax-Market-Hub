@@ -3,10 +3,18 @@
 {% block body_class %}gate{% endblock %}
 
 {% block content %}
+{# Whoever lands here arrived holding a certificate reference, often from an
+   employer checking a candidate. They may never have seen the site before,
+   so the page says whose verification this is and gives them a way back. #}
+<a class="mark mark--standalone" href="{{ url_for('home') }}">
+  <span class="mark-seal" aria-hidden="true"></span>
+  <span class="mark-name">{{ brand }}</span>
+</a>
+
 <section class="page-head">
   <p class="record-label">Verification</p>
   <h1 class="display">Check a certificate</h1>
-  <p class="lede lede--wide">Paste the reference from a {{ brand }} certificate. Works for both
+  <p class="lede">Paste the reference from a {{ brand }} certificate. Works for both
     the per-project certificates a company issues and the consolidated records a student generates.
     No account needed.</p>
 </section>

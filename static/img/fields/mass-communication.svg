@@ -2,18 +2,21 @@
      role="img" aria-label="Mass Communication" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#331E2E"/>
-      <stop offset="100%" stop-color="#4C2C43"/>
+      <stop offset="0%" stop-color="#132A21"/>
+      <stop offset="100%" stop-color="#1F4336"/>
     </linearGradient>
+    <clipPath id="c"><rect width="440" height="280"/></clipPath>
   </defs>
   <rect width="440" height="280" fill="url(#g)"/>
-  <g>
-    <circle cx="200" cy="140" r="40" stroke="#C4577F" stroke-width="1.5" fill="none" opacity="0.5"/>
-    <circle cx="200" cy="140" r="66" stroke="#C4577F" stroke-width="1.5" fill="none" opacity="0.43"/>
-    <circle cx="200" cy="140" r="92" stroke="#C4577F" stroke-width="1.5" fill="none" opacity="0.36"/>
-    <circle cx="200" cy="140" r="118" stroke="#C4577F" stroke-width="1.5" fill="none" opacity="0.29"/>
-    <circle cx="200" cy="140" r="144" stroke="#C4577F" stroke-width="1.5" fill="none" opacity="0.21999999999999997"/>
-    <circle cx="200" cy="140" r="16" fill="#C4577F" opacity=".8"/>
+  <g clip-path="url(#c)">
+    <circle cx="150" cy="140" r="34" stroke="#C05D92" stroke-width="1.6" fill="none" opacity="0.50"/>
+    <circle cx="150" cy="140" r="60" stroke="#C05D92" stroke-width="1.6" fill="none" opacity="0.43"/>
+    <circle cx="150" cy="140" r="86" stroke="#C05D92" stroke-width="1.6" fill="none" opacity="0.36"/>
+    <circle cx="150" cy="140" r="112" stroke="#C05D92" stroke-width="1.6" fill="none" opacity="0.29"/>
+    <circle cx="150" cy="140" r="138" stroke="#C05D92" stroke-width="1.6" fill="none" opacity="0.22"/>
+    <circle cx="150" cy="140" r="13" fill="#C05D92" opacity=".9"/>
+    <path d="M150 140 L150 58" stroke="#C05D92" stroke-width="2.4" opacity=".7"/>
+    <path d="M132 74 L150 58 L168 74" stroke="#C05D92" stroke-width="2.4" fill="none" opacity=".7" stroke-linejoin="round"/>
   </g>
-  <rect width="440" height="280" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+  <rect width="440" height="280" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="2"/>
 </svg>

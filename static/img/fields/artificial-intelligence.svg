@@ -2,21 +2,94 @@
      role="img" aria-label="Artificial Intelligence" preserveAspectRatio="xMidYMid slice">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#10303F"/>
-      <stop offset="100%" stop-color="#17455A"/>
+      <stop offset="0%" stop-color="#132A21"/>
+      <stop offset="100%" stop-color="#1F4336"/>
     </linearGradient>
+    <clipPath id="c"><rect width="440" height="280"/></clipPath>
   </defs>
   <rect width="440" height="280" fill="url(#g)"/>
-  <g>
-    <path d="M20 230 L45 70 L70 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M70 230 L95 70 L120 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M120 230 L145 70 L170 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M170 230 L195 70 L220 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M220 230 L245 70 L270 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M270 230 L295 70 L320 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M320 230 L345 70 L370 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M370 230 L395 70 L420 230" stroke="#3F9B8E" stroke-width="1.8" fill="none" opacity=".45"/>
-    <path d="M20 230 H420" stroke="#3F9B8E" stroke-width="3" opacity=".7"/>
+  <g clip-path="url(#c)">
+    <g stroke="#5DA8C0" stroke-width="1" opacity=".3">
+    <path d="M70 40 L170 40"/>
+    <path d="M70 40 L170 90"/>
+    <path d="M70 40 L170 140"/>
+    <path d="M70 40 L170 190"/>
+    <path d="M70 40 L170 240"/>
+    <path d="M70 107 L170 40"/>
+    <path d="M70 107 L170 90"/>
+    <path d="M70 107 L170 140"/>
+    <path d="M70 107 L170 190"/>
+    <path d="M70 107 L170 240"/>
+    <path d="M70 173 L170 40"/>
+    <path d="M70 173 L170 90"/>
+    <path d="M70 173 L170 140"/>
+    <path d="M70 173 L170 190"/>
+    <path d="M70 173 L170 240"/>
+    <path d="M70 240 L170 40"/>
+    <path d="M70 240 L170 90"/>
+    <path d="M70 240 L170 140"/>
+    <path d="M70 240 L170 190"/>
+    <path d="M70 240 L170 240"/>
+    <path d="M170 40 L270 40"/>
+    <path d="M170 40 L270 90"/>
+    <path d="M170 40 L270 140"/>
+    <path d="M170 40 L270 190"/>
+    <path d="M170 40 L270 240"/>
+    <path d="M170 90 L270 40"/>
+    <path d="M170 90 L270 90"/>
+    <path d="M170 90 L270 140"/>
+    <path d="M170 90 L270 190"/>
+    <path d="M170 90 L270 240"/>
+    <path d="M170 140 L270 40"/>
+    <path d="M170 140 L270 90"/>
+    <path d="M170 140 L270 140"/>
+    <path d="M170 140 L270 190"/>
+    <path d="M170 140 L270 240"/>
+    <path d="M170 190 L270 40"/>
+    <path d="M170 190 L270 90"/>
+    <path d="M170 190 L270 140"/>
+    <path d="M170 190 L270 190"/>
+    <path d="M170 190 L270 240"/>
+    <path d="M170 240 L270 40"/>
+    <path d="M170 240 L270 90"/>
+    <path d="M170 240 L270 140"/>
+    <path d="M170 240 L270 190"/>
+    <path d="M170 240 L270 240"/>
+    <path d="M270 40 L370 40"/>
+    <path d="M270 40 L370 140"/>
+    <path d="M270 40 L370 240"/>
+    <path d="M270 90 L370 40"/>
+    <path d="M270 90 L370 140"/>
+    <path d="M270 90 L370 240"/>
+    <path d="M270 140 L370 40"/>
+    <path d="M270 140 L370 140"/>
+    <path d="M270 140 L370 240"/>
+    <path d="M270 190 L370 40"/>
+    <path d="M270 190 L370 140"/>
+    <path d="M270 190 L370 240"/>
+    <path d="M270 240 L370 40"/>
+    <path d="M270 240 L370 140"/>
+    <path d="M270 240 L370 240"/>
+    </g>
+    <g fill="#5DA8C0">
+    <circle cx="70" cy="40" r="5" opacity=".85"/>
+    <circle cx="70" cy="107" r="5" opacity=".85"/>
+    <circle cx="70" cy="173" r="5" opacity=".85"/>
+    <circle cx="70" cy="240" r="5" opacity=".85"/>
+    <circle cx="170" cy="40" r="5" opacity=".85"/>
+    <circle cx="170" cy="90" r="5" opacity=".85"/>
+    <circle cx="170" cy="140" r="5" opacity=".85"/>
+    <circle cx="170" cy="190" r="5" opacity=".85"/>
+    <circle cx="170" cy="240" r="5" opacity=".85"/>
+    <circle cx="270" cy="40" r="5" opacity=".85"/>
+    <circle cx="270" cy="90" r="5" opacity=".85"/>
+    <circle cx="270" cy="140" r="5" opacity=".85"/>
+    <circle cx="270" cy="190" r="5" opacity=".85"/>
+    <circle cx="270" cy="240" r="5" opacity=".85"/>
+    <circle cx="370" cy="40" r="5" opacity=".85"/>
+    <circle cx="370" cy="140" r="5" opacity=".85"/>
+    <circle cx="370" cy="240" r="5" opacity=".85"/>
+    </g>
   </g>
-  <rect width="440" height="280" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="2"/>
+  <rect width="440" height="280" fill="none" stroke="#FFFFFF" stroke-opacity=".08" stroke-width="2"/>
 </svg>

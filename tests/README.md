@@ -29,6 +29,7 @@ export UPLOAD_FOLDER=/tmp/uploads
 | `test_v4_modules.py` | an **empty** database | teams, deliverables, company KYC, bookmarks and match scoring |
 | `test_v4_pages.py` | `python seed_demo.py` run first | the pages those four modules added |
 | `test_v5_trial.py` | an **empty** database | the 7-day trial, its expiry, and the imagery |
+| `test_v14_identity.py` | `python seed_demo.py` run first | the mark, the tab icon, the hero plate and the faculty tiles: every tile well-formed, one shared ground, every field in the database covered, and no button whose text colour matches its own background |
 | `test_v13_presentations.py` | `python seed_demo.py` run first | project presentations: proposing, agreeing, the join window, attendance, and who may record the outcome |
 | `test_v12_admin_deck.py` | `python seed_demo.py` run first | the admin deck, the chain board, and the public students view |
 | `test_v11_email.py` | `python seed_demo.py`, and `pip install aiosmtpd` | email alerts, against a real SMTP server on localhost — nothing mocked |

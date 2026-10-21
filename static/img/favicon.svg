@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+     aria-label="PraxoraX">
+  <!-- Tab icon. The same mark as seal.svg, inverted onto a seal-green plate.
+
+       A browser tab can be light or dark and the page has no say in which, so
+       the mark carries its own ground rather than relying on the tab's. The
+       arcs are widened and the gaps narrowed from the full-size mark: at
+       16px the original gaps close up into a plain ring anyway, so they are
+       cut back to the point where four arcs still read as four. -->
+  <rect width="64" height="64" rx="14" fill="#1E4B3A"/>
+
+  <g fill="none" stroke="#E7EBE3" stroke-width="6" stroke-linecap="round">
+    <path d="M48.97 19.6 A21 21 0 0 1 48.97 44.4"/>
+    <path d="M44.4 48.97 A21 21 0 0 1 19.6 48.97"/>
+    <path d="M15.03 44.4 A21 21 0 0 1 15.03 19.6"/>
+    <path d="M19.6 15.03 A21 21 0 0 1 44.4 15.03"/>
+  </g>
+
+  <circle cx="32" cy="32" r="8.5" fill="#D8A848"/>
+</svg>
