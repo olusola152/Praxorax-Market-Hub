@@ -2133,3 +2133,50 @@ a.tile-stat:hover { border-color: var(--deck-dim); }
 /* The mark standing on its own, above a page with no header — the public
    certificate check, which strangers reach from a reference on paper. */
 .mark--standalone { display: inline-flex; margin-bottom: 2rem; }
+
+/* ======================================================================
+   IDLE SIGN-OUT WARNING
+   Sits above everything because it is about to take the page away. Brass,
+   which on this site means a human needs to do something, rather than the
+   red of something already broken.
+   ====================================================================== */
+.idle-bar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: .7rem 1.1rem;
+  background: #F6ECD8;
+  border-bottom: 1px solid var(--brass);
+  color: #4A3609;
+  font-size: .9rem;
+}
+
+.idle-bar .btn {
+  padding: .4rem 1rem;
+  font-size: .85rem;
+  background: var(--brass);
+  border-color: var(--brass);
+}
+.idle-bar .btn:hover { background: #845E1B; border-color: #845E1B; }
+
+/* On the dark admin deck the paper-coloured bar would glare. */
+.deck .idle-bar {
+  background: #2A2110;
+  border-bottom-color: var(--deck-brass);
+  color: #F2DFB4;
+}
+.deck .idle-bar .btn {
+  background: var(--deck-brass);
+  border-color: var(--deck-brass);
+  color: #231B0A;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .idle-bar { animation: idle-in .18s ease-out; }
+  @keyframes idle-in { from { transform: translateY(-100%); } to { transform: none; } }
+}

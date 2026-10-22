@@ -96,6 +96,19 @@ class Config:
     MAIL_TIMEOUT = int(os.environ.get("MAIL_TIMEOUT", "20"))
     MAIL_SYNCHRONOUS = _flag("MAIL_SYNCHRONOUS")   # tests only
 
+    # ------------------------------------------------------- idle timeout
+    # Sign someone out after this many minutes with no activity. Activity
+    # means the person did something — a page, a form, a click or a keystroke
+    # — not merely that a browser tab is open on the site.
+    #
+    # 0 switches it off. Keep it on anywhere a student might sign in on a
+    # shared library machine and walk away.
+    IDLE_TIMEOUT_MINUTES = max(int(os.environ.get("IDLE_TIMEOUT_MINUTES", "20")), 0)
+
+    # How long before the deadline the warning appears, so a half-written
+    # submission is not lost without notice.
+    IDLE_WARN_SECONDS = max(int(os.environ.get("IDLE_WARN_SECONDS", "90")), 15)
+
     # How many failed sign-ins from one address before it is made to wait.
     LOGIN_MAX_ATTEMPTS = int(os.environ.get("LOGIN_MAX_ATTEMPTS", 8))
     LOGIN_LOCKOUT_SECONDS = int(os.environ.get("LOGIN_LOCKOUT_SECONDS", 300))

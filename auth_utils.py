@@ -3,9 +3,11 @@
 import re
 import secrets
 import string
+import time
 from functools import wraps
 
-from flask import current_app, flash, g, redirect, request, session, url_for
+from flask import (current_app, flash, g, jsonify, redirect, request, session,
+                   url_for)
 
 from db import execute, query
 
@@ -77,7 +79,90 @@ def sign_in(user):
     session.clear()
     session["user_id"] = user["id"]
     session["role"] = user["role"]
+    session["seen"] = time.time()
+    session.permanent = True
     execute("UPDATE users SET last_login_at = NOW() WHERE id = %s", (user["id"],))
+
+
+# --------------------------------------------------------------- idle timeout
+#
+# A session ends after a period with no activity. Two things make this
+# trustworthy rather than decorative:
+#
+#   * The clock lives in the session cookie, which is signed, so a browser
+#     cannot wind it back. Nothing here trusts a value the page sent.
+#   * The check runs before every request, so an expired session cannot be
+#     used even by a tab that never reloaded.
+#
+# "Activity" means the person did something. A request is activity; so is a
+# keystroke or a click, reported by the heartbeat in static/js/session.js,
+# because somebody typing a long submission is not idle and should not lose
+# it. Simply having the tab open is not activity.
+
+# Requests that are not activity.
+#
+# Static files are not a person doing something — a page's own assets would
+# otherwise refresh the clock on every load.
+#
+# The heartbeat is the subtle one. It has to be allowed through so it can
+# report the time remaining, but it must not refresh the clock on its own,
+# or the page's own "how long have I got?" question would answer itself and
+# no session with JavaScript running would ever expire. It refreshes the
+# clock only when it says it is reporting real activity, with ?keepalive=1.
+IDLE_IGNORE = ("/static/", "/favicon")
+IDLE_NO_TOUCH = ("/session/ping",)
+
+
+def idle_limit():
+    """Seconds of inactivity allowed, or 0 when the timeout is switched off."""
+    return current_app.config.get("IDLE_TIMEOUT_MINUTES", 0) * 60
+
+
+def seconds_left():
+    """How long the current session has before it expires, or None."""
+    limit = idle_limit()
+    if not limit or not session.get("user_id"):
+        return None
+    return max(0, int(session.get("seen", 0) + limit - time.time()))
+
+
+def touch_session():
+    """Mark the session as active now."""
+    if session.get("user_id"):
+        session["seen"] = time.time()
+        session.permanent = True
+
+
+def enforce_idle_timeout():
+    """Runs before every request. Returns a response when the session is over.
+
+    On expiry the person is sent to the sign-in page with a message saying
+    what happened and where they were, so they land back on the page they
+    were using rather than on a bare dashboard.
+    """
+    limit = idle_limit()
+    if not limit or not session.get("user_id"):
+        return None
+    if any(request.path.startswith(p) for p in IDLE_IGNORE):
+        return None
+
+    if time.time() - session.get("seen", 0) < limit:
+        # Still live. Whether that counts as activity is a separate question:
+        # the heartbeat decides for itself.
+        if not any(request.path.startswith(p) for p in IDLE_NO_TOUCH):
+            touch_session()
+        return None
+
+    session.clear()
+
+    # An asynchronous caller gets an answer it can act on rather than a login
+    # page it would have to parse.
+    if (any(request.path.startswith(p) for p in IDLE_NO_TOUCH)
+            or request.accept_mimetypes.best == "application/json"):
+        return jsonify({"signed_in": False, "reason": "idle"}), 401
+
+    nxt = request.full_path.rstrip("?") if request.method == "GET" else None
+    return redirect(url_for("auth.login", timeout=1, next=nxt))
 
 
 def dashboard_for(role):

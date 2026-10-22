@@ -2,12 +2,13 @@ import re
 
 from datetime import date, datetime, timedelta, timezone
 
-from flask import (Blueprint, current_app, flash, g, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, current_app, flash, g, jsonify, redirect,
+                   render_template, request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import mailer
-from auth_utils import dashboard_for, log_action, sign_in, slugify
+from auth_utils import (dashboard_for, log_action, seconds_left, sign_in,
+                        slugify, touch_session)
 from db import get_db, query
 from security import clear_failures, login_blocked, record_failure
 
@@ -209,6 +210,15 @@ def login():
     if g.get("user"):
         return redirect(dashboard_for(g.user["role"]))
 
+    # enforce_idle_timeout sends people here with ?timeout=1 after clearing
+    # their session. Saying so beats a bare sign-in page that looks as though
+    # something went wrong.
+    if request.args.get("timeout") and request.method == "GET":
+        minutes = current_app.config["IDLE_TIMEOUT_MINUTES"]
+        spell = "a minute" if minutes == 1 else f"{minutes} minutes"
+        flash(f"Signed out after {spell} without activity. "
+              f"Sign in to pick up where you left off.", "error")
+
     email = ""
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -248,3 +258,26 @@ def logout():
     session.clear()
     flash("Signed out.", "success")
     return redirect(url_for("auth.login"))
+
+
+@auth_bp.route("/session/ping", methods=["POST"])
+def ping():
+    """Report how long this session has left, and keep it alive if asked.
+
+    The page calls this when the person has actually done something — typed,
+    clicked, scrolled, or sat in a video call. Getting here at all means
+    enforce_idle_timeout already found the session live, so the only thing
+    left to decide is whether this counts as activity or is just the page
+    asking for the time.
+
+    It never extends a session beyond what the server already allows, so a
+    page that pinged in a loop could keep a session open — which is exactly
+    what someone working continuously should get.
+    """
+    if not session.get("user_id"):
+        return jsonify({"signed_in": False}), 401
+
+    if request.args.get("keepalive") == "1":
+        touch_session()
+
+    return jsonify({"signed_in": True, "seconds_left": seconds_left()})

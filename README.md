@@ -1136,3 +1136,71 @@ labels; and `stats.waiting` — submissions sitting with that lecturer, the one
 number on the page that asks them to act — was computed and never displayed.
 All six tiles now carry a distinct, correct number, and the actionable one is
 marked in seal green rather than the brass that means something has gone wrong.
+
+---
+
+## Update — idle sign-out
+
+No migration. Replace the files and set the timeout in `.env`:
+
+```
+IDLE_TIMEOUT_MINUTES=20     # 0 switches it off
+IDLE_WARN_SECONDS=90        # how early the warning appears
+```
+
+A session used to last until the browser was closed, so someone who signed in
+on a shared library machine and walked away left it open for the next person.
+
+### What counts as activity
+
+Not "the tab is open" — **the person did something**. A page, a form, a click
+or a keystroke. Sitting on a dashboard overnight is idle; typing a project
+summary for twenty minutes is not.
+
+That distinction needs both halves of the app. The server can only see
+requests, so to it a person writing a long submission looks asleep and would
+lose the lot on submit. `static/js/session.js` watches for real interaction —
+keys, pointer, wheel, touch — and reports it, at most every `limit / 3`
+seconds.
+
+**The server decides.** It keeps the clock in the signed session cookie, so a
+page cannot wind it back, and it checks before every request, so a tab that
+never reloaded cannot use an expired session. Turning JavaScript off does not
+defeat the timeout; it only removes the warning.
+
+### The warning
+
+At 90 seconds the page says so and offers **Stay signed in**. Losing
+half-written work to a silent timeout is the thing people remember about a
+site. Someone who is actively working never sees it — the heartbeat refreshes
+the clock before it gets that far.
+
+### Coming back
+
+Expiry sends you to the sign-in page with the reason and the page you were on,
+so signing in again returns you there rather than to a bare dashboard. The
+return path is checked: only paths on this site are followed.
+
+### Two faults worth knowing about
+
+Both were the same shape — something that looked like activity but was not.
+
+**The heartbeat reset its own clock.** The before-request hook refreshed the
+session on every request, including the heartbeat asking how long was left. A
+page that asks the time was answering it, and no session with JavaScript
+running could ever expire. The check and the refresh are now separate: the
+heartbeat extends the session only when it says it is reporting activity.
+
+**The warning kept the session alive.** Showing the bar inserts a sticky
+element at the top of the page, which shifts the layout and fires a `scroll`
+event — which the script counted as activity. The warning renewed the session
+by appearing. `scroll` is no longer treated as activity; wheel, key, pointer
+and touch cover a reading person without being triggerable by the page's own
+DOM changes.
+
+### Video calls
+
+A presentation runs in an iframe, so nothing the presenter does reaches the
+page — half an hour of defending a project would look like half an hour of
+sitting still. The room sets a flag while a call is open and the heartbeat
+keeps the session alive until the call ends.

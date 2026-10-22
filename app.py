@@ -1,9 +1,11 @@
 import os
+from datetime import timedelta
 
 from flask import Flask, g, jsonify, redirect, render_template, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from auth_utils import ROLE_LABELS, dashboard_for, load_current_user
+from auth_utils import (ROLE_LABELS, dashboard_for, enforce_idle_timeout,
+                        load_current_user, seconds_left)
 from config import Config
 from db import close_db
 
@@ -27,7 +29,16 @@ def create_app():
                 exist_ok=True)
 
     app.teardown_appcontext(close_db)
+
+    # Order matters. The idle check runs first and can end the request before
+    # the user is ever loaded, so an expired session never reaches a view.
+    app.before_request(enforce_idle_timeout)
     app.before_request(load_current_user)
+
+    # The cookie itself expires too, so closing the browser for longer than
+    # the timeout leaves nothing behind to resume.
+    app.permanent_session_lifetime = timedelta(
+        minutes=max(app.config["IDLE_TIMEOUT_MINUTES"], 1) + 5)
 
     @app.context_processor
     def inject_notifications():
@@ -67,7 +78,9 @@ def create_app():
         # one is actually on. A site that advertises a free week and then
         # hands out a pending account is worse than one that never mentioned it.
         return {"role_labels": ROLE_LABELS, "brand": app.config["BRAND"],
-                "trial_days": app.config["TRIAL_DAYS"]}
+                "trial_days": app.config["TRIAL_DAYS"],
+                "idle_seconds_left": seconds_left(),
+                "idle_warn_at": app.config["IDLE_WARN_SECONDS"]}
 
     @app.context_processor
     def inject_next_session():

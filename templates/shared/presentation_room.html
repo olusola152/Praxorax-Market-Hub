@@ -218,6 +218,12 @@
   var mount = document.getElementById('call');
   if (!mount || typeof JitsiMeetExternalAPI === 'undefined') { return; }
 
+  // A call runs inside an iframe, so nothing the person does in it reaches
+  // this page — half an hour of presenting would look like half an hour of
+  // sitting still and the idle timeout would sign them out mid-defence.
+  // This flag tells static/js/session.js that the person is in the room.
+  document.body.dataset.idleHold = "1";
+
   var api = new JitsiMeetExternalAPI(mount.dataset.domain, {
     roomName: mount.dataset.room,
     parentNode: mount,
@@ -244,6 +250,7 @@
 
   // Leaving the call returns to the record of it rather than a blank frame.
   api.addEventListener('readyToClose', function () {
+    document.body.dataset.idleHold = "0";
     window.location = '{{ url_for('presentations.room', presentation_id=session.id) }}';
   });
 })();
