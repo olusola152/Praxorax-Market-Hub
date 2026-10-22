@@ -16,7 +16,7 @@ import invitations
 import mailer
 from auth_utils import role_required
 from db import execute, get_db, query, scalar
-from workflow import notify
+from workflow import notify, receipt
 
 teams_bp = Blueprint("teams", __name__, url_prefix="/teams")
 
@@ -177,6 +177,14 @@ def invite(team_id):
             current_app._get_current_object(), email, g.user["fullname"],
             team["name"], row["token"])
 
+        receipt(g.user["id"], f"Invitation sent: {email}",
+                f"You invited {email} to join your team \"{team['name']}\". "
+                f"They are not on {current_app.config['BRAND']} yet, so they "
+                f"have been sent a link to sign up. They join the team as soon "
+                f"as they do, and you will be told. The invitation lasts "
+                f"{invitations.INVITE_VALID_DAYS} days.",
+                url_for("teams.detail", team_id=team_id))
+
         if sent:
             flash(f"{email} is not on {current_app.config['BRAND']} yet, so we "
                   f"have emailed them an invitation. They join the team as "
@@ -216,6 +224,12 @@ def invite(team_id):
     notify(person["id"],
            f"{g.user['fullname']} invited you to join the team \"{team['name']}\".",
            url_for("teams.index"))
+    receipt(g.user["id"], f"Invitation sent: {person['fullname']}",
+            f"You invited {person['fullname']} to join your team "
+            f"\"{team['name']}\". They have been told and it is now waiting "
+            f"for them to accept.",
+            url_for("teams.detail", team_id=team_id))
+
     flash(f"Invitation sent to {person['fullname']}.", "success")
     return redirect(url_for("teams.detail", team_id=team_id))
 

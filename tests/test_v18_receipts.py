@@ -215,6 +215,35 @@ if asg:
 else:
     step("a placement exists to submit against", False, "none found")
 
+# ------------------------------------------------------- sending an invite
+print("\n--- inviting someone to a team ---\n")
+
+lead = login("ada@demo.marketplace")
+lead.post("/teams/new", data={"name": "Receipt Team"}, follow_redirects=True)
+with app.app_context():
+    team = query("SELECT id FROM teams WHERE name='Receipt Team' ORDER BY id DESC",
+                 one=True)["id"]
+
+INBOX.clear()
+lead.post(f"/teams/{team}/invite", data={"email": "outsider@v18.test"},
+          follow_redirects=True)
+step("the invited address is emailed",
+     any("outsider@v18.test" in to_of(m) for m in INBOX), len(INBOX))
+mine = [m for m in INBOX if "ada@demo.marketplace" in to_of(m)]
+step("and the person who sent it gets a receipt", len(mine) == 1, len(INBOX))
+if mine:
+    step("naming who was invited", "outsider@v18.test" in plain(mine[0]))
+    step("and saying they are not here yet", "not on" in plain(mine[0]))
+
+INBOX.clear()
+lead.post(f"/teams/{team}/invite", data={"email": "chidi@demo.marketplace"},
+          follow_redirects=True)
+mine = [m for m in INBOX if "ada@demo.marketplace" in to_of(m)]
+step("inviting someone who is already here also confirms", len(mine) == 1,
+     len(INBOX))
+if mine:
+    step("naming them", "Chidi" in plain(mine[0]) or "chidi" in plain(mine[0]).lower())
+
 # ----------------------------------------------- respecting the switch
 print("\n--- the switch is still the switch ---\n")
 

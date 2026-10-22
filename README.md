@@ -1368,6 +1368,8 @@ know.
 * a student applying for a brief
 * a student submitting work — naming the version, the files, and who has it now
 * a lecturer requesting a brief, or placing students on one
+* sending a team invitation — the invited address gets the invitation, and
+  whoever sent it gets a confirmation naming them
 
 ### What does not, and why
 

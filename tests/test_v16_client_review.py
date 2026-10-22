@@ -89,10 +89,15 @@ step("an invitation is recorded", inv is not None and inv["status"] == "pending"
 step("with a token long enough not to be guessed", len(inv["token"]) >= 24)
 step("and an expiry", inv["expires_at"] is not None)
 
-step("an email went out", len(INBOX) == 1, len(INBOX))
-if INBOX:
-    text = body_of(INBOX[0])
-    step("it names who invited them", "Ada" in text or "Ada" in str(INBOX[0]["Subject"]))
+# Two now: the invitation itself, and since v12 a receipt to whoever sent it.
+to_invitee = [m for m in INBOX if "stranger@v16.test" in str(m["To"])]
+step("the invitation is emailed", len(to_invitee) == 1, len(INBOX))
+step("and the sender gets their own confirmation",
+     any("ada@demo.marketplace" in str(m["To"]) for m in INBOX))
+if to_invitee:
+    text = body_of(to_invitee[0])
+    step("it names who invited them",
+         "Ada" in text or "Ada" in str(to_invitee[0]["Subject"]))
     step("it names the team", "Review Team" in text)
     step("and carries the signup link", f"/register?invite={inv['token']}" in text)
     step("the link is the only thing that identifies it",
