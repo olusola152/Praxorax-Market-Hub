@@ -6,11 +6,13 @@ from flask import (Blueprint, current_app, flash, g, jsonify, redirect,
                    render_template, request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import invitations
 import mailer
 from auth_utils import (dashboard_for, log_action, seconds_left, sign_in,
                         slugify, touch_session)
 from db import get_db, query
 from security import clear_failures, login_blocked, record_failure
+from workflow import notify
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -57,6 +59,19 @@ def register():
     form = {"role": request.args.get("as", "company")}
     if form["role"] not in roles:
         form["role"] = "company"
+
+    # Arriving from a team invitation: say who sent it, fill in the address it
+    # was sent to, and start them on the student form, because only students
+    # join teams.
+    invite = None
+    token = request.args.get("invite")
+    if token:
+        invite = invitations.by_token(token)
+        if not invitations.live(invite):
+            invite = None
+        elif request.method == "GET":
+            form["role"] = "student"
+            form["email"] = invite["email"]
 
     if request.method == "POST":
         form = {k: v.strip() for k, v in request.form.items()}
@@ -164,9 +179,28 @@ def register():
                             form["fullname"], role)
 
         if role == "student":
-            flash("Welcome. Browse the open briefs and apply for anything that "
-                  "fits — no subscription needed.", "success")
-            return redirect(url_for("student.browse"))
+            # Somebody may have invited this address to a team before it had
+            # an account. Those invitations become membership now.
+            joined = invitations.claim_for(user_id, email)
+            if joined:
+                names = ", ".join(f'"{j["team_name"]}"' for j in joined)
+                for j in joined:
+                    notify(j["invited_by"],
+                           f"{form['fullname']} has signed up and your "
+                           f"invitation to \"{j['team_name']}\" is waiting for "
+                           f"them to accept.",
+                           url_for("teams.detail", team_id=j["team_id"]))
+                flash(f"Welcome. You were invited to {names} — accept on your "
+                      f"Teams page. Then browse the open briefs.", "success")
+                return redirect(url_for("teams.index"))
+
+            # Straight to the profile rather than the feed. A student who
+            # browses first hits the gate at the moment they want to apply,
+            # which is the worst time to be told to go and write a bio.
+            flash("Welcome. Fill this in once and you can apply for any brief "
+                  "— it is what a company sees when it decides. Nothing to pay.",
+                  "success")
+            return redirect(url_for("student.profile"))
 
         if trial_status == "trial":
             flash(f"Your {trial_days}-day free trial has started — everything is "
@@ -183,7 +217,7 @@ def register():
         return redirect(dashboard_for(role))
 
     return render_template("auth/register.html", form=form, fields=fields,
-                           roles=roles)
+                           roles=roles, invite=invite)
 
 
 # ------------------------------------------------------------------ joining

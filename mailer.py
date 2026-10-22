@@ -104,6 +104,46 @@ def send(to_address, to_name, subject, body, url=None, app=None):
     return True
 
 
+def send_now(app, to_address, to_name, subject, body, url=None):
+    """Send one message on this thread and say what happened.
+
+    Everything else here is fire-and-forget on a background thread, which is
+    right for alerts and useless for answering "is email actually working?".
+    This waits, and hands back the server's own refusal so a person can act
+    on it instead of guessing.
+
+    Returns (sent, detail). detail is empty on success.
+    """
+    if not app.config.get("MAIL_ENABLED"):
+        return False, "Email is switched off for this site (MAIL_ENABLED)."
+    if not app.config.get("MAIL_HOST"):
+        return False, "No mail server is configured (MAIL_HOST)."
+    if not app.config.get("MAIL_FROM"):
+        return False, "No sending address is configured (MAIL_FROM)."
+    if not to_address:
+        return False, "This account has no email address."
+
+    msg = _build(app.config, to_address, to_name, subject, body, url)
+    try:
+        host, port = app.config["MAIL_HOST"], app.config["MAIL_PORT"]
+        timeout = app.config.get("MAIL_TIMEOUT", 20)
+        if app.config.get("MAIL_SSL"):
+            server = smtplib.SMTP_SSL(host, port, timeout=timeout,
+                                      context=ssl.create_default_context())
+        else:
+            server = smtplib.SMTP(host, port, timeout=timeout)
+        with server:
+            if app.config.get("MAIL_STARTTLS") and not app.config.get("MAIL_SSL"):
+                server.starttls(context=ssl.create_default_context())
+            if app.config.get("MAIL_USER"):
+                server.login(app.config["MAIL_USER"], app.config["MAIL_PASSWORD"])
+            server.send_message(msg)
+        return True, ""
+    except Exception as exc:
+        log.warning("test mail to %s failed: %s", to_address, exc)
+        return False, f"{type(exc).__name__}: {exc}"
+
+
 def subject_for(body, brand):
     """A subject line from the alert text, cut at the first sentence."""
     first = body.split(". ")[0].strip().rstrip(".")
@@ -155,6 +195,27 @@ WELCOME_NO_TRIAL = {
         "your students on them. Every submission passes through you before it "
         "reaches the company."),
 }
+
+
+def send_team_invite(app, to_address, from_name, team_name, token):
+    """Ask someone with no account to join a team.
+
+    The only thing in the link is the token. It does not name the team or the
+    address, so forwarding the mail is the only way to pass the invitation on.
+    """
+    if not configured(app):
+        return False
+
+    brand = app.config["BRAND"]
+    body = (f"{from_name} has invited you to join the team \"{team_name}\" on "
+            f"{brand}, where students take on real projects posted by companies "
+            f"and get a verified record of the work.\n\n"
+            f"You do not have an account yet. Create one with this address and "
+            f"you will find the invitation waiting on your Teams page. It is "
+            f"free for students, and the link below fills in the rest.")
+
+    return send(to_address, None, f"{from_name} invited you to a team on {brand}",
+                body, f"/register?invite={token}", app=app)
 
 
 def send_welcome(app, to_address, to_name, role):

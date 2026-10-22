@@ -34,7 +34,9 @@
 {% if team.me.role == 'lead' and team.status in ('forming','applied') %}
 <section class="panel">
   <h2 class="panel-title">Invite someone</h2>
-  <p class="lede">They need an account here already. Up to {{ max_members }} people on a team.</p>
+  <p class="lede">They do not need an account yet — anyone you invite by email
+    gets a link to sign up, and joins the team as soon as they do. Up to
+    {{ max_members }} people on a team, counting invitations not yet answered.</p>
   <form method="post" action="{{ url_for('teams.invite', team_id=team.id) }}" class="inline-form">
     <label class="field">
       <span>Their email</span>
@@ -42,6 +44,30 @@
     </label>
     <button class="btn" type="submit">Send invitation</button>
   </form>
+
+  {% if invited %}
+  <h3 class="sub">Waiting for them to sign up</h3>
+  <table class="ledger">
+    <thead><tr><th>Address</th><th>Invited</th><th>Expires</th><th></th></tr></thead>
+    <tbody>
+      {% for i in invited %}
+      <tr>
+        <td class="mono">{{ i.email }}</td>
+        <td class="mono">{{ i.created_at.strftime('%d %b %Y') }}</td>
+        <td class="mono">{{ i.expires_at.strftime('%d %b %Y') }}</td>
+        <td>
+          <form method="post" class="inline"
+                action="{{ url_for('teams.cancel_invitation', team_id=team.id, invitation_id=i.id) }}">
+            <button class="btn btn--small btn--quiet" type="submit">Withdraw</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="muted small">They join the moment they create an account with that
+    address. Nothing is shared with them until then.</p>
+  {% endif %}
 </section>
 {% endif %}
 

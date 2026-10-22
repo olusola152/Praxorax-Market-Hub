@@ -87,6 +87,15 @@ with app.app_context():
             "verification_status='verified'")
     proj = query("SELECT id FROM projects WHERE status='open' LIMIT 1", one=True)
 if proj:
+    # Since v11 applying needs a profile a company can judge.
+    pub.post("/student/profile", data={
+        "bio": "Independent student. I build dashboards and reporting tools, "
+               "and have shipped two of them for small businesses.",
+        "level": "400"}, follow_redirects=True)
+    with app.app_context():
+        _sk = query("SELECT id FROM skills LIMIT 1", one=True)["id"]
+    pub.post("/student/skills", data={"skills": [str(_sk)]}, follow_redirects=True)
+
     pub.post(f"/student/projects/{proj['id']}/apply",
              data={"message": "I have built two dashboards and can start immediately."},
              follow_redirects=True)

@@ -12,6 +12,7 @@ from flask import (Blueprint, abort, current_app, flash, g, redirect,
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import mailer
+import invitations
 from auth_utils import dashboard_for, log_action, sign_in
 from db import get_db, query
 from workflow import effective_status, subscription_live
@@ -167,8 +168,18 @@ def student_signup(slug):
         mailer.send_welcome(current_app._get_current_object(), email,
                             form["fullname"], "student")
         log_action("register_student", "user", user_id, uni["name"])
-        flash(f"Account created under {uni['name']}.", "success")
-        return redirect(dashboard_for("student"))
+
+        # Same as the main-page signup: the profile first. A student placed
+        # by a lecturer is not gated on it, but the company reading their
+        # work still sees this page, so it is worth filling in now.
+        joined = invitations.claim_for(user_id, email)
+        if joined:
+            flash(f"Account created under {uni['name']}. You were also invited "
+                  f"to a team — it is waiting on your Teams page.", "success")
+        else:
+            flash(f"Account created under {uni['name']}. Fill this in so "
+                  f"companies can see who they are working with.", "success")
+        return redirect(url_for("student.profile"))
 
     return render_template("portal/student_signup.html", uni=uni, fields=fields,
                            form=form, closed=closed)

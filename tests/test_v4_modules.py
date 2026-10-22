@@ -119,9 +119,14 @@ with app.app_context():
         "SELECT COUNT(*) FROM team_members WHERE team_id=%s AND role='lead' "
         "AND status='active'", (team["id"],)) == 1)
 
+# Since v11 an address with no account is invited rather than refused: the
+# invitation waits, and becomes membership when they sign up.
 r = led.post(f"/teams/{team['id']}/invite", data={"email": "nobody@v4.test"},
              follow_redirects=True)
-step("inviting a non-account is refused", "No account here".encode() in r.data)
+with app.app_context():
+    step("inviting a non-account creates a pending invitation",
+         scalar("SELECT COUNT(*) FROM team_invitations WHERE email='nobody@v4.test'"
+                " AND status='pending'") == 1)
 r = led.post(f"/teams/{team['id']}/invite", data={"email": "hr@v4.test"},
              follow_redirects=True)
 step("inviting a company is refused", b"Only students can join" in r.data)
@@ -153,6 +158,15 @@ step("a non-member cannot open the team",
      outsider.get(f"/teams/{team['id']}").status_code == 403)
 
 # team applies for the brief
+# Whoever applies needs a profile a company can judge, team or not.
+led.post("/student/profile", data={
+    "bio": "Final year student leading a two-person team. We build Flask "
+           "dashboards and charting tools, and have shipped work before.",
+    "level": "400", "department": "Computer Science"}, follow_redirects=True)
+with app.app_context():
+    _sk = query("SELECT id FROM skills LIMIT 1", one=True)["id"]
+led.post("/student/skills", data={"skills": [str(_sk)]}, follow_redirects=True)
+
 r = led.post(f"/student/projects/{proj['id']}/apply", data={
     "team_id": str(team["id"]),
     "message": "We are two final-year students with Flask and charting experience."},

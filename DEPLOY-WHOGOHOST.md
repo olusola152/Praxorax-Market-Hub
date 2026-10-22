@@ -93,7 +93,7 @@ Python version in cPanel — that is almost always the fix.
 ## 6. The database
 
 Supabase stays where it is; nothing moves. In the Supabase SQL editor run, in
-order: `schema.sql`, then `migration_v3` through `migration_v9`.
+order: `schema.sql`, then `migration_v3` through `migration_v10`.
 
 If the database already has your data, run only the migrations you have not
 applied yet. They are all additive and safe to re-run.

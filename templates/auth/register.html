@@ -6,6 +6,13 @@
 {% block content %}
 <section class="gate-pitch">
   <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
+  {% if invite %}
+  <h1 class="display">{{ invite.invited_by_name }}<br>invited you.</h1>
+  <p class="lede"><strong>{{ invite.invited_by_name }}</strong> wants you on the
+    team &ldquo;{{ invite.team_name }}&rdquo;. Create a student account with
+    {{ invite.email }} and the invitation will be waiting on your Teams page.
+    It is free for students and there is nothing to pay, ever.</p>
+  {% else %}
   <h1 class="display">Join the<br>marketplace.</h1>
   <p class="lede">Companies post real briefs. Universities get their own portal and bring their lecturers and students to deliver them. Students anywhere can join on their own and apply for work directly.</p>
   <dl class="record-strip">
@@ -15,6 +22,7 @@
     <div><dt>Student</dt><dd>Apply for briefs yourself — free</dd></div>
     {% endif %}
   </dl>
+  {% endif %}
   <p class="lede" style="margin-top:1.6rem">
     Lecturer? You join through your institution's portal.
     <a href="{{ url_for('auth.join_index') }}">Find it here</a>.

@@ -4,6 +4,7 @@ from flask import (Blueprint, abort, current_app, flash, g, redirect,
                    render_template, request, url_for)
 
 import matching
+import profiles
 import storage
 from auth_utils import is_independent_student, role_required, subscription_required
 from db import execute, get_db, query, scalar
@@ -392,7 +393,16 @@ def profile():
                  request.form.get("department", "").strip() or None,
                  request.form.get("level", "").strip() or None,
                  "available" in request.form, uid))
-            flash("Profile updated.", "success")
+
+            # Saying so here is the whole point of the gate: a student who
+            # has just finished should hear it, not discover it by applying.
+            if profiles.refresh_completion(uid):
+                flash("Profile updated — it is complete, so you can apply for "
+                      "briefs now.", "success")
+            else:
+                left = profiles.missing(profiles.profile_of(uid))
+                flash("Saved. Still needed before you can apply: "
+                      + "; ".join(what for _, what in left) + ".", "error")
         return redirect(url_for("student.profile"))
 
     profile_row = query(
@@ -422,6 +432,8 @@ def profile():
 
     return render_template(
         "student/profile.html", profile=profile_row,
+        gaps=profiles.missing(profiles.profile_of(uid)),
+        tips=profiles.suggestions(profile_row),
         work_history=work_history, certificates=certificates,
         all_skills=query("SELECT id, name FROM skills ORDER BY name"),
         my_skills={r["skill_id"] for r in query(
@@ -481,6 +493,17 @@ def apply(project_id):
                   f"{project['max_students']} place(s).", "error")
             return redirect(url_for("student.project_detail", project_id=project_id))
         team_id = team["id"]
+
+    # Last check before anything is written, and deliberately last. A student
+    # who does not lead the team they named should hear that, not be sent off
+    # to write a bio that would not have helped; someone whose only problem is
+    # a thin profile should hear the thing they can actually fix.
+    gaps = profiles.missing(profiles.profile_of(g.user["id"]))
+    if gaps:
+        flash("Finish your profile before applying — a company needs "
+              "something to judge: " + "; ".join(what for _, what in gaps) + ".",
+              "error")
+        return redirect(url_for("student.profile"))
 
     existing = query(
         "SELECT id, status FROM project_applications WHERE project_id=%s AND student_id=%s",
@@ -672,6 +695,10 @@ def save_skills():
     except Exception:
         conn.rollback()
         raise
+
+    # Skills count towards a complete profile, so saving them can be the
+    # thing that opens applications.
+    profiles.refresh_completion(g.user["id"])
 
     flash(f"{len(chosen)} skill{'' if len(chosen) == 1 else 's'} saved. "
           "Briefs are now scored against them.", "success")

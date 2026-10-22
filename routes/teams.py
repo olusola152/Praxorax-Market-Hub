@@ -9,9 +9,11 @@ Only students can be in a team. An invitation goes to an email address that
 already belongs to a student account — there is no invite-a-stranger flow,
 because an account has to exist before it can be placed on a project.
 """
-from flask import (Blueprint, abort, flash, g, redirect, render_template,
-                   request, url_for)
+from flask import (Blueprint, abort, current_app, flash, g, redirect,
+                   render_template, request, url_for)
 
+import invitations
+import mailer
 from auth_utils import role_required
 from db import execute, get_db, query, scalar
 from workflow import notify
@@ -130,6 +132,7 @@ def detail(team_id):
     return render_template(
         "student/team_detail.html", team=team, members=members_of(team_id),
         max_members=MAX_MEMBERS,
+        invited=invitations.pending_for_team(team_id),
         placements=query(
             """SELECT a.id, u.fullname FROM assignments a
                  JOIN users u ON u.id = a.student_id
@@ -149,21 +152,48 @@ def invite(team_id):
         "SELECT id, fullname, role FROM users WHERE email=%s AND status='active'",
         (email,), one=True)
 
-    if not person:
-        flash("No account here uses that email. Ask them to sign up first.", "error")
-        return redirect(url_for("teams.detail", team_id=team_id))
-    if person["role"] != "student":
-        flash("Only students can join a team.", "error")
-        return redirect(url_for("teams.detail", team_id=team_id))
-    if person["id"] == g.user["id"]:
-        flash("You are already on this team.", "error")
+    if not email or "@" not in email:
+        flash("Enter the email address of the person you want on the team.",
+              "error")
         return redirect(url_for("teams.detail", team_id=team_id))
 
     count = scalar(
         """SELECT COUNT(*) FROM team_members WHERE team_id=%s
             AND status IN ('active','invited')""", (team_id,))
-    if count >= MAX_MEMBERS:
-        flash(f"A team tops out at {MAX_MEMBERS} people.", "error")
+    if count + invitations.pending_count(team_id) >= MAX_MEMBERS:
+        flash(f"A team tops out at {MAX_MEMBERS} people, counting invitations "
+              f"that have not been answered.", "error")
+        return redirect(url_for("teams.detail", team_id=team_id))
+
+    # Nobody here uses that address yet. Invite the address instead, and the
+    # invitation becomes membership the moment they sign up.
+    if not person:
+        if email == g.user["email"].lower():
+            flash("That is your own address.", "error")
+            return redirect(url_for("teams.detail", team_id=team_id))
+
+        row = invitations.invite_email(team_id, email, g.user["id"])
+        sent = mailer.send_team_invite(
+            current_app._get_current_object(), email, g.user["fullname"],
+            team["name"], row["token"])
+
+        if sent:
+            flash(f"{email} is not on {current_app.config['BRAND']} yet, so we "
+                  f"have emailed them an invitation. They join the team as "
+                  f"soon as they sign up.", "success")
+        else:
+            flash(f"{email} is not here yet. The invitation is saved and will "
+                  f"be waiting when they sign up — but this site cannot send "
+                  f"email at the moment, so send them the link yourself: "
+                  f"{current_app.config['BASE_URL']}"
+                  f"{url_for('auth.register', invite=row['token'])}", "success")
+        return redirect(url_for("teams.detail", team_id=team_id))
+
+    if person["role"] != "student":
+        flash("Only students can join a team.", "error")
+        return redirect(url_for("teams.detail", team_id=team_id))
+    if person["id"] == g.user["id"]:
+        flash("You are already on this team.", "error")
         return redirect(url_for("teams.detail", team_id=team_id))
 
     existing = query(
@@ -187,6 +217,17 @@ def invite(team_id):
            f"{g.user['fullname']} invited you to join the team \"{team['name']}\".",
            url_for("teams.index"))
     flash(f"Invitation sent to {person['fullname']}.", "success")
+    return redirect(url_for("teams.detail", team_id=team_id))
+
+
+@teams_bp.route("/<int:team_id>/invitations/<int:invitation_id>/cancel",
+                methods=["POST"])
+@role_required("student")
+def cancel_invitation(team_id, invitation_id):
+    """Withdraw an invitation sent to an address that never signed up."""
+    team_for(team_id, must_lead=True)
+    invitations.cancel(invitation_id, team_id)
+    flash("Invitation withdrawn.", "success")
     return redirect(url_for("teams.detail", team_id=team_id))
 
 

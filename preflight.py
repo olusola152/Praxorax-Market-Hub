@@ -146,7 +146,7 @@ def main():
             for table in ("users", "projects", "assignments", "submissions",
                           "submission_files", "teams", "deliverables",
                           "portfolio_certificates", "presentations",
-                          "presentation_attendees"):
+                          "presentation_attendees", "team_invitations"):
                 try:
                     scalar(f"SELECT COUNT(*) FROM {table}")
                 except Exception:

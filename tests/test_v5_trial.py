@@ -97,6 +97,13 @@ r = st.get("/student/projects")
 step("an outsider browses briefs with no trial and no subscription",
      r.status_code == 200 and b"Driver earnings" in r.data)
 step("no trial banner is shown to a student", b"Free trial" not in r.data)
+# Since v11 a student needs a profile a company can judge before applying.
+st.post("/student/profile", data={"bio": "Final year student. I build Flask dashboards with Chart.js and have shipped reporting tools for two small businesses.", "level": "400"},
+        follow_redirects=True)
+with app.app_context():
+    _sk = query("SELECT id FROM skills LIMIT 1", one=True)["id"]
+st.post("/student/skills", data={"skills": [str(_sk)]}, follow_redirects=True)
+
 r = st.post(f"/student/projects/{proj['id']}/apply",
             data={"message": "I have built two Flask dashboards with Chart.js."},
             follow_redirects=True)

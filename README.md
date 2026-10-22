@@ -1204,3 +1204,89 @@ A presentation runs in an iframe, so nothing the presenter does reaches the
 page — half an hour of defending a project would look like half an hour of
 sitting still. The room sets a flag while a call is open and the heartbeat
 keeps the session alive until the call ends.
+
+---
+
+## Update — the client's review
+
+Run `database/migration_v10.sql` after v9. Additive.
+
+A client tested the deployed site and sent five points. Three were code; this
+update is those three. The other two are below.
+
+### Inviting people who are not here yet
+
+The team page could only invite accounts that already existed, which made it
+useless for what students actually do — pull in a coursemate who has never
+heard of the site.
+
+Now an address with no account gets an invitation and an email. They sign up,
+and the invitation becomes membership on the spot. A few details that matter:
+
+* **They land as `invited`, not `active`.** Following a link is not the same as
+  agreeing to join a team, and the Teams page already knows how to show a
+  pending invitation.
+* **The address claims the invitation, not the token.** Signing up with the
+  invited address works whether or not they used the emailed link, which is
+  what happens when someone types the address in by hand.
+* **The emailed link carries only a token.** It does not name the team or the
+  address, so forwarding the mail is the only way to pass the invitation on.
+* Invitations expire after 21 days, count towards the team's size limit while
+  they are outstanding, and can be withdrawn.
+* If the site cannot send email, the invitation is still saved and the link is
+  shown to the team lead to pass on themselves.
+
+### A profile a company can judge
+
+A student could apply with nothing on their profile but a name. Companies were
+choosing between applicants on no evidence.
+
+Four things are now required before applying: a field of study, a level, at
+least 80 characters about themselves, and one skill. A GitHub link is
+suggested, never required — plenty of good students in plenty of fields do not
+have one.
+
+The gate is **where the work is wasted, not at the door**. A new student lands
+on their profile with the four items listed, rather than being stopped later at
+the moment they want to apply. Every refusal names what is missing; "incomplete"
+on its own would be worse than no gate at all.
+
+Order matters in `student.apply`: the profile check runs **after** the checks
+about the brief and the team. A student who does not lead the team they named
+should hear that, not be sent off to write a bio that would not have helped.
+
+A student placed by a lecturer is not gated — that is their supervisor's
+judgement to make.
+
+### Proving email works
+
+The complaint was that the setting said email was on and nothing arrived. The
+confirmation message and the not-configured warning already existed; neither
+had been seen, because the switch is **on by default**, so there was nothing to
+toggle and nothing that generated an alert.
+
+So the fix is proof, not reassurance:
+
+* **Send me a test email** on the alerts page. It sends on this thread rather
+  than a background one, waits, and reports the server's own refusal —
+  `MAIL_ENABLED`, a connection refused, a bad password — instead of failing
+  quietly. One a minute.
+* If `BASE_URL` still points at localhost, a delivered test says so: links
+  inside every email are built from it, so mail that arrives from a
+  misconfigured site is still useless.
+* The empty alert list now says what would appear there and that an empty list
+  does not mean alerts are off.
+
+### The two that are not code
+
+**The 20-second Render wake-up** is the free tier sleeping after inactivity. A
+scheduled pinger does not really solve it — the free tier allows 750 instance
+hours a month and keeping one service awake consumes roughly all of them. The
+honest fix is the paid instance.
+
+**Uploaded files do not survive a deploy on Render.** Submissions are written
+to disk with only their metadata in Postgres, and Render's filesystem is
+ephemeral, so every student upload is lost on the next deploy — the 410 page,
+with nothing to recover. This needs either a Render persistent disk mounted at
+`UPLOAD_FOLDER` or a move to object storage. It is the most serious thing on
+this list and it is not visible until it bites.

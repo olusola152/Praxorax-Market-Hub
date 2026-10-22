@@ -18,7 +18,10 @@
   {% endfor %}
 </ul>
 {% else %}
-<p class="empty">Nothing yet.</p>
+<p class="empty">Nothing yet. Alerts land here when something needs you — a
+  team invitation, a company answering an application, work coming back for
+  corrections, or a presentation being booked. An empty list means none of
+  those has happened, not that alerts are switched off.</p>
 {% endif %}
 
 <section class="panel">
@@ -36,6 +39,17 @@
   {% if not mail_configured %}
   <p class="card-foot">Email is not switched on for this site yet, so nothing is
     being sent. An administrator sets this up in the server configuration.</p>
+  {% else %}
+  <p class="card-foot">Email is working on this site. The switch above controls
+    whether <em>you</em> get any.</p>
+
+  {% if user_email_alerts %}
+  <form method="post" action="{{ url_for('settings.test_email') }}">
+    <button class="btn btn--small btn--quiet" type="submit">Send me a test email</button>
+  </form>
+  <p class="muted small">Goes to {{ g.user.email }} straight away, and tells you
+    the result rather than failing quietly.</p>
+  {% endif %}
   {% endif %}
 </section>
 {% endblock %}

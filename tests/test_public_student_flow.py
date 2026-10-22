@@ -47,13 +47,34 @@ with app.app_context():
                 JOIN users u ON u.id=sp.user_id WHERE u.email='ada@public.test'""",one=True)
 step("public student signed up on main page", bool(sp) and sp["role"]=="student")
 step("student is independent (no university)", bool(sp) and sp["university_id"] is None)
-step("landed on the project feed", b"Driver earnings" in r.data)
+# Since v11 a new student lands on their profile rather than the feed: a
+# company needs something to judge before an application is worth anything.
+step("landed on the profile, to finish it first", b"Finish your profile" in r.data)
 
 # --- signing out and back in works ----------------------------------------
 st.post("/logout")
 r=st.post("/login", data={"email":"ada@public.test","password":"password123"},
           follow_redirects=True)
 step("public student can sign in", b"Ada Obi" in r.data or r.status_code==200)
+
+# --- the profile gate stands between signup and applying ------------------
+r=st.post(f"/student/projects/{proj['id']}/apply",
+          data={"message":"I have built two Flask dashboards with Chart.js and I can export CSV."},
+          follow_redirects=True)
+with app.app_context():
+    step("an empty profile cannot apply",
+         scalar("SELECT COUNT(*) FROM project_applications")==0)
+step("and is told what is missing", b"Finish your profile before applying" in r.data)
+
+st.post("/student/profile", data={
+    "bio":"Final year computer science student. I build Flask dashboards with "
+          "Chart.js and have shipped two reporting tools for small businesses.",
+    "level":"400 level","department":"Computer Science"}, follow_redirects=True)
+with app.app_context():
+    sk=query("SELECT id FROM skills LIMIT 1",one=True)["id"]
+st.post("/student/skills", data={"skills":[str(sk)]}, follow_redirects=True)
+r=st.get("/student/profile")
+step("a filled-in profile opens the gate", b"Your profile is complete" in r.data)
 
 # --- applies directly, with NO subscription anywhere ----------------------
 r=st.post(f"/student/projects/{proj['id']}/apply",

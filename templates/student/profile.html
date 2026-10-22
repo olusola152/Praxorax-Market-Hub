@@ -7,6 +7,27 @@
   <p class="lede">{{ profile.university_name or '' }}{% if profile.field_name %} · {{ profile.field_name }}{% endif %}{% if profile.level %} · {{ profile.level }} level{% endif %}</p>
 </section>
 
+{% if gaps %}
+<section class="panel panel--ask">
+  <h2 class="panel-title">Finish your profile to apply for briefs</h2>
+  <p class="lede">A company deciding between applicants has only what is here
+    to go on. These {{ gaps|length }} are needed before you can apply —
+    everything else on this page is optional.</p>
+  <ul class="plain">
+    {% for _, what in gaps %}<li>{{ what }}</li>{% endfor %}
+  </ul>
+</section>
+{% else %}
+<section class="panel">
+  <h2 class="panel-title">Your profile is complete</h2>
+  <p class="muted">You can apply for any open brief.
+    {% if tips %}These are not required, but they help:{% endif %}</p>
+  {% if tips %}
+  <ul class="plain">{% for t in tips %}<li>{{ t }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+{% endif %}
+
 <section class="panel">
   <h2 class="panel-title">Your details</h2>
   <form method="post" novalidate>
