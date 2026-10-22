@@ -160,11 +160,14 @@ step("no trial countdown is shown to it", b"trial-bar" not in r.data)
 
 with app.app_context():
     import mailer
-    step("the welcome email stops promising a trial",
-         "free trial" not in mailer.WELCOME_NO_TRIAL["company"]
-         and "free trial" not in mailer.WELCOME_NO_TRIAL["university"])
-    step("and says what actually happens next",
-         "administrator activates" in mailer.WELCOME_NO_TRIAL["company"])
+    # The welcome copy never promises a trial; the sentence about one is
+    # added only when a trial is actually on.
+    step("the welcome copy makes no promise about a trial",
+         all("trial" not in body for body in mailer.WELCOME.values()))
+    step("and there is a sentence ready for when there is one",
+         "trial" in mailer.TRIAL_SENTENCE["company"])
+    step("it names the platform from the configured brand",
+         "{brand}" in mailer.WELCOME["company"])
 
 # Switching the setting off must not reach back and cut short a trial that
 # was already promised.

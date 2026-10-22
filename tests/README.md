@@ -31,6 +31,7 @@ export UPLOAD_FOLDER=/tmp/uploads
 | `test_v4_modules.py` | an **empty** database | teams, deliverables, company KYC, bookmarks and match scoring |
 | `test_v4_pages.py` | `python seed_demo.py` run first | the pages those four modules added |
 | `test_v5_trial.py` | an **empty** database | the 7-day trial, its expiry, and the imagery |
+| `test_v18_receipts.py` | `python seed_demo.py`, and `pip install aiosmtpd` | confirmation emails to whoever acted, and the welcome copy, against a real SMTP server |
 | `test_v17_university_check.py` | `python seed_demo.py` run first | verifying an institution: the closed portal, the evidence, the decision, and that subscription stays a separate gate |
 | `test_v16_client_review.py` | `python seed_demo.py`, and `pip install aiosmtpd` | the three things the client asked for: inviting people who are not here yet, the profile gate, and proving email works |
 | `test_v15_idle.py` | `python seed_demo.py` run first | idle sign-out: the clock, the heartbeat, the return path, and that asking the time does not reset the timer |

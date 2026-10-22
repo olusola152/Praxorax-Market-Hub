@@ -43,6 +43,13 @@ def _build(cfg, to_address, to_name, subject, body, url):
     link = f"{cfg['BASE_URL'].rstrip('/')}{url}" if url else cfg["BASE_URL"]
     brand = cfg["BRAND"]
 
+    # A blank line in the body means a new paragraph. Escaping the whole
+    # thing into one <p> turned every multi-paragraph message into a wall.
+    paragraphs = "".join(
+        f'<p style="margin:0 0 18px;font-size:16px;line-height:1.55">'
+        f'{html.escape(part.strip())}</p>'
+        for part in body.split("\n\n") if part.strip())
+
     msg.set_content(
         f"{body}\n\n{link}\n\n--\n{brand}\n"
         f"To stop these emails, turn them off in your account settings.")
@@ -54,7 +61,7 @@ def _build(cfg, to_address, to_name, subject, body, url):
        border-top:4px solid #1E4B3A;padding:28px">
     <p style="margin:0 0 20px;font-size:13px;letter-spacing:.14em;
          text-transform:uppercase;color:#6B7A72">{html.escape(brand)}</p>
-    <p style="margin:0 0 24px;font-size:16px;line-height:1.55">{html.escape(body)}</p>
+    {paragraphs}
     <a href="{html.escape(link)}" style="display:inline-block;background:#1E4B3A;
        color:#fff;text-decoration:none;padding:11px 20px;font-size:14px">Open it</a>
     <p style="margin:26px 0 0;font-size:12px;color:#6B7A72;line-height:1.5">
@@ -156,44 +163,68 @@ def subject_for(body, brand):
 
 WELCOME = {
     "student": (
-        "Your account is ready. Browse the open briefs, apply to anything that "
-        "fits what you can do, and send your work through the site. Companies "
-        "review it and sign it off, and every finished project goes on your "
-        "portfolio with a certificate you can show an employer. Nothing to pay."),
+        "Welcome to {brand}, where students do real work for real companies "
+        "and leave with a record an employer can check.\n\n"
+        "Here is how it goes. Companies post briefs — actual work they need "
+        "done, with a deadline and a field of study. You apply for the ones "
+        "that fit, send your work through the site, and it is reviewed before "
+        "it is accepted. Every project you finish goes on your portfolio with "
+        "a certificate carrying a reference anyone can verify.\n\n"
+        "Two things to do now. Finish your profile — it is what a company "
+        "sees when it decides between applicants, and you cannot apply until "
+        "it is done. Then browse the open briefs.\n\n"
+        "Students pay nothing here, ever."),
+
     "company": (
-        "Your account is ready and your free trial has started. Post a brief "
-        "and universities will bring their students to it. Before a brief can "
-        "go live we verify your company — send your registration document from "
-        "the Verification page and an administrator will look at it."),
+        "Welcome to {brand}, where companies get real work delivered by "
+        "supervised students.\n\n"
+        "You post a brief: work you actually need done, with a deadline and "
+        "the skills it calls for. Universities bring their lecturers, who "
+        "take briefs on and place their own students; students who joined "
+        "independently apply to you directly. Either way the work comes back "
+        "reviewed, and you decide whether it passes.\n\n"
+        "One step before a brief can go live: we verify every company. Send "
+        "your registration document from the Verification page and an "
+        "administrator will look at it. You can draft briefs meanwhile."),
+
     "university": (
-        "Your institution is set up and your free trial has started. Issue "
-        "passcodes so your lecturers can join, and they will take on company "
-        "briefs and place your students on them. Every submission passes "
-        "through you before it reaches the company."),
+        "Welcome to {brand}, where your students get supervised experience "
+        "on real company work.\n\n"
+        "Your institution gets its own portal. You issue passcodes, your "
+        "lecturers join with them and take on company briefs, and they place "
+        "your students. Every submission passes through you before it reaches "
+        "the company, so nothing leaves in your name unseen.\n\n"
+        "One step first: we confirm every institution before its portal takes "
+        "signups, because that portal carries your name and asks students for "
+        "their matriculation numbers. Send us something that shows the "
+        "institution is yours — a page on your own domain will usually do — "
+        "and an administrator will look at it."),
+
     "lecturer": (
-        "You are registered with your institution. Browse the open briefs, "
-        "request any that suit your field, and once the company approves you "
-        "can place your own students on it and review what they send."),
-    "admin": "Your administrator account is ready.",
+        "Welcome to {brand}. You are registered with your institution.\n\n"
+        "Companies post real briefs with deadlines and required skills. "
+        "Browse them, request the ones that suit your field, and once the "
+        "company approves you can place your own students on them as "
+        "practical coursework.\n\n"
+        "Their work comes to you first. You review each phase, send it back "
+        "for corrections if it needs them, and pass it up when it is ready."),
+
+    "admin": (
+        "Your {brand} administrator account is ready.\n\n"
+        "Two things wait on you: verifying companies and institutions before "
+        "they can trade on their names here, and activating subscriptions. "
+        "The operations deck shows both, along with any work that has sat "
+        "with one reviewer for more than a week."),
 }
 
-# The same two messages for a site with trials switched off. Only the sentence
-# about what access they have changes — a new account is pending until an
-# administrator activates it, and saying so at signup saves a support email
-# asking why nothing works yet.
-WELCOME_NO_TRIAL = {
-    "company": (
-        "Your account is ready. Post a brief and universities will bring their "
-        "students to it. Two things happen before a brief can go live: we "
-        "verify your company — send your registration document from the "
-        "Verification page — and an administrator activates your subscription. "
-        "We will be in touch about both."),
-    "university": (
-        "Your institution is registered. An administrator will activate your "
-        "subscription and be in touch. Once it is live you issue passcodes so "
-        "your lecturers can join, and they take on company briefs and place "
-        "your students on them. Every submission passes through you before it "
-        "reaches the company."),
+# Added to the two paying roles when a free period is actually on. Kept as
+# one sentence rather than a second copy of every message, because two full
+# sets drift apart the first time one of them is edited.
+TRIAL_SENTENCE = {
+    "company": ("Your free trial has started: {days} days of everything, with "
+                "nothing to pay and no card needed."),
+    "university": ("Your free trial has started: {days} days of everything, "
+                   "with nothing to pay and no card needed."),
 }
 
 
@@ -224,12 +255,15 @@ def send_welcome(app, to_address, to_name, role):
     Not a notification — there is no in-app equivalent and nothing to link to
     beyond the dashboard — so it is sent directly rather than through notify().
     """
-    if app.config.get("TRIAL_DAYS"):
-        body = WELCOME.get(role)
-    else:
-        body = WELCOME_NO_TRIAL.get(role) or WELCOME.get(role)
-
+    body = WELCOME.get(role)
     if not body or not configured(app):
         return False
+
     brand = app.config["BRAND"]
+    body = body.format(brand=brand)
+
+    days = app.config.get("TRIAL_DAYS", 0)
+    if days and role in TRIAL_SENTENCE:
+        body += "\n\n" + TRIAL_SENTENCE[role].format(days=days)
+
     return send(to_address, to_name, f"Welcome to {brand}", body, "/", app=app)

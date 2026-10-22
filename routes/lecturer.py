@@ -6,7 +6,7 @@ from flask import (Blueprint, abort, flash, g, redirect, render_template,
 import storage
 from auth_utils import log_action, role_required, subscription_required
 from db import execute, get_db, query, scalar
-from workflow import (chain_people, history, notify, record_review,
+from workflow import (chain_people, history, notify, receipt, record_review,
                       submission_for,
                       submission_files)
 
@@ -196,6 +196,11 @@ def request_project(project_id):
                f"take on \"{project['title']}\" for {places} student(s).",
                url_for("company.requests", project_id=project_id))
         log_action("request_project", "project", project_id)
+        receipt(g.user["id"], "Request sent to the company",
+                "Your request to take on a brief has been sent. The company "
+                "decides, and you will be emailed either way. You can place "
+                "students on it once they accept.",
+                url_for("lecturer.dashboard"))
         flash("Request sent. The company decides before you can place students.", "success")
     else:
         flash("You have already asked for this project.", "error")
@@ -282,6 +287,12 @@ def assign(project_id):
         raise
 
     log_action("assign_students", "project", project_id, f"{placed} placed")
+    if placed:
+        receipt(g.user["id"], f"{placed} student(s) placed",
+                f"You have placed {placed} student(s) on a brief. Each has been "
+                f"told and can start work; their submissions come to you first.",
+                url_for("lecturer.students"))
+
     flash(f"{placed} student(s) assigned. They have been notified." if placed
           else "No students were assigned — check the places you were granted.",
           "success" if placed else "error")

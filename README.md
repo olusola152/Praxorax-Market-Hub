@@ -1349,3 +1349,58 @@ this check read `verification_status` from it, got `None`, and refused every
 institution forever — including verified ones. Anything in the university
 section that needs the full row now reads it properly. If you add a column and
 something mysteriously never sees it, look there first.
+
+---
+
+## Update — confirmation emails
+
+No migration.
+
+The platform emailed the other party and never the person who acted. A company
+posted a brief and heard nothing. A student uploaded work and had no way to
+tell whether it had arrived — which is exactly the moment they most want to
+know.
+
+### What now gets a receipt
+
+* a company publishing a brief, from the form or from a draft
+* a company accepting or declining an application
+* a student applying for a brief
+* a student submitting work — naming the version, the files, and who has it now
+* a lecturer requesting a brief, or placing students on one
+
+### What does not, and why
+
+Not every click. A platform that emails on everything teaches people to ignore
+its email, and a sending address that behaves that way ends up in spam folders
+— which costs you the messages that did matter. Receipts go to actions that
+create a **record**: something you would want proof of later.
+
+A receipt is email only. The person already saw a message on screen, so an
+in-app alert repeating what they just did would be noise in the one place
+that is supposed to mean *something needs you*.
+
+Receipts respect the per-account email switch, and a dead mail server never
+stops the work — the brief is still published, the application still sent.
+There is a test for exactly that.
+
+### The welcome email
+
+Rewritten for all five roles. Each one now says what PraxoraX is, how the work
+actually flows for that role, and the single next thing to do — finish your
+profile, send your registration document, confirm your institution, issue
+passcodes.
+
+Two things were wrong underneath it:
+
+**The brand was hardcoded.** `BRAND` is configurable and the copy said
+"PraxoraX" regardless. It reads the setting now.
+
+**Paragraphs were being flattened.** The HTML builder escaped the whole body
+into a single `<p>`, so every multi-paragraph message arrived as one block of
+text. A blank line in the body is now a paragraph in both the plain-text and
+HTML parts.
+
+The trial promise is a single appended sentence rather than a second full set
+of messages. Two parallel copies drift apart the first time one is edited, and
+this one had already started to.

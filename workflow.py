@@ -99,6 +99,33 @@ def notify(user_id, body, url=None, email=True):
                 (notification_id,))
 
 
+def receipt(user_id, subject, body, url=None):
+    """Email someone a confirmation of something they just did.
+
+    Different from notify() on purpose. notify() tells the *other* party and
+    leaves a row in their alerts; this tells the person who acted, by email
+    only. They already saw a message on screen, so an in-app alert repeating
+    what they just did would be noise in the one place that is supposed to
+    mean "something needs you".
+
+    What gets one: actions that create a record — a brief published, work
+    submitted, an application sent or decided. Not every click. A platform
+    that emails on everything teaches people to ignore its email, and a
+    sending address that behaves that way ends up in spam folders, which
+    costs you the messages that did matter.
+    """
+    if not user_id or not mailer.configured():
+        return False
+
+    person = query(
+        """SELECT email, fullname, email_notifications FROM users
+            WHERE id=%s AND status='active'""", (user_id,), one=True)
+    if not person or not person["email_notifications"]:
+        return False
+
+    return mailer.send(person["email"], person["fullname"], subject, body, url)
+
+
 def notify_many(user_ids, body, url=None):
     for uid in {u for u in user_ids if u}:
         notify(uid, body, url)

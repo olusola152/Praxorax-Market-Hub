@@ -10,6 +10,7 @@ from auth_utils import is_independent_student, role_required, subscription_requi
 from db import execute, get_db, query, scalar
 from routes.deliverables import published_for
 from workflow import (chain_people, first_stage, files_for_assignment, history,
+                      receipt,
                       notify, STAGE_LABEL, submission_files)
 
 student_bp = Blueprint("student", __name__, url_prefix="/student")
@@ -338,6 +339,19 @@ def work(assignment_id):
                    url_for("company.inbox"))
             flash(f"Sent to {row['company_name']} with {carried}.", "success")
 
+        # Proof it left. A student who uploads work and hears nothing back has
+        # no way to tell whether it arrived, and this is the moment they most
+        # want to know.
+        went_to = ("your team, to confirm before it goes out"
+                   if stage == "awaiting_team"
+                   else row["lecturer_name"] if stage == "with_lecturer"
+                   else row["company_name"])
+        receipt(g.user["id"], f"Work received: {row['title']}",
+                f"Version {version} of your work on \"{row['title']}\" has been "
+                f"received with {carried}, and is now with {went_to}. You will "
+                f"be emailed when it has been reviewed.",
+                url_for("student.work", assignment_id=assignment_id))
+
         return redirect(url_for("student.work", assignment_id=assignment_id))
 
     submissions = query(
@@ -531,6 +545,12 @@ def apply(project_id):
     notify(project["company_user_id"],
            f"{g.user['fullname']} applied for \"{project['title']}\".",
            url_for("company.applications"))
+    receipt(g.user["id"], f"Application sent: {project['title']}",
+            f"Your application for \"{project['title']}\" has reached "
+            f"{project['company_name']}. They review applications themselves "
+            f"and you will be emailed either way.",
+            url_for("student.applications"))
+
     flash(f"Sent to {project['company_name']}. You will be told when they decide.",
           "success")
     return redirect(url_for("student.applications"))

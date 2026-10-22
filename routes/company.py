@@ -6,7 +6,8 @@ from flask import (Blueprint, abort, flash, g, redirect, render_template,
 import storage
 from auth_utils import log_action, role_required, subscription_required
 from db import execute, get_db, query, scalar
-from workflow import (chain_people, history, notify, notify_many, record_review,
+from workflow import (chain_people, history, notify, notify_many, receipt,
+                      record_review,
                       submission_for,
                       submission_files)
 
@@ -143,6 +144,15 @@ def create_project():
             raise
 
         log_action("create_project", "project", pid, form["title"])
+
+        if publish_now:
+            receipt(g.user["id"], f"Brief published: {form['title']}",
+                    f"\"{form['title']}\" is live. Lecturers can see it and ask "
+                    f"to take it on, and independent students can apply "
+                    f"directly. You will be emailed when either happens. "
+                    f"Deadline {form['deadline']}.",
+                    url_for("company.projects"))
+
         flash("Project published. Lecturers can now take it on." if publish_now
               else "Saved as a draft.", "success")
         return redirect(url_for("company.projects"))
@@ -167,6 +177,14 @@ def publish_project(project_id):
         """UPDATE projects SET status='open', published_at=COALESCE(published_at, NOW()), updated_at=NOW()
             WHERE id=%s AND company_id=%s AND status='draft' RETURNING id""",
         (project_id, g.user["company_id"]), returning=True)
+    if changed:
+        brief = query("SELECT title, deadline FROM projects WHERE id=%s",
+                      (project_id,), one=True)
+        receipt(g.user["id"], f"Brief published: {brief['title']}",
+                f"\"{brief['title']}\" is live and open to lecturers and "
+                f"students. Deadline {brief['deadline'].strftime('%d %b %Y')}.",
+                url_for("company.projects"))
+
     flash("Project published." if changed else "That project could not be published.",
           "success" if changed else "error")
     return redirect(url_for("company.projects"))
@@ -507,6 +525,11 @@ def decide_application(application_id, decision):
                f"this time.",
                url_for("student.applications"))
         log_action("application_declined", "project_application", application_id)
+        receipt(g.user["id"], f"Application declined: {row['student_name']}",
+                f"You declined {row['student_name']}'s application for "
+                f"\"{row['title']}\". They have been told, in those words — "
+                f"not yours — and the brief stays open.",
+                url_for("company.applications"))
         flash("Application declined.", "success")
         return redirect(url_for("company.applications"))
 
@@ -594,6 +617,12 @@ def decide_application(application_id, decision):
     log_action("application_accepted", "project_application", application_id)
     who = (f"{row['team_name']} ({len(assignment_ids)} students)"
            if row["team_id"] else row["student_name"])
+    receipt(g.user["id"], f"Placed on your brief: {who}",
+            f"{who} now working on \"{row['title']}\". They report to you "
+            f"directly and their submissions come straight to you. "
+            f"Deadline {row['deadline'].strftime('%d %b %Y')}.",
+            url_for("company.applications"))
+
     flash(f"{who} on the brief. They report to you directly.", "success")
     return redirect(url_for("company.applications"))
 
