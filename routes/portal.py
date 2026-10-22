@@ -34,6 +34,20 @@ def _demo():
     return current_app.config.get("DEMO_MODE", False)
 
 
+def _open(uni):
+    """Whether this institution's public portal may take signups.
+
+    Two separate gates, and both have to be clear. A paid-up institution that
+    nobody has checked is still an institution nobody has checked, and the
+    portal is where students hand over their matriculation numbers.
+    """
+    if _demo():
+        return True
+    if uni.get("verification_status") != "verified":
+        return False
+    return subscription_live(uni["subscription_status"], uni["subscribed_until"])
+
+
 def _base_checks(form, password, confirm):
     errors = []
     if len(form.get("fullname", "")) < 3:
@@ -52,7 +66,8 @@ def home(slug):
     uni = _load(slug)
     return render_template(
         "portal/home.html", uni=uni,
-        portal_live=subscription_live(uni["subscription_status"], uni["subscribed_until"]),
+        portal_live=_open(uni),
+        awaiting_check=uni.get("verification_status") == "pending",
         status=effective_status(uni["subscription_status"], uni["subscribed_until"]))
 
 
@@ -61,7 +76,7 @@ def login(slug):
     """Same credentials as the main site, wearing the institution's name."""
     uni = _load(slug)
     email = ""
-    if not subscription_live(uni["subscription_status"], uni["subscribed_until"]):
+    if not _open(uni):
         return render_template(
             "portal/home.html", uni=uni, portal_live=False,
             status=effective_status(uni["subscription_status"],
@@ -103,7 +118,7 @@ def student_signup(slug):
     uni = _load(slug)
     fields = query("SELECT id, name FROM fields ORDER BY name")
     form = {}
-    closed = not subscription_live(uni["subscription_status"], uni["subscribed_until"]) and not _demo()
+    closed = not _open(uni)
 
     # Someone already signed in — a university previewing its own portal, say —
     # sees the page with a notice rather than being bounced to their dashboard.
@@ -190,7 +205,7 @@ def lecturer_signup(slug):
     uni = _load(slug)
     fields = query("SELECT id, name FROM fields ORDER BY name")
     form = {}
-    closed = not subscription_live(uni["subscription_status"], uni["subscribed_until"]) and not _demo()
+    closed = not _open(uni)
 
     if request.method == "POST" and g.get("user"):
         flash("You are already signed in. Sign out first to create a new account.",

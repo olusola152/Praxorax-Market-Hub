@@ -1290,3 +1290,62 @@ ephemeral, so every student upload is lost on the next deploy — the 410 page,
 with nothing to recover. This needs either a Render persistent disk mounted at
 `UPLOAD_FOLDER` or a move to object storage. It is the most serious thing on
 this list and it is not visible until it bites.
+
+---
+
+## Update — an administrator confirms every institution
+
+Run `database/migration_v11.sql` after v10. Additive, and it grandfathers every
+institution that already exists, so nothing working today stops working.
+
+A university that registered got a live public portal at `/u/<slug>`
+immediately. Anyone could register under a real institution's name and collect
+lecturer and student signups — matriculation numbers included — behind it.
+Companies have needed an administrator's approval since v4. Institutions now
+clear the same bar.
+
+### Until it is verified
+
+* The public portal is **closed**: no student or lecturer can register through
+  it, and forcing the POST fails too, not just the form being hidden.
+* **Lecturer passcodes cannot be issued**, so nobody joins by another route.
+* Everything else on the account works. This is a gate on the public face, not
+  a suspension.
+
+The portal says the true reason. Telling a student that a subscription lapsed
+when really nobody has confirmed the institution sends them to chase the wrong
+person, and tells a stranger more about the account than they should hear.
+
+### Two gates, not one
+
+Verification and subscription are independent and both must be clear. A paid-up
+institution nobody has checked is still unchecked; a verified one that has not
+paid is still unpaid. The portal names whichever is actually in the way.
+
+### What counts as evidence
+
+A link and a note, not an upload. What settles it in practice is a page on the
+institution's own domain, an accreditation record, or a message from an address
+at that domain — none of which is a file anybody wants to scan.
+
+Sending evidence does not verify anything; it puts the institution in the
+queue. A rejection has to carry a reason, because the institution sees it and
+needs to know what would satisfy you. Sending something new after a rejection
+puts them back in the queue.
+
+### Where an administrator does it
+
+`/admin/kyc` is now **Verification** and covers both institutions and
+companies, with institutions first — a portal carrying a real university's name
+is the more serious of the two. The operations deck counts both, and counts
+only accounts that have actually submitted something: one that has not is
+waiting on its owner, not on you.
+
+### A trap worth knowing about
+
+`g.university` is loaded for every signed-in user on every request, so it
+selects only the few columns the shared page chrome needs. The first version of
+this check read `verification_status` from it, got `None`, and refused every
+institution forever — including verified ones. Anything in the university
+section that needs the full row now reads it properly. If you add a column and
+something mysteriously never sees it, look there first.

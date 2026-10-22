@@ -16,6 +16,7 @@ psql -d smtest -f database/migration_v7.sql
 psql -d smtest -f database/migration_v8.sql
 psql -d smtest -f database/migration_v9.sql
 psql -d smtest -f database/migration_v10.sql
+psql -d smtest -f database/migration_v11.sql
 
 export DATABASE_URL="postgresql://postgres:PASSWORD@127.0.0.1:5432/smtest"
 export SECRET_KEY=test
@@ -30,6 +31,7 @@ export UPLOAD_FOLDER=/tmp/uploads
 | `test_v4_modules.py` | an **empty** database | teams, deliverables, company KYC, bookmarks and match scoring |
 | `test_v4_pages.py` | `python seed_demo.py` run first | the pages those four modules added |
 | `test_v5_trial.py` | an **empty** database | the 7-day trial, its expiry, and the imagery |
+| `test_v17_university_check.py` | `python seed_demo.py` run first | verifying an institution: the closed portal, the evidence, the decision, and that subscription stays a separate gate |
 | `test_v16_client_review.py` | `python seed_demo.py`, and `pip install aiosmtpd` | the three things the client asked for: inviting people who are not here yet, the profile gate, and proving email works |
 | `test_v15_idle.py` | `python seed_demo.py` run first | idle sign-out: the clock, the heartbeat, the return path, and that asking the time does not reset the timer |
 | `test_v14_identity.py` | `python seed_demo.py` run first | the mark, the tab icon, the hero plate and the faculty tiles: every tile well-formed, one shared ground, every field in the database covered, and no button whose text colour matches its own background |

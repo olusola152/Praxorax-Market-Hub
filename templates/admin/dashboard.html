@@ -41,7 +41,7 @@
 <section class="tiles">
   <a class="tile-stat {{ 'tile-stat--act' if stats.pending_kyc }}" href="{{ url_for('admin.kyc') }}">
     <p class="tile-n">{{ stats.pending_kyc }}</p>
-    <p class="tile-label">Companies to verify</p>
+    <p class="tile-label">Verification waiting</p>
   </a>
   <a class="tile-stat {{ 'tile-stat--act' if stats.pending_subs }}" href="{{ url_for('admin.subscriptions') }}">
     <p class="tile-n">{{ stats.pending_subs }}</p>

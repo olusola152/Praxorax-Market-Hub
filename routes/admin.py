@@ -37,9 +37,17 @@ def dashboard():
         "pending_subs": scalar(
             """SELECT (SELECT COUNT(*) FROM universities WHERE subscription_status='pending')
                     + (SELECT COUNT(*) FROM companies WHERE subscription_status='pending')"""),
+        # Both kinds of verification, counted together because they are
+        # decided on the same page. Only ones that have actually sent
+        # something: an account that has not submitted is waiting on its
+        # owner, not on an administrator.
         "pending_kyc": scalar(
-            """SELECT COUNT(*) FROM companies
-                WHERE verification_status='pending' AND kyc_document_url IS NOT NULL"""),
+            """SELECT (SELECT COUNT(*) FROM companies
+                        WHERE verification_status='pending'
+                          AND kyc_document_url IS NOT NULL)
+                    + (SELECT COUNT(*) FROM universities
+                        WHERE verification_status='pending'
+                          AND evidence_submitted_at IS NOT NULL)"""),
         "open_requests": scalar(
             "SELECT COUNT(*) FROM project_requests WHERE status='pending'"),
         "open_applications": scalar(
@@ -218,6 +226,47 @@ def set_subscription(kind, record_id):
     return redirect(url_for("admin.subscriptions"))
 
 
+@admin_bp.route("/universities/<int:university_id>/<decision>", methods=["POST"])
+@role_required("admin")
+def decide_university(university_id, decision):
+    """Confirm, or refuse, that an institution is what it says it is."""
+    if decision not in ("verify", "reject"):
+        abort(400)
+
+    uni = query("SELECT * FROM universities WHERE id=%s", (university_id,), one=True)
+    if not uni:
+        abort(404)
+
+    notes = request.form.get("notes", "").strip()
+    if decision == "reject" and len(notes) < 10:
+        flash("Say why. The institution sees this and has to know what would "
+              "satisfy you.", "error")
+        return redirect(url_for("admin.kyc"))
+
+    status = "verified" if decision == "verify" else "rejected"
+    execute("""UPDATE universities
+                  SET verification_status=%s, verification_notes=%s,
+                      verified_at=NOW(), verified_by=%s
+                WHERE id=%s""",
+            (status, notes or None, g.user["id"], university_id))
+    log_action(f"university_{status}", "university", university_id, notes or None)
+
+    if uni["admin_user_id"]:
+        if status == "verified":
+            notify(uni["admin_user_id"],
+                   f"{uni['name']} has been verified. Your portal at "
+                   f"/u/{uni['slug']} is open and you can issue lecturer codes.",
+                   url_for("university.dashboard"))
+        else:
+            notify(uni["admin_user_id"],
+                   f"We could not confirm {uni['name']} from what was sent. "
+                   f"{notes}",
+                   url_for("university.dashboard"))
+
+    flash(f"{uni['name']} {status}.", "success")
+    return redirect(url_for("admin.kyc"))
+
+
 @admin_bp.route("/activity")
 @role_required("admin")
 def activity():
@@ -371,7 +420,26 @@ def kyc():
              LEFT JOIN users d ON d.id = c.kyc_decided_by
             ORDER BY (c.verification_status='pending') DESC,
                      c.kyc_submitted_at DESC NULLS LAST, c.name""")
-    return render_template("admin/kyc.html", companies=companies)
+
+    # Institutions are checked on the same page, for the same reason: a
+    # portal carrying a real university's name collects real students'
+    # details, and nobody had confirmed the name belonged to whoever
+    # registered it.
+    universities = query(
+        """SELECT u.*, adm.fullname AS contact_name, adm.email AS contact_email,
+                  d.fullname AS decided_by_name,
+                  (SELECT COUNT(*) FROM lecturer_profiles lp
+                    WHERE lp.university_id = u.id) AS lecturer_count,
+                  (SELECT COUNT(*) FROM student_profiles sp
+                    WHERE sp.university_id = u.id) AS student_count
+             FROM universities u
+             LEFT JOIN users adm ON adm.id = u.admin_user_id
+             LEFT JOIN users d ON d.id = u.verified_by
+            ORDER BY (u.verification_status='pending') DESC,
+                     u.evidence_submitted_at DESC NULLS LAST, u.name""")
+
+    return render_template("admin/kyc.html", companies=companies,
+                           universities=universities)
 
 
 @admin_bp.route("/kyc/<int:company_id>/<decision>", methods=["POST"])

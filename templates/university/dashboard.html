@@ -10,6 +10,48 @@
   <a class="btn" href="{{ url_for('university.passcodes') }}">Issue lecturer codes</a>
 </section>
 
+{% if uni.verification_status != 'verified' %}
+<section class="panel panel--ask">
+  <h2 class="panel-title">
+    {% if uni.verification_status == 'rejected' %}Verification was not accepted
+    {% elif uni.evidence_submitted_at %}Verification is with an administrator
+    {% else %}Confirm your institution{% endif %}
+  </h2>
+
+  {% if uni.verification_status == 'rejected' %}
+  <p class="lede">An administrator could not confirm the institution from what
+    was sent. Send something else and it goes back in the queue.</p>
+  {% if uni.verification_notes %}
+  <p class="prewrap"><strong>What they said:</strong> {{ uni.verification_notes }}</p>
+  {% endif %}
+  {% elif uni.evidence_submitted_at %}
+  <p class="lede">Sent {{ uni.evidence_submitted_at.strftime('%d %b %Y') }}. You
+    will be told either way. You can send something else if you have more.</p>
+  {% else %}
+  <p class="lede">Every institution is checked before its lecturers and students
+    can join, because your portal asks students for their matriculation numbers
+    and carries your name. Until then your portal at
+    <span class="mono">/u/{{ uni.slug }}</span> is closed and lecturer codes
+    cannot be issued — everything else here works.</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('university.submit_evidence') }}">
+    <label class="field">
+      <span>A link that confirms the institution</span>
+      <input type="url" name="evidence_url" placeholder="https://yourinstitution.edu.ng/about"
+             value="{{ uni.evidence_url or '' }}">
+      <em class="opt">A page on your own domain, an accreditation record, or a
+        directory entry — whatever an administrator can check in a minute.</em>
+    </label>
+    <label class="field">
+      <span>Anything else worth knowing <em class="opt">optional if you gave a link</em></span>
+      <textarea name="evidence_note" rows="3">{{ uni.evidence_note or '' }}</textarea>
+    </label>
+    <button class="btn" type="submit">Send for verification</button>
+  </form>
+</section>
+{% endif %}
+
 {% if uni.subscription_status != 'active' %}
 <p class="flash flash--error">Your subscription is {{ uni.subscription_status }}. Lecturers cannot register or apply for projects until an administrator activates it.</p>
 {% endif %}

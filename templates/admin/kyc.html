@@ -1,12 +1,70 @@
 {% extends "admin/_shell.html" %}
 {% set active_section = 'kyc' %}
-{% block title %}Company verification{% endblock %}
+{% block title %}Verification{% endblock %}
 {% block deck %}
 <section class="page-head">
   <p class="record-label">Admin</p>
-  <h1 class="display">Company verification</h1>
-  <p class="lede">An unverified company can draft briefs but cannot publish them. Open the document, check the name matches, then decide.</p>
+  <h1 class="display">Verification</h1>
+  <p class="lede">Nobody trades on a name here without being checked. An
+    unverified company can draft briefs but not publish them; an unverified
+    institution has a closed portal and cannot issue lecturer codes.</p>
 </section>
+
+<h2 class="section-head">Institutions</h2>
+<p class="lede">A portal carries the institution's name and asks students for
+  their matriculation numbers. Confirm the person who registered it speaks for
+  the institution — a page on its own domain, an accreditation record, or an
+  address at that domain.</p>
+
+<div class="project-list">
+  {% for u in universities %}
+  <article class="project">
+    <div class="project-head">
+      <h2 class="project-title">{{ u.name }}</h2>
+      <span class="status status--{{ u.verification_status }}">{{ u.verification_status }}</span>
+    </div>
+    <p class="project-client">
+      {{ u.contact_name or 'no administrator' }}
+      {% if u.contact_email %} · <span class="mono">{{ u.contact_email }}</span>{% endif %}
+    </p>
+
+    <dl class="project-meta">
+      <div><dt>Portal</dt><dd class="mono">/u/{{ u.slug }}</dd></div>
+      <div><dt>Lecturers</dt><dd>{{ u.lecturer_count }}</dd></div>
+      <div><dt>Students</dt><dd>{{ u.student_count }}</dd></div>
+      <div><dt>Subscription</dt><dd>{{ u.subscription_status }}</dd></div>
+      <div><dt>Registered</dt><dd>{{ u.created_at.strftime('%d %b %Y') }}</dd></div>
+      {% if u.evidence_submitted_at %}<div><dt>Evidence sent</dt><dd>{{ u.evidence_submitted_at.strftime('%d %b %Y') }}</dd></div>{% endif %}
+      {% if u.decided_by_name %}<div><dt>Decided by</dt><dd>{{ u.decided_by_name }}</dd></div>{% endif %}
+    </dl>
+
+    {% if u.evidence_url %}
+    <p><a class="btn btn--small btn--quiet" href="{{ u.evidence_url }}" target="_blank" rel="noopener">Open what they sent</a></p>
+    {% endif %}
+    {% if u.evidence_note %}<p class="prewrap">{{ u.evidence_note }}</p>{% endif %}
+    {% if not u.evidence_url and not u.evidence_note %}
+    <p class="empty">Nothing sent yet. They see a prompt on their dashboard.</p>
+    {% endif %}
+
+    {% if u.verification_notes %}<p class="prose prose--quote">{{ u.verification_notes }}</p>{% endif %}
+
+    {% if u.verification_status != 'verified' %}
+    <form method="post" action="{{ url_for('admin.decide_university', university_id=u.id, decision='verify') }}">
+      <button class="btn btn--small" type="submit">Verify this institution</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.decide_university', university_id=u.id, decision='reject') }}">
+      <label class="field">
+        <span>Why not</span>
+        <textarea name="notes" rows="2" placeholder="Nothing links this person to the institution."></textarea>
+      </label>
+      <button class="btn btn--small btn--quiet" type="submit">Reject</button>
+    </form>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+
+<h2 class="section-head">Companies</h2>
 
 <div class="project-list">
   {% for c in companies %}

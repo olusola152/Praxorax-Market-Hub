@@ -18,10 +18,21 @@ PASSCODE_DAYS = 14
 
 
 def _my_university():
+    """The institution's own full row.
+
+    g.university is loaded for every signed-in user on every request, so it
+    selects only the handful of columns the shared chrome needs. This section
+    is the institution looking at itself and needs the rest — verification
+    state, the evidence it sent, contact details — so it reads the row
+    properly rather than quietly seeing None for anything missing.
+    """
     uni = g.get("university")
     if not uni:
         abort(404)
-    return uni
+    full = query("SELECT * FROM universities WHERE id=%s", (uni["id"],), one=True)
+    if not full:
+        abort(404)
+    return full
 
 
 @university_bp.route("/dashboard")
@@ -94,6 +105,12 @@ def passcodes():
     issued = None
 
     if request.method == "POST":
+        if (uni.get("verification_status") != "verified"
+                and not current_app.config.get("DEMO_MODE")):
+            flash("Your institution has not been verified yet. An administrator "
+                  "checks every institution before its lecturers can join — "
+                  "send your evidence from the dashboard.", "error")
+            return redirect(url_for("university.dashboard"))
         if uni["subscription_status"] != "active" and not current_app.config.get("DEMO_MODE"):
             flash("Activate your subscription before issuing lecturer codes.", "error")
             return redirect(url_for("university.passcodes"))
@@ -218,6 +235,46 @@ def review(submission_id):
                            timeline=history(submission_id),
                            files=submission_files(submission_id),
                            human_size=storage.human_size)
+
+
+@university_bp.route("/verification", methods=["POST"])
+@role_required("university")
+def submit_evidence():
+    """Send proof that this is the institution it says it is.
+
+    Deliberately a link and a note rather than an upload. What actually
+    settles it is a page on the institution's own domain, an accreditation
+    record, or a message from an address at that domain — none of which is a
+    file somebody wants to scan and attach.
+    """
+    uni = _my_university()
+    url = (request.form.get("evidence_url") or "").strip()
+    note = (request.form.get("evidence_note") or "").strip()
+
+    if url and not url.startswith(("https://", "http://")):
+        flash("Give a full web address starting with https://", "error")
+        return redirect(url_for("university.dashboard"))
+    if not url and len(note) < 20:
+        flash("Give a link an administrator can check, or explain in a "
+              "sentence or two how your institution can be confirmed.", "error")
+        return redirect(url_for("university.dashboard"))
+
+    execute("""UPDATE universities
+                  SET evidence_url=%s, evidence_note=%s,
+                      evidence_submitted_at=NOW(),
+                      verification_status = CASE
+                          WHEN verification_status = 'rejected' THEN 'pending'
+                          ELSE verification_status END
+                WHERE id=%s""", (url or None, note or None, uni["id"]))
+
+    for admin in query("SELECT id FROM users WHERE role='admin' AND status='active'"):
+        notify(admin["id"],
+               f"{uni['name']} has sent evidence for verification.",
+               url_for("admin.kyc"))
+
+    flash("Sent. An administrator will look at it and you will be told either "
+          "way. Everything else on your account works meanwhile.", "success")
+    return redirect(url_for("university.dashboard"))
 
 
 @university_bp.route("/placements")

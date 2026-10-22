@@ -110,10 +110,15 @@ with app.app_context():
         taken = {r["slug"] for r in query("SELECT slug FROM universities")}
         admin_id = make_user(cur, "Olusola Adegboye", "registrar" + MARK, "university")
         cur.execute(
+            # Verified on the way in: this is a demo fixture, and an
+            # institution waiting on an administrator would leave the demo
+            # portal shut and the walkthrough stuck at the first step.
             """INSERT INTO universities
                (name, slug, website, city, contact_email, admin_user_id,
-                subscription_status, subscribed_until)
-               VALUES (%s,%s,%s,%s,%s,%s,'active',%s) RETURNING id, slug""",
+                subscription_status, subscribed_until,
+                verification_status, verified_at)
+               VALUES (%s,%s,%s,%s,%s,%s,'active',%s,'verified',NOW())
+               RETURNING id, slug""",
             (name, slugify(name, taken), website, city, "registrar" + MARK,
              admin_id, date.today() + timedelta(days=365)))
         uni = cur.fetchone()

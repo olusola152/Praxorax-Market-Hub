@@ -211,9 +211,18 @@ def register():
                   "once payment clears.", "success")
 
         if role == "university":
-            # Show the institution its own portal first — that link is the
-            # thing it will be sharing with staff and students.
-            return redirect(url_for("portal.home", slug=new_slug))
+            # An institution now waits to be confirmed, so the dashboard is a
+            # better landing place than a portal that is not open yet.
+            for admin in query("SELECT id FROM users WHERE role='admin' "
+                               "AND status='active'"):
+                notify(admin["id"],
+                       f"{form['university_name']} has registered as an institution "
+                       f"and is waiting to be verified.",
+                       url_for("admin.kyc"), email=False)
+            flash("Registered. Before your portal opens we confirm the "
+                  "institution — send us something that shows it, and an "
+                  "administrator will look at it.", "success")
+            return redirect(url_for("university.dashboard"))
         return redirect(dashboard_for(role))
 
     return render_template("auth/register.html", form=form, fields=fields,

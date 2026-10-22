@@ -37,11 +37,24 @@
 {% if not portal_live %}
 <section class="panel panel--closed">
   <p class="record-label">Portal closed</p>
+  {% if awaiting_check %}
+  {# Say the true reason. Telling a student the subscription has lapsed when
+     nobody has yet confirmed the institution sends them to chase the wrong
+     person, and it tells them more about the account than they should hear. #}
+  <h2 class="display" style="font-size:1.8rem">{{ uni.name }} is not open for registration yet.</h2>
+  <p class="lede lede--wide">Every institution on {{ brand }} is confirmed before
+    its portal takes signups. This one has registered and is waiting on that
+    check. Nothing has gone wrong — come back shortly.</p>
+  <p class="lede lede--wide" style="margin-top:1rem">If you manage this
+    institution's account, <a href="{{ url_for('auth.login') }}">sign in</a> to
+    send what is needed.</p>
+  {% else %}
   <h2 class="display" style="font-size:1.8rem">{{ uni.name }}'s subscription has {{ 'expired' if status == 'expired' else 'not been activated' }}.</h2>
   <p class="lede lede--wide">Registration and sign-in for students and lecturers are unavailable
     until {{ uni.name }} renews. Existing accounts keep their data — nothing is lost.</p>
   <p class="lede lede--wide" style="margin-top:1rem">If you manage this institution's account,
     <a href="{{ url_for('auth.login') }}">sign in</a> to renew.</p>
+  {% endif %}
 </section>
 {% else %}
 
