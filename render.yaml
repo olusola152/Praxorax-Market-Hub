@@ -13,5 +13,45 @@ services:
         generateValue: true
       - key: SECURE_COOKIES
         value: "true"
+      # Kept in step with .python-version. Two different pins in two files
+      # is a deploy that works on one push and not the next.
       - key: PYTHON_VERSION
-        value: "3.12.4"
+        value: "3.12.7"
+
+      # The rest are set in the Render dashboard rather than here, because
+      # they carry secrets or differ per environment. The app runs without
+      # them but behaves wrongly: links in emails point at localhost without
+      # BASE_URL, and uploads are written somewhere that does not survive a
+      # deploy without UPLOAD_FOLDER on a mounted disk.
+      - key: BASE_URL
+        sync: false
+      - key: UPLOAD_FOLDER
+        sync: false
+      - key: TIMEZONE
+        value: "Africa/Lagos"
+      - key: TRIAL_DAYS
+        value: "0"
+      - key: IDLE_TIMEOUT_MINUTES
+        value: "20"
+      - key: IDLE_WARN_SECONDS
+        value: "90"
+      - key: MIN_NOTICE_MINUTES
+        value: "15"
+      - key: JITSI_DOMAIN
+        value: "meet.jit.si"
+      - key: MAIL_ENABLED
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: MAIL_SSL
+        sync: false
+      - key: MAIL_STARTTLS
+        sync: false
