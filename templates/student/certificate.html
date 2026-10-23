@@ -27,22 +27,27 @@
     project{{ '' if cert.project_count == 1 else 's' }}
     {% if snap.summary.companies %}for {{ snap.summary.companies }}
       compan{{ 'y' if snap.summary.companies == 1 else 'ies' }}{% endif %}
-    through {{ brand }}, each reviewed and signed off by the company that
-    commissioned it.
+    through {{ brand }}, each reviewed by a supervising lecturer, passed by
+    their institution and signed off by the company that commissioned it.
   </p>
 
   <table class="certificate-table">
     <thead>
-      <tr><th>Project</th><th>Company</th><th>Field</th><th>Started</th><th>Completed</th><th>Ref</th></tr>
+      {# The supervisor and the institution belong on the certificate. The
+         whole claim being made is that four parties stood behind this work;
+         a document naming only the company is making a quarter of it. #}
+      <tr><th>Project</th><th>Company</th><th>Supervised by</th><th>Institution</th><th>Completed</th><th>Ref</th></tr>
     </thead>
     <tbody>
       {% for p in snap.projects %}
       <tr>
-        <td>{{ p.title }}</td>
+        <td>{{ p.title }}{% if p.field %}<br>
+            <span class="muted small">{{ p.field }}</span>{% endif %}</td>
         <td>{{ p.company }}</td>
-        <td>{{ p.field }}</td>
-        <td>{{ p.started[:10] if p.started else '—' }}</td>
-        <td>{{ p.completed[:10] if p.completed else '—' }}</td>
+        <td>{{ p.supervisor or 'Independent' }}</td>
+        <td>{{ p.university or '—' }}</td>
+        <td>{{ p.completed[:10] if p.completed else '—' }}{% if p.started %}<br>
+            <span class="muted small">from {{ p.started[:10] }}</span>{% endif %}</td>
         <td class="mono">{{ p.certificate or '—' }}</td>
       </tr>
       {% endfor %}

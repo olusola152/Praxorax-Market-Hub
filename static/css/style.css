@@ -2655,10 +2655,24 @@ a.tile-stat:hover { border-color: var(--deck-dim); }
    that pulls the eye.
    ========================================================================== */
 
-body.gate:not(.landing-page) {
+/* A certificate is a document somebody prints. It keeps paper, whatever
+   shell it happens to share. Listed first so the dark rule below cannot
+   reach it. */
+body.gate.certificate-page,
+body.gate.plain-page { background: var(--canvas); color: var(--ink); }
+
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) {
   background: var(--night);
   color: var(--night-text);
 }
+
+/* Everything inside <main> sits above the backdrop, whatever classes it
+   uses. The first version of this raised .gate-shell, .card and .panel by
+   name and silently buried any page built from something else — which is
+   exactly what happened to the certificate and the verification page, the
+   two surfaces an employer actually opens. Raising the wrapper instead
+   means a new page cannot fall through the same gap. */
+body.gate:not(.landing-page) main { position: relative; z-index: 1; }
 
 .gate-art { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
 .gate-art img {
@@ -2678,7 +2692,7 @@ body.gate:not(.landing-page) {
               rgba(12,23,20,.74) 38%, rgba(12,23,20,.46) 100%);
 }
 
-body.gate:not(.landing-page) .gate-shell { position: relative; z-index: 1; }
+
 
 body.gate:not(.landing-page) .gate-pitch .display,
 body.gate:not(.landing-page) .gate-pitch h1,

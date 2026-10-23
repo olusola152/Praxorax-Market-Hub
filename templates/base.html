@@ -27,7 +27,12 @@
    The pages that build their own hero — the landing page and a university
    portal's front page — carry .landing-page and opt out. #}
 {% block backdrop %}
-{% if 'gate' in self.body_class() and 'landing-page' not in self.body_class() %}
+{# Pages that build their own hero, or that are documents rather than
+   screens, opt out by carrying one of these. A certificate is printed and
+   read by strangers; a photograph behind it is wrong on both counts. #}
+{% set _no_backdrop = ['landing-page', 'certificate-page', 'plain-page'] %}
+{% if 'gate' in self.body_class()
+      and not _no_backdrop | select('in', self.body_class()) | list %}
 {% set gslot = hero_slot() %}
 <div class="gate-art" aria-hidden="true">
   <img src="{{ url_for('static', filename=photo_for(gslot)) }}" alt=""
