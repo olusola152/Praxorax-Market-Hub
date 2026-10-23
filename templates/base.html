@@ -20,6 +20,23 @@
   data-idle-signin="{{ url_for('auth.login') }}"
   {%- endif %}>
 
+{# A photograph behind every sign-in and registration page.
+
+   Put here rather than in each of the seven templates that use the gate
+   shell, because they all want the same thing and seven copies would drift.
+   The pages that build their own hero — the landing page and a university
+   portal's front page — carry .landing-page and opt out. #}
+{% block backdrop %}
+{% if 'gate' in self.body_class() and 'landing-page' not in self.body_class() %}
+{% set gslot = hero_slot() %}
+<div class="gate-art" aria-hidden="true">
+  <img src="{{ url_for('static', filename=photo_for(gslot)) }}" alt=""
+       {%- set gs = photo_size(gslot) %}
+       {%- if gs %} width="{{ gs[0] }}" height="{{ gs[1] }}"{% endif %}>
+</div>
+{% endif %}
+{% endblock %}
+
 {% block chrome %}
 {% if g.user %}
 <header class="topbar">
@@ -35,7 +52,7 @@
       <a href="{{ url_for('student.applications') }}">Applications</a>
       <a href="{{ url_for('teams.index') }}">Teams</a>
       <a href="{{ url_for('student.bookmarks') }}">Saved</a>
-      <a href="{{ url_for('portfolio.mine') }}">Portfolio</a>
+      <a href="{{ url_for('praxfolio.mine') }}">Praxfolio</a>
       <a href="{{ url_for('presentations.index') }}">Presentations</a>
       <a href="{{ url_for('student.profile') }}">Profile</a>
       <a href="{{ url_for('student.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>

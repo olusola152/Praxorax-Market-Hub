@@ -1,7 +1,7 @@
 """The whole journey, start to finish, the way a person actually walks it:
 
     student submits -> supervisor forwards -> university forwards ->
-    company approves -> placement completed -> portfolio fills ->
+    company approves -> placement completed -> Praxfolio fills ->
     certificate generated -> certificate verifies
 
 Plus what the student sees at every stage while waiting.
@@ -131,13 +131,13 @@ step("placement marked completed", placement["status"] == "completed",
 step("completion time recorded", placement["completed_at"] is not None)
 step("per-project certificate issued", bool(cert))
 
-# ------------------------------------------------------- 5. the portfolio
-r = st.get("/student/portfolio")
-step("completed work is in the portfolio", asg["title"].encode() in r.data)
+# ------------------------------------------------------- 5. the Praxfolio
+r = st.get("/student/praxfolio")
+step("completed work is in the Praxfolio", asg["title"].encode() in r.data)
 step("the certificate button is there now", b"Generate a certificate" in r.data)
 step("the empty-state message is gone", b"nothing to\n      certify" not in r.data)
 
-r = st.post("/student/portfolio/certificate", follow_redirects=True)
+r = st.post("/student/praxfolio/certificate", follow_redirects=True)
 with app.app_context():
     pc = query("""SELECT * FROM portfolio_certificates WHERE student_id=%s
                    ORDER BY id DESC LIMIT 1""", (asg["student_id"],), one=True)

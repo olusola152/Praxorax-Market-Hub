@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ uni.name }} — Practical Experience Portal{% endblock %}
-{% block body_class %}gate{% endblock %}
-{% block main_class %}portal-shell{% endblock %}
+{% block body_class %}gate landing-page{% endblock %}
+{% block main_class %}landing{% endblock %}
+
+{% from "shared/_pictures.html" import scene with context %}
 
 {% block chrome %}
 {% if g.user %}
@@ -15,95 +17,207 @@
   </span>
 </div>
 {% endif %}
+
+<header class="public-bar public-bar--dark">
+  <a class="mark mark--light" href="{{ url_for('portal.home', slug=uni.slug) }}">
+    <span class="mark-seal" aria-hidden="true"></span>
+    <span class="mark-name">{{ uni.name }}</span>
+  </a>
+  <nav class="public-nav">
+    {% if portal_live %}
+    <a href="#join">Join</a>
+    <a class="btn btn--small btn--ghost" href="{{ url_for('portal.login', slug=uni.slug) }}">Sign in</a>
+    <a class="btn btn--small btn--gold" href="{{ url_for('portal.student_signup', slug=uni.slug) }}">Register</a>
+    {% else %}
+    <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Staff sign in</a>
+    {% endif %}
+  </nav>
+</header>
 {% endblock %}
 
 {% block content %}
-<header class="portal-head">
-  <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
-  <p class="record-label">Practical experience portal</p>
-  <h1 class="display display--hero">{{ uni.name }}</h1>
-  <p class="lede lede--wide">
-    Real briefs from real companies. Supervised by {{ uni.name }} lecturers.
-    Delivered by {{ uni.name }} students — and every finished project becomes
-    verified evidence of what they can build.
-  </p>
-  {% if uni.website %}<p class="lede portal-site">{{ uni.website }}</p>{% endif %}
-</header>
+
+{# ====================================================================
+   HERO. The institution's own name at full size — this is their page,
+   carrying their students, and it should look like it.
+   ==================================================================== #}
+<section class="bleed hero-dark">
+  {# Deliberately not the main site's hero picture — see HERO_BY_AREA. #}
+  <div class="hero-dark__art">{{ scene(hero_slot(), eager=true) }}</div>
+  <div class="hero-dark__scrim" aria-hidden="true"></div>
+  <div class="hero-dark__inner">
+    <p class="eyebrow">Practical experience portal</p>
+    <h1 class="mega mega--sm">{{ uni.name }}</h1>
+    <p class="lede lede--light">Real briefs from real companies. Supervised by
+      {{ uni.name }} lecturers. Delivered by {{ uni.name }} students — and every
+      finished project becomes verified evidence of what they can build.</p>
+    {% if uni.website %}
+    <p class="portal-site portal-site--light">{{ uni.website }}</p>
+    {% endif %}
+    {% if portal_live %}
+    <p class="hero-dark__actions">
+      <a class="btn btn--gold btn--lg" href="{{ url_for('portal.student_signup', slug=uni.slug) }}">Register as a student</a>
+      <a class="btn btn--ghost btn--lg" href="{{ url_for('portal.login', slug=uni.slug) }}">Sign in</a>
+    </p>
+    <p class="hero-dark__note">Free for {{ uni.name }} students — the
+      institution's subscription covers you.</p>
+    {% endif %}
+  </div>
+</section>
 
 {% if config.DEMO_MODE and uni.subscription_status != 'active' %}
-<p class="flash flash--error"><strong>Demo mode.</strong> Registration is open even though this institution has not subscribed. Turn DEMO_MODE off before going live.</p>
+<div class="band-inner section--tight" style="padding-top:1.4rem">
+  <p class="flash flash--error"><strong>Demo mode.</strong> Registration is open
+    even though this institution has not subscribed. Turn DEMO_MODE off before
+    going live.</p>
+</div>
 {% endif %}
 
 {% if not portal_live %}
-<section class="panel panel--closed">
-  <p class="record-label">Portal closed</p>
-  {% if awaiting_check %}
-  {# Say the true reason. Telling a student the subscription has lapsed when
-     nobody has yet confirmed the institution sends them to chase the wrong
-     person, and it tells them more about the account than they should hear. #}
-  <h2 class="display" style="font-size:1.8rem">{{ uni.name }} is not open for registration yet.</h2>
-  <p class="lede lede--wide">Every institution on {{ brand }} is confirmed before
-    its portal takes signups. This one has registered and is waiting on that
-    check. Nothing has gone wrong — come back shortly.</p>
-  <p class="lede lede--wide" style="margin-top:1rem">If you manage this
-    institution's account, <a href="{{ url_for('auth.login') }}">sign in</a> to
-    send what is needed.</p>
-  {% else %}
-  <h2 class="display" style="font-size:1.8rem">{{ uni.name }}'s subscription has {{ 'expired' if status == 'expired' else 'not been activated' }}.</h2>
-  <p class="lede lede--wide">Registration and sign-in for students and lecturers are unavailable
-    until {{ uni.name }} renews. Existing accounts keep their data — nothing is lost.</p>
-  <p class="lede lede--wide" style="margin-top:1rem">If you manage this institution's account,
-    <a href="{{ url_for('auth.login') }}">sign in</a> to renew.</p>
-  {% endif %}
+{# ====================================================================
+   CLOSED. Still says the true reason — telling a student a subscription
+   has lapsed when nobody has confirmed the institution yet sends them to
+   chase the wrong person.
+   ==================================================================== #}
+<section class="band-inner section">
+  <div class="notice-card">
+    <p class="record-label">Portal closed</p>
+    {% if awaiting_check %}
+    <h2 class="notice-card__title">{{ uni.name }} is not open for registration yet.</h2>
+    <p>Every institution on {{ brand }} is confirmed before its portal takes
+      signups. This one has registered and is waiting on that check. Nothing has
+      gone wrong — come back shortly.</p>
+    <p>If you manage this institution's account,
+      <a href="{{ url_for('auth.login') }}">sign in</a> to send what is needed.</p>
+    {% else %}
+    <h2 class="notice-card__title">{{ uni.name }}'s subscription has
+      {{ 'expired' if status == 'expired' else 'not been activated' }}.</h2>
+    <p>Registration and sign-in for students and lecturers are unavailable until
+      {{ uni.name }} renews. Existing accounts keep their data — nothing is lost.</p>
+    <p>If you manage this institution's account,
+      <a href="{{ url_for('auth.login') }}">sign in</a> to renew.</p>
+    {% endif %}
+  </div>
 </section>
+
 {% else %}
 
-<section class="pitch-row">
-  <article class="pitch">
-    <p class="pitch-num">01</p>
-    <h2 class="pitch-title">Companies post real work</h2>
-    <p>Live briefs with deadlines, required skills and, on paid projects, a reward. Not coursework invented for marking.</p>
-  </article>
-  <article class="pitch">
-    <p class="pitch-num">02</p>
-    <h2 class="pitch-title">Your lecturers supervise</h2>
-    <p>A lecturer takes on a brief in their own field, then chooses which of their students work on it. Nothing is unsupervised.</p>
-  </article>
-  <article class="pitch">
-    <p class="pitch-num">03</p>
-    <h2 class="pitch-title">Students leave with proof</h2>
-    <p>Assessed work, a GitHub repository and a certificate — a record an employer can check, not just a course code.</p>
-  </article>
+{# ====================================================================
+   HOW IT WORKS HERE.
+   ==================================================================== #}
+<section class="band-inner section">
+  <p class="record-label">How it works here</p>
+  <h2 class="display section-title">Posted by companies.<br>Supervised by {{ uni.name }}.</h2>
+
+  <div class="steps-grid">
+    <ol class="steps">
+      <li><span class="steps__n">1</span>
+        <h3>Companies post real work</h3>
+        <p>Live briefs with deadlines, required skills and, on paid projects, a
+          reward. Not coursework invented for marking.</p></li>
+      <li><span class="steps__n">2</span>
+        <h3>Your lecturers supervise</h3>
+        <p>A lecturer takes on a brief in their own field, then chooses which of
+          their students work on it. Nothing is unsupervised.</p></li>
+      <li><span class="steps__n">3</span>
+        <h3>Students leave with proof</h3>
+        <p>Assessed work, a repository and a certificate — a record an employer
+          can check, not just a course code.</p></li>
+    </ol>
+    <div class="steps-art">{{ scene('portal-steps') }}</div>
+  </div>
 </section>
 
-<h2 class="section-head">Join {{ uni.name }} on the platform</h2>
+{# ====================================================================
+   JOIN. The two ways in, given the weight they deserve.
+   ==================================================================== #}
+<section class="bleed band-dark section-dark" id="join">
+  <div class="band-inner">
+    <h2 class="band-title band-title--center">Join {{ uni.name }}
+      <span class="gold">on {{ brand }}</span></h2>
+    <p class="band-sub">Two ways in, depending on who you are. Both take a
+      minute and neither costs a student anything.</p>
 
-<div class="join-grid">
-  <article class="card card--action">
-    <p class="record-label">Student</p>
-    <h3 class="card-title">Create a student account</h3>
-    <p class="lede">Free — your institution's subscription covers you. Browse every brief companies post and get placed on the ones matching your course.</p>
-    <p class="action-foot"><a class="btn btn--full" href="{{ url_for('portal.student_signup', slug=uni.slug) }}">Register as a student</a></p>
+    <div class="join-pair">
+      <article class="join-card">
+        <p class="eyebrow">Student</p>
+        <h3>Create a student account</h3>
+        <p>Free — your institution's subscription covers you. Browse every brief
+          companies post and get placed on the ones matching your course.</p>
+        <ul class="ticks ticks--light">
+          <li>No passcode needed</li>
+          <li>Placed by your lecturers, or apply yourself</li>
+          <li>A verifiable record at the end</li>
+        </ul>
+        <a class="btn btn--gold btn--full" href="{{ url_for('portal.student_signup', slug=uni.slug) }}">Register as a student</a>
+      </article>
+
+      <article class="join-card">
+        <p class="eyebrow">Lecturer</p>
+        <h3>Create a lecturer account</h3>
+        <p>You will need a one-time passcode from {{ uni.name }}. Your areas of
+          expertise decide which briefs you can take on and supervise.</p>
+        <ul class="ticks ticks--light">
+          <li>Passcode issued by your institution</li>
+          <li>Take briefs in your own field</li>
+          <li>Review before anything reaches the client</li>
+        </ul>
+        <a class="btn btn--ghost btn--full" href="{{ url_for('portal.lecturer_signup', slug=uni.slug) }}">Register with a passcode</a>
+      </article>
+    </div>
+
+    <p class="join-signin">Already registered? Students, lecturers and
+      {{ uni.name }} staff all
+      <a href="{{ url_for('portal.login', slug=uni.slug) }}">sign in here</a>.</p>
+  </div>
+</section>
+
+{# ====================================================================
+   WHAT THEY LEAVE WITH.
+   ==================================================================== #}
+<section class="band-inner section">
+  <article class="feature-card">
+    <div class="feature-card__body">
+      <p class="eyebrow">You are told</p>
+      <h2 class="feature-card__title">Your students
+        <span class="gold">always know where they stand</span></h2>
+      <p>Applying for a brief, submitting work, being placed, being invited to a
+        team — each one sends a confirmation to the person who did it, not only
+        to whoever is waiting at the other end. Nobody has to email a lecturer
+        to ask whether something arrived.</p>
+      <ul class="ticks ticks--light">
+        <li>A receipt for every action that matters</li>
+        <li>Switched off in one click by anyone who prefers that</li>
+      </ul>
+    </div>
+    <div class="feature-card__art">{{ scene('alerts-portal') }}</div>
   </article>
 
-  <article class="card card--action">
-    <p class="record-label">Lecturer</p>
-    <h3 class="card-title">Create a lecturer account</h3>
-    <p class="lede">You'll need a one-time passcode from {{ uni.name }}. Your areas of expertise decide which briefs you can take on and supervise.</p>
-    <p class="action-foot"><a class="btn btn--full" href="{{ url_for('portal.lecturer_signup', slug=uni.slug) }}">Register with a passcode</a></p>
+  <article class="feature-card feature-card--flip">
+    <div class="feature-card__art">{{ scene('certificate') }}</div>
+    <div class="feature-card__body">
+      <p class="eyebrow">At the end</p>
+      <h2 class="feature-card__title">A record with
+        <span class="gold">{{ uni.name }} on it</span></h2>
+      <p>Every finished project leaves a Praxfolio entry an employer can open and
+        check — the work, the company that commissioned it, the lecturer who
+        supervised it and the institution that signed it off. Four signatures,
+        not a line on a transcript.</p>
+      <ul class="ticks ticks--light">
+        <li>Reviewed by a lecturer, then by {{ uni.name }}</li>
+        <li>Defended to the company in person</li>
+        <li>Checkable by anyone the student shows it to</li>
+      </ul>
+    </div>
   </article>
-</div>
-
-<section class="panel panel--center portal-signin">
-  <h2 class="panel-title">Already registered?</h2>
-  <p class="lede">Students, lecturers and {{ uni.name }} staff all sign in here.</p>
-  <p style="margin-top:1.2rem">
-    <a class="btn" href="{{ url_for('portal.login', slug=uni.slug) }}">Sign in</a>
-  </p>
 </section>
 {% endif %}
 
-<footer class="portal-foot">
-  <p>{{ uni.name }}{% if uni.city %} · {{ uni.city }}{% endif %} · Practical experience portal</p>
+<footer class="bleed site-foot">
+  <div class="band-inner site-foot__legal" style="border-top:none">
+    <p>{{ uni.name }}{% if uni.city %} · {{ uni.city }}{% endif %} · Practical
+      experience portal on {{ brand }}</p>
+    <p><a href="{{ url_for('home') }}">About {{ brand }}</a></p>
+  </div>
 </footer>
 {% endblock %}

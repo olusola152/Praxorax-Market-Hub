@@ -109,20 +109,79 @@ def live(row):
     return expires > datetime.now(timezone.utc)
 
 
+def landing_url(token, external=False):
+    """Where an invitation email points.
+
+    Not the signup form. Somebody who has never heard of the site needs to
+    read what it is before being asked for a password, so the link opens a
+    page that explains the place and the team, and only then offers the form.
+    """
+    return url_for("invites.landing", token=token, _external=external)
+
+
 def signup_url(token):
     return url_for("auth.register", invite=token, _external=False)
 
 
+# ------------------------------------------------------------------ joining
+
+#: A team is small on purpose: everybody on it is answerable for the work.
+MAX_MEMBERS = 6
+
+
+def team_open(team_id):
+    """Whether this team can still take the person the invitation names.
+
+    Three ways it cannot: the team is gone, it has moved past forming up, or
+    it is full. Every one of them is somebody else's doing, so the caller
+    reports it rather than failing the signup over it.
+    """
+    team = query("SELECT id, status FROM teams WHERE id=%s", (team_id,), one=True)
+    if not team:
+        return False, "That team no longer exists."
+    if team["status"] not in ("forming", "applied"):
+        return False, "That team has already started work and is closed to new members."
+
+    seats = scalar(
+        """SELECT COUNT(*) FROM team_members
+            WHERE team_id=%s AND status IN ('active','invited')""", (team_id,))
+    if seats >= MAX_MEMBERS:
+        return False, f"That team is full ({MAX_MEMBERS} members)."
+    return True, None
+
+
+def place(row, user_id, status):
+    """Write one invitation into membership and close the invitation."""
+    execute(
+        """INSERT INTO team_members (team_id, user_id, status, joined_at)
+           VALUES (%s,%s,%s, CASE WHEN %s='active' THEN NOW() END)
+           ON CONFLICT (team_id, user_id) DO UPDATE
+             SET status = EXCLUDED.status,
+                 joined_at = COALESCE(team_members.joined_at, EXCLUDED.joined_at)""",
+        (row["team_id"], user_id, status, status))
+    execute(
+        """UPDATE team_invitations
+              SET status='accepted', accepted_at=NOW(), accepted_by=%s
+            WHERE id=%s""", (user_id, row["id"]))
+
+
 # ------------------------------------------------------------------ claiming
 
-def claim_for(user_id, email):
+def claim_for(user_id, email, accepted_token=None):
     """Turn every live invitation for this address into team membership.
 
-    Called once, at signup. The new member lands as 'invited' rather than
-    'active': they followed a link, which is not the same as having agreed to
-    join, and the team page already knows how to show a pending invitation.
+    Called once, at signup. Two outcomes, and the difference matters:
 
-    Returns the teams they were invited to, so the signup message can say so.
+      * The invitation they actually followed — the one whose token brought
+        them to the signup form after they read the invitation page and chose
+        to join — lands as 'active'. They have already said yes twice by then
+        and being made to say it a third time on arrival is nonsense.
+      * Any other invitation waiting for the same address lands as 'invited'.
+        Nobody consented to those; they show up on the Teams page to accept
+        or decline like any other.
+
+    Returns one row per team, each carrying 'active' so the caller can tell
+    the two apart when it writes to the person and to whoever invited them.
     """
     email = normalise(email)
     rows = query(
@@ -136,22 +195,14 @@ def claim_for(user_id, email):
     for row in rows:
         # The team may have filled up or been disbanded since. Skip quietly
         # rather than failing a signup over somebody else's team.
-        team = query("SELECT id, status FROM teams WHERE id=%s",
-                     (row["team_id"],), one=True)
-        if not team or team["status"] not in ("forming", "applied"):
+        ok, _why = team_open(row["team_id"])
+        if not ok:
             execute("UPDATE team_invitations SET status='expired' WHERE id=%s",
                     (row["id"],))
             continue
 
-        execute(
-            """INSERT INTO team_members (team_id, user_id, status)
-               VALUES (%s,%s,'invited')
-               ON CONFLICT (team_id, user_id) DO NOTHING""",
-            (row["team_id"], user_id))
-        execute(
-            """UPDATE team_invitations
-                  SET status='accepted', accepted_at=NOW(), accepted_by=%s
-                WHERE id=%s""", (user_id, row["id"]))
-        joined.append(row)
+        straight_in = bool(accepted_token) and row["token"] == accepted_token
+        place(row, user_id, "active" if straight_in else "invited")
+        joined.append(dict(row, active=straight_in))
 
     return joined

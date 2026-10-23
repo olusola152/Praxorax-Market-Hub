@@ -244,6 +244,43 @@ step("inviting someone who is already here also confirms", len(mine) == 1,
 if mine:
     step("naming them", "Chidi" in plain(mine[0]) or "chidi" in plain(mine[0]).lower())
 
+# An existing member and a stranger get different letters. Sending the
+# stranger's message to a member tells them to create an account they
+# already have, and links to a signup page they cannot use.
+theirs = [m for m in INBOX if "chidi@demo.marketplace" in to_of(m)]
+step("the invited member is emailed too", len(theirs) == 1, len(INBOX))
+if theirs:
+    text, markup = plain(theirs[0]), html(theirs[0])
+    step("once, not twice over", len(theirs) == 1, len(theirs))
+    step("the subject names the team", "Receipt Team" in str(theirs[0]["Subject"]))
+    step("and who invited them", "Ada" in str(theirs[0]["Subject"]))
+    step("it treats them as already here", "already signed up" in text)
+    step("and sends them to decide", "accept or decline" in text)
+    step("it does not tell a member to register",
+         "Create one with this address" not in text)
+    step("and carries no signup link", "/register?invite=" not in markup)
+    step("the link goes to their teams page", "/teams" in markup)
+
+# The switch has to hold for this message too, not only the generic alert.
+with app.app_context():
+    execute("""DELETE FROM team_members WHERE team_id=%s AND user_id=(
+                 SELECT id FROM users WHERE email='chidi@demo.marketplace')""",
+            (team,))
+    execute("""UPDATE users SET email_notifications = FALSE
+                WHERE email='chidi@demo.marketplace'""")
+INBOX.clear()
+lead.post(f"/teams/{team}/invite", data={"email": "chidi@demo.marketplace"},
+          follow_redirects=True)
+step("a member who turned email off is not sent the invitation",
+     not any("chidi@demo.marketplace" in to_of(m) for m in INBOX), len(INBOX))
+with app.app_context():
+    step("but the in-app alert is still waiting for them",
+         scalar("""SELECT COUNT(*) FROM notifications WHERE user_id=(
+                     SELECT id FROM users WHERE email='chidi@demo.marketplace')
+                   AND body LIKE %s""", ("%Receipt Team%",)) >= 1)
+    execute("""UPDATE users SET email_notifications = TRUE
+                WHERE email='chidi@demo.marketplace'""")
+
 # ----------------------------------------------- respecting the switch
 print("\n--- the switch is still the switch ---\n")
 

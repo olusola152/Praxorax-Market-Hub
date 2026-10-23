@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 760"
+     width="1600" height="760" role="img">
+  <defs>
+    <linearGradient id="c-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0C1714"/>
+      <stop offset="1" stop-color="#132A21"/>
+    </linearGradient>
+    <radialGradient id="c-glow" cx=".5" cy=".46" r=".46">
+      <stop offset="0" stop-color="#D8A848" stop-opacity=".26"/>
+      <stop offset="1" stop-color="#0C1714" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c-paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FAFBF7"/>
+      <stop offset="1" stop-color="#DCE4D8"/>
+    </linearGradient>
+  <filter id="g5" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="5"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  </defs>
+  
+  <rect width="1600" height="760" fill="url(#c-bg)"/>
+  <rect width="1600" height="760" fill="url(#c-glow)"/>
+
+  <!-- the record itself -->
+  <g transform="rotate(-2.5 560 350)">
+    <rect x="392" y="150" width="336" height="384" rx="8" fill="#0A1210" opacity=".5"
+          transform="translate(10,14)"/>
+    <rect x="392" y="150" width="336" height="384" rx="8" fill="url(#c-paper)"/>
+    <rect x="432" y="198" width="190" height="13" rx="6" fill="#1E4B3A" opacity=".65"/>
+    <rect x="432" y="230" width="126" height="9" rx="4" fill="#1E4B3A" opacity=".35"/>
+    <rect x="432" y="268" width="256" height="7" rx="3" fill="#1E4B3A" opacity=".18"/>
+    <rect x="432" y="286" width="224" height="7" rx="3" fill="#1E4B3A" opacity=".18"/>
+    <circle cx="560" cy="368" r="42" fill="none" stroke="#1E4B3A"
+            stroke-width="5" opacity=".5"/>
+    <circle cx="560" cy="368" r="16" fill="#9A6F22"/>
+    <rect x="452" y="474" width="42" height="5" rx="2" fill="#1E4B3A" opacity=".45"/><circle cx="473" cy="452" r="10" fill="#9A6F22" opacity="0.9"/><rect x="514" y="474" width="42" height="5" rx="2" fill="#1E4B3A" opacity=".45"/><circle cx="535" cy="452" r="10" fill="#9A6F22" opacity="0.77"/><rect x="576" y="474" width="42" height="5" rx="2" fill="#1E4B3A" opacity=".45"/><circle cx="597" cy="452" r="10" fill="#9A6F22" opacity="0.64"/><rect x="638" y="474" width="42" height="5" rx="2" fill="#1E4B3A" opacity=".45"/><circle cx="659" cy="452" r="10" fill="#9A6F22" opacity="0.51"/>
+  </g>
+
+  <!-- the graduate, beside it, not over it -->
+  <path d="M 905.6 760 C 905.6 533.2, 944.912 468.4, 1046 468.4 C 1147.088 468.4, 1186.4 533.2, 1186.4 760 Z" fill="#0A1210"/>
+    <circle cx="1046" cy="392.8" r="70.2" fill="#0A1210"/>
+    <clipPath id="rim14"><path d="M 905.6 760 C 905.6 533.2, 944.912 468.4, 1046 468.4 C 1147.088 468.4, 1186.4 533.2, 1186.4 760 Z"/><circle cx="1046" cy="392.8" r="70.2"/></clipPath>
+    <g clip-path="url(#rim14)"><rect x="765.2" y="252.4" width="561.6" height="577.8" fill="#9A6F22"/><g transform="translate(37.800000000000004,13.23)"><path d="M 905.6 760 C 905.6 533.2, 944.912 468.4, 1046 468.4 C 1147.088 468.4, 1186.4 533.2, 1186.4 760 Z" fill="#0A1210"/><circle cx="1046" cy="392.8" r="70.2" fill="#0A1210"/></g></g>
+
+  <!-- two more behind, for a cohort rather than one person -->
+  <path d="M 1206.4 760 C 1206.4 608.8, 1232.608 565.5999999999999, 1300 565.5999999999999 C 1367.392 565.5999999999999, 1393.6 608.8, 1393.6 760 Z" fill="#0E1C17"/>
+    <circle cx="1300" cy="515.2" r="46.800000000000004" fill="#0E1C17"/>
+    <clipPath id="rim15"><path d="M 1206.4 760 C 1206.4 608.8, 1232.608 565.5999999999999, 1300 565.5999999999999 C 1367.392 565.5999999999999, 1393.6 608.8, 1393.6 760 Z"/><circle cx="1300" cy="515.2" r="46.800000000000004"/></clipPath>
+    <g clip-path="url(#rim15)"><rect x="1112.8" y="421.6" width="374.40000000000003" height="385.19999999999993" fill="#2C6349"/><g transform="translate(25.2,8.819999999999999)"><path d="M 1206.4 760 C 1206.4 608.8, 1232.608 565.5999999999999, 1300 565.5999999999999 C 1367.392 565.5999999999999, 1393.6 608.8, 1393.6 760 Z" fill="#0E1C17"/><circle cx="1300" cy="515.2" r="46.800000000000004" fill="#0E1C17"/></g></g>
+  <path d="M 102.39999999999999 760 C 102.39999999999999 608.8, 128.608 565.5999999999999, 196 565.5999999999999 C 263.392 565.5999999999999, 289.6 608.8, 289.6 760 Z" fill="#0E1C17"/>
+    <circle cx="196" cy="515.2" r="46.800000000000004" fill="#0E1C17"/>
+    <clipPath id="rim16"><path d="M 102.39999999999999 760 C 102.39999999999999 608.8, 128.608 565.5999999999999, 196 565.5999999999999 C 263.392 565.5999999999999, 289.6 608.8, 289.6 760 Z"/><circle cx="196" cy="515.2" r="46.800000000000004"/></clipPath>
+    <g clip-path="url(#rim16)"><rect x="8.799999999999983" y="421.6" width="374.40000000000003" height="385.19999999999993" fill="#2C6349"/><g transform="translate(-25.2,8.819999999999999)"><path d="M 102.39999999999999 760 C 102.39999999999999 608.8, 128.608 565.5999999999999, 196 565.5999999999999 C 263.392 565.5999999999999, 289.6 608.8, 289.6 760 Z" fill="#0E1C17"/><circle cx="196" cy="515.2" r="46.800000000000004" fill="#0E1C17"/></g></g>
+
+  <rect y="754" width="1600" height="6" fill="#9A6F22" opacity=".6"/>
+  <rect width="1600" height="760" filter="url(#g5)" opacity=".05"
+        style="mix-blend-mode:overlay"/>
+</svg>

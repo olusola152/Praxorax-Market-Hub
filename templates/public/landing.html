@@ -1,133 +1,395 @@
 {% extends "base.html" %}
 {% block title %}{{ brand }} — real projects, supervised practice, verified graduates{% endblock %}
-{% block body_class %}gate{% endblock %}
+{% block body_class %}gate landing-page{% endblock %}
 {% block main_class %}landing{% endblock %}
+
+{% from "shared/_pictures.html" import scene with context %}
+
 {% block chrome %}
-<header class="public-bar">
-  <a class="mark" href="{{ url_for('home') }}">
+<header class="public-bar public-bar--dark">
+  <a class="mark mark--light" href="{{ url_for('home') }}">
     <span class="mark-seal" aria-hidden="true"></span>
     <span class="mark-name">{{ brand }}</span>
   </a>
   <nav class="public-nav">
     <a href="#how">How it works</a>
     <a href="#who">Who it's for</a>
+    <a href="#fields">Fields</a>
     <a href="{{ url_for('auth.join_index') }}">Institutions</a>
-    <a class="btn btn--small" href="{{ url_for('auth.login') }}">Sign in</a>
-    <a class="btn btn--small btn--quiet" href="{{ url_for('auth.register') }}">{{ 'Start free trial' if trial_days else 'Get started' }}</a>
+    <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Sign in</a>
+    <a class="btn btn--small btn--gold" href="{{ url_for('auth.register') }}">{{ 'Start free trial' if trial_days else 'Get started' }}</a>
   </nav>
 </header>
 {% endblock %}
 
 {% block content %}
-<section class="hero hero--split">
-  <div class="hero-copy">
-    <p class="hero-tag">{% if trial_days %}Free for {{ trial_days }} days · no card needed{% else %}Supervised project work, end to end{% endif %}</p>
-    <h1 class="display hero-title">Real projects.<br>Supervised practice.<br>Verified graduates.</h1>
-    <p class="lede lede--wide">Companies post the work they actually need doing. Lecturers
-      take it on and place their students. Anyone studying anywhere can join on their own and
-      apply directly. Every submission is reviewed, and every finished project leaves a record
-      an employer can check.</p>
-    <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your organisation' }}</a>
-      <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Join as a student</a>
+
+{# ====================================================================
+   HERO. Dark, with the scene behind it and the headline over the open
+   left side. Two-tone so the promise and the proof read as one line.
+   ==================================================================== #}
+<section class="bleed hero-dark">
+  <div class="hero-dark__art">{{ scene('presenting', eager=true) }}</div>
+  <div class="hero-dark__scrim" aria-hidden="true"></div>
+  <div class="hero-dark__inner">
+    <p class="eyebrow">{% if trial_days %}Free for {{ trial_days }} days · no card needed{% else %}Supervised project work, end to end{% endif %}</p>
+    <h1 class="mega">Real projects.<br>Supervised practice.<br>
+      <span class="mega__gold">Verified graduates.</span></h1>
+    <p class="lede lede--light">Companies post the work they actually need doing.
+      Lecturers take it on and place their students. Anyone studying anywhere can
+      join on their own and apply directly. Every submission is reviewed, and every
+      finished project leaves a record an employer can check.</p>
+    <p class="hero-dark__actions">
+      <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join as a student — free</a>
+      <a class="btn btn--ghost btn--lg" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your organisation' }}</a>
     </p>
-    <p class="hero-note">{% if trial_days %}Universities and companies get {{ trial_days }} days of
-      everything, free.{% else %}Universities and companies register here and we set the
-      account up with you.{% endif %} Students never pay at all.</p>
-  </div>
-  <div class="hero-art">
-    <img src="{{ url_for('static', filename='img/hero-chain.svg') }}"
-         alt="A certificate of supervised practice stamped with the PraxoraX seal, beside the four signatures that produced it: the student, their supervisor, the university and the client"
-         width="900" height="600">
+    <p class="hero-dark__note">Students never pay. Not for the account, not for the
+      work, not for the certificate at the end.</p>
   </div>
 </section>
 
-<section class="band band--tiles">
-  <h2 class="section-head">Work across every faculty</h2>
-  <p class="lede lede--wide">Briefs are posted by field, so a law student is never
-    shown a circuit board.</p>
-  <div class="tile-row">
-    {% for f in ['software-engineering','architecture','medicine','law','agriculture','mass-communication'] %}
-    <figure class="tile">
-      <img src="{{ url_for('static', filename='img/fields/' ~ f ~ '.svg') }}" alt="" loading="lazy">
-      <figcaption>{{ f.replace('-', ' ')|title }}</figcaption>
-    </figure>
+{# ====================================================================
+   WHO IT'S FOR. Four cards, each with what that party gets.
+   ==================================================================== #}
+<section class="band-inner section" id="who">
+  <p class="record-label">Who it's for</p>
+  <h2 class="display section-title">Four parties.<br>One chain of accountability.</h2>
+
+  <div class="offer-grid">
+    <article class="offer">
+      <h3>Students</h3>
+      <p>Apply for real briefs on your own, or get placed by your lecturer.
+        Build a Praxfolio of work somebody actually needed.</p>
+      <ul class="ticks">
+        <li>Free, forever</li>
+        <li>Work in teams or alone</li>
+        <li>A record employers can verify</li>
+      </ul>
+      <a class="offer__go" href="{{ url_for('auth.register', as='student') }}">Join free →</a>
+    </article>
+
+    <article class="offer">
+      <h3>Lecturers</h3>
+      <p>Place your students on live industry work and review what they submit
+        before it reaches the client.</p>
+      <ul class="ticks">
+        <li>Join with your institution's code</li>
+        <li>Review before anything ships</li>
+        <li>Supervise teams at once</li>
+      </ul>
+      <a class="offer__go" href="{{ url_for('auth.join_index') }}">Find your portal →</a>
+    </article>
+
+    <article class="offer offer--lit">
+      <h3>Universities</h3>
+      <p>Your own portal, your own lecturers and students, and oversight of
+        every placement carrying your name.</p>
+      <ul class="ticks">
+        <li>Branded portal of your own</li>
+        <li>Issue and revoke lecturer codes</li>
+        <li>Sign off before the client sees it</li>
+      </ul>
+      <a class="offer__go" href="{{ url_for('auth.register') }}">Register your institution →</a>
+    </article>
+
+    <article class="offer">
+      <h3>Companies</h3>
+      <p>Post work you need doing. Get it from supervised student teams, with
+        a lecturer and a university answerable for the quality.</p>
+      <ul class="ticks">
+        <li>Reviewed before it reaches you</li>
+        <li>Pick the team you want</li>
+        <li>Defended to you in person</li>
+      </ul>
+      <a class="offer__go" href="{{ url_for('auth.register') }}">Post a brief →</a>
+    </article>
+  </div>
+</section>
+
+{# ====================================================================
+   THE FEATURE CARD. The presentation feature, given the full dark
+   treatment with the artwork running off the right edge.
+   ==================================================================== #}
+<section class="band-inner section">
+  <article class="feature-card">
+    <div class="feature-card__body">
+      <p class="eyebrow">Teams</p>
+      <h2 class="feature-card__title">Build it with
+        <span class="gold">the people you already work with</span></h2>
+      <p>Pull in your coursemates, apply for a brief as one team, and get your
+        own placement under it when a company takes you on. Anyone you invite
+        who is not here yet gets an email, reads what this place is, and joins
+        your team the moment they sign up.</p>
+      <ul class="ticks ticks--light">
+        <li>Invite by email, account or not</li>
+        <li>Apply as a unit, each with your own record</li>
+        <li>Up to six on a team</li>
+      </ul>
+      <a class="btn btn--gold" href="{{ url_for('auth.register', as='student') }}">Start a team</a>
+    </div>
+    <div class="feature-card__art">{{ scene('teamwork') }}</div>
+  </article>
+
+  <article class="feature-card feature-card--flip">
+    <div class="feature-card__art">{{ scene('alerts') }}</div>
+    <div class="feature-card__body">
+      <p class="eyebrow">You are told</p>
+      <h2 class="feature-card__title">Nothing happens
+        <span class="gold">without you hearing about it</span></h2>
+      <p>Post a brief, apply for one, submit your work, invite somebody to your
+        team — each one sends you a confirmation, not just the other party. No
+        wondering whether it landed, and no email for every button you press
+        either; only the things that actually moved.</p>
+      <ul class="ticks ticks--light">
+        <li>A receipt for every action that matters</li>
+        <li>Turn it off in one click if you would rather not</li>
+        <li>Nothing breaks if mail is down</li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="feature-card">
+    <div class="feature-card__body">
+      <p class="eyebrow">For companies</p>
+      <h2 class="feature-card__title">Post the work.
+        <span class="gold">Get it defended to you.</span></h2>
+      <p>Describe what you need doing and supervised student teams take it on.
+        Nothing reaches you until a lecturer and the institution have passed it,
+        and at the end the students present it to you in the browser — your
+        questions, their answers, recorded against the project.</p>
+      <ul class="ticks ticks--light">
+        <li>Reviewed twice before you see it</li>
+        <li>Choose the team you want</li>
+        <li>A live defence at the end, wherever everyone is</li>
+      </ul>
+      <a class="btn btn--gold" href="{{ url_for('auth.register') }}">Post a brief</a>
+    </div>
+    <div class="feature-card__art">{{ scene('brief') }}</div>
+  </article>
+
+</section>
+
+{# ====================================================================
+   HOW IT WORKS.
+   ==================================================================== #}
+<section class="band-inner section" id="how">
+  <p class="record-label">How it works</p>
+  <h2 class="display section-title">Posted. Built. Reviewed. Signed.</h2>
+
+  <div class="steps-grid">
+    <ol class="steps">
+      <li><span class="steps__n">1</span>
+        <h3>A company posts the brief</h3>
+        <p>Real work with a real deadline, not an exercise. We verify the
+          company before anything of theirs goes live.</p></li>
+      <li><span class="steps__n">2</span>
+        <h3>Students take it on</h3>
+        <p>A lecturer places their class, or a student anywhere applies on
+          their own. Teams form and apply as one.</p></li>
+      <li><span class="steps__n">3</span>
+        <h3>The work is reviewed</h3>
+        <p>Lecturer, then university, then the company. Anything that is not
+          ready comes back with a reason, not a rejection.</p></li>
+      <li><span class="steps__n">4</span>
+        <h3>It is signed and recorded</h3>
+        <p>Four signatures on a record an employer can check — the student,
+          the supervisor, the institution and the client.</p></li>
+    </ol>
+    <div class="steps-art">{{ scene('review') }}</div>
+  </div>
+</section>
+
+{# ====================================================================
+   TRUST BAND. Black, centred two-tone headline, three cards with
+   thin-line icons — the one structural borrowing that works hardest.
+   ==================================================================== #}
+<section class="bleed band-dark section-dark">
+  <div class="band-inner">
+    <h2 class="band-title band-title--center">Supervised, <span class="gold">and provable</span></h2>
+    <p class="band-sub">The point of this platform is that somebody is answerable
+      for the work. Three things make that true rather than claimed.</p>
+
+    <div class="trust-grid">
+      <article class="trust">
+        <svg viewBox="0 0 64 64" class="trust__icon" aria-hidden="true">
+          <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M22 32l7 7 14-14" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3>Reviewed</h3>
+        <p>Nothing reaches a company without passing a lecturer and the
+          institution first. The chain is recorded, stage by stage.</p>
+      </article>
+
+      <article class="trust">
+        <svg viewBox="0 0 64 64" class="trust__icon" aria-hidden="true">
+          <path d="M32 10l18 8v14c0 12-8 19-18 22-10-3-18-10-18-22V18z"
+                fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="32" cy="32" r="5" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M32 37v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h3>Verified</h3>
+        <p>Companies and institutions are checked by an administrator before
+          they can post work or issue codes. No open door.</p>
+      </article>
+
+      <article class="trust">
+        <svg viewBox="0 0 64 64" class="trust__icon" aria-hidden="true">
+          <rect x="14" y="12" width="36" height="34" rx="3" fill="none"
+                stroke="currentColor" stroke-width="2"/>
+          <path d="M22 24h20M22 32h14" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round"/>
+          <circle cx="32" cy="48" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M28 54l-3 8 7-4 7 4-3-8" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linejoin="round"/>
+        </svg>
+        <h3>On the record</h3>
+        <p>Every finished project leaves a Praxfolio entry an employer can
+          open and check against the company that commissioned it.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{# ====================================================================
+   THE TRIAL. Only when one is actually switched on — a site that
+   advertises a free week and then hands out a pending account is worse
+   than one that never mentioned it.
+   ==================================================================== #}
+{% if trial_days %}
+<section class="band-inner section section--tight">
+  <div class="trial-band">
+    <div>
+      <p class="eyebrow">Free trial</p>
+      <h2 class="trial-band__title">Try the whole thing for a week</h2>
+      <p>{{ trial_days }} days of everything for universities and companies —
+        post briefs, place students, run the full review chain. No card, and
+        nothing charged if you walk away. Students never pay at all.</p>
+    </div>
+    <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register') }}">Start your free week</a>
+  </div>
+</section>
+{% endif %}
+
+{# ====================================================================
+   FIELDS.
+   ==================================================================== #}
+{% if fields %}
+<section class="band-inner section" id="fields">
+  <p class="record-label">Fields</p>
+  <h2 class="display section-title">Whatever you study, there is work in it.</h2>
+  <div class="field-grid">
+    {% for f in fields %}
+    <a class="field-tile" href="{{ url_for('auth.register', as='student') }}">
+      <img src="{{ url_for('static', filename=f.image_url) }}" alt="" loading="lazy">
+      <span>{{ f.name }}</span>
+    </a>
     {% endfor %}
   </div>
 </section>
+{% endif %}
 
-<section id="how" class="band">
-  <h2 class="section-head">How the work flows</h2>
-  <div class="flow">
-    <article class="flow-step"><p class="pitch-num">01</p><h3>Company posts a brief</h3>
-      <p>A real task with a deadline, required skills and a field of study. No fee to students, no bidding.</p></article>
-    <article class="flow-step"><p class="pitch-num">02</p><h3>Lecturer takes it on</h3>
-      <p>Any open brief. The lecturer assigns it to their own students as practical coursework.</p></article>
-    <article class="flow-step"><p class="pitch-num">03</p><h3>Students build it</h3>
-      <p>Four supervised phases against the deadline, with the lecturer tracking progress throughout.</p></article>
-    <article class="flow-step"><p class="pitch-num">04</p><h3>Work is reviewed</h3>
-      <p>Student to lecturer to university to company. Anyone in the chain can send it back for correction.</p></article>
-    <article class="flow-step"><p class="pitch-num">05</p><h3>Company approves</h3>
-      <p>A certificate is issued and the project lands in the student's verified portfolio.</p></article>
-  </div>
-</section>
-
-<section id="who" class="band band--alt">
-  <h2 class="section-head">Who subscribes</h2>
-  <div class="join-grid">
-    <article class="card">
-      <p class="record-label">Universities</p>
-      <h3 class="card-title">Give students real experience</h3>
-      <p class="lede">Get your own portal, issue passcodes to lecturers, and watch every placement your institution runs from one admin page. Students register free under your subscription.</p>
-      <p class="action-foot"><a class="btn btn--full" href="{{ url_for('auth.register') }}">Subscribe as a university</a></p>
-    </article>
-    <article class="card">
-      <p class="record-label">Companies</p>
-      <h3 class="card-title">Get real work delivered</h3>
-      <p class="lede">Post briefs to supervised student teams across every subscribed university. You review the finished work and decide whether it passes.</p>
-      <p class="action-foot"><a class="btn btn--full" href="{{ url_for('auth.register') }}">Subscribe as a company</a></p>
-    </article>
-  </div>
-  <p class="band-note">Students and lecturers do not subscribe. They join through their
-    institution's portal, free, once their university has subscribed.</p>
-</section>
-
+{# ====================================================================
+   INSTITUTIONS ALREADY HERE.
+   ==================================================================== #}
 {% if universities %}
-<section class="band">
-  <h2 class="section-head">Institutions on the platform</h2>
-  <ul class="uni-list">
+<section class="band-inner section section--tight">
+  <p class="record-label">Already on board</p>
+  <ul class="uni-row">
     {% for u in universities %}
-    <li><a href="{{ url_for('portal.home', slug=u.slug) }}">{{ u.name }}{% if u.city %} <span>{{ u.city }}</span>{% endif %}</a></li>
+    <li><a href="{{ url_for('portal.home', slug=u.slug) }}">{{ u.name }}<span>{{ u.city }}</span></a></li>
     {% endfor %}
   </ul>
 </section>
 {% endif %}
 
-<section class="band band--cta">
-  <div class="cta-inner">
-    {% if trial_days %}
-    <h2 class="display">Try the whole thing for a week.</h2>
-    <p class="lede lede--wide">Post briefs, onboard lecturers, place students, review work —
-      everything a paid account does, for {{ trial_days }} days, with nothing to pay and nobody
-      to wait for. Independent students need no trial at all; their side is simply free.</p>
-    {% else %}
-    <h2 class="display">Put your students on real work.</h2>
-    <p class="lede lede--wide">Post briefs, onboard lecturers, place students, review work —
-      every submission supervised and every finished project left on the record. Register your
-      institution or company and we will set the account up with you. Students pay nothing,
-      whether their university is here or they joined on their own.</p>
-    {% endif %}
-    <p class="hero-actions">
-      <a class="btn" href="{{ url_for('auth.register') }}">{{ 'Start your free week' if trial_days else 'Register your organisation' }}</a>
-      <a class="btn btn--quiet" href="{{ url_for('auth.register', as='student') }}">Sign up as a student</a>
-    </p>
+{# ====================================================================
+   THE CAR. Asked for directly. Framed around going somewhere, which is
+   the actual proposition — not around winning it, which would be a
+   promise this platform has not made and could not keep.
+   ==================================================================== #}
+<section class="band-inner section section--tight">
+  <article class="feature-card car-card">
+    <div class="feature-card__body">
+      <p class="eyebrow">Go further</p>
+      <h2 class="feature-card__title">Work that
+        <span class="gold">actually goes somewhere</span></h2>
+      <p>Coursework stops at a grade. Work done here is commissioned by a real
+        company, supervised by a real lecturer and signed off by your
+        institution — and it leaves with you, as a record anybody can check
+        long after you have graduated.</p>
+      <p class="hero-dark__actions">
+        <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join {{ brand }} — free</a>
+      </p>
+    </div>
+    <div class="feature-card__art car-card__art">{{ scene('car') }}</div>
+  </article>
+</section>
+
+{# ====================================================================
+   CLOSING BAND.
+   ==================================================================== #}
+<section class="bleed band-dark closer">
+  <div class="band-inner closer__grid">
+    <div class="closer__copy">
+      <h2 class="mega mega--sm">Leave with proof,<br>
+        <span class="mega__gold">not just a transcript.</span></h2>
+      <p class="lede lede--light">Finish supervised work for a real company and the
+        record says so — signed by the people who watched you do it.</p>
+      <p class="hero-dark__actions">
+        <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join as a student — free</a>
+        <a class="btn btn--ghost btn--lg" href="{{ url_for('auth.join_index') }}">Find your institution</a>
+      </p>
+    </div>
+    {# Given its own column rather than laid behind the text. As a background
+       it sat under the opaque end of the scrim and could not be seen at all,
+       which is a lot of artwork to ship invisibly. #}
+    <div class="closer__art">{{ scene('certificate') }}</div>
   </div>
 </section>
 
-<footer class="portal-foot">
-  <p>{{ brand }} ·
-    <a href="{{ url_for('auth.login') }}">Sign in</a> ·
-    <a href="{{ url_for('auth.register') }}">Subscribe</a> ·
-    <a href="{{ url_for('portfolio.verify') }}">Verify a certificate</a></p>
+{# ====================================================================
+   FOOTER.
+   ==================================================================== #}
+<footer class="bleed site-foot">
+  <div class="band-inner site-foot__inner">
+    <div class="site-foot__brand">
+      <span class="mark mark--light">
+        <span class="mark-seal" aria-hidden="true"></span>
+        <span class="mark-name">{{ brand }}</span>
+      </span>
+      <p>Real projects, supervised practice and a record an employer can check.
+        Built for students, lecturers, universities and the companies that need
+        the work done.</p>
+    </div>
+
+    <div class="site-foot__col">
+      <h4>Students</h4>
+      <a href="{{ url_for('auth.register', as='student') }}">Join free</a>
+      <a href="{{ url_for('auth.login') }}">Sign in</a>
+      <a href="#how">How it works</a>
+      <a href="#fields">Fields</a>
+    </div>
+
+    <div class="site-foot__col">
+      <h4>Institutions</h4>
+      <a href="{{ url_for('auth.join_index') }}">Find your portal</a>
+      <a href="{{ url_for('auth.register') }}">Register your institution</a>
+      <a href="#who">Oversight</a>
+    </div>
+
+    <div class="site-foot__col">
+      <h4>Companies</h4>
+      <a href="{{ url_for('auth.register') }}">Post a brief</a>
+      <a href="#who">What you get</a>
+      <a href="#how">The review chain</a>
+    </div>
+  </div>
+
+  <div class="band-inner site-foot__legal">
+    <p>&copy; {{ now_year }} {{ brand }}. Students never pay to use this platform.</p>
+    <p>Work shown on a Praxfolio page is published by agreement with the company
+      that commissioned it.</p>
+  </div>
 </footer>
 {% endblock %}

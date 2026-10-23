@@ -52,7 +52,11 @@
     <tbody>
       {% for i in invited %}
       <tr>
-        <td class="mono">{{ i.email }}</td>
+        <td class="mono">{{ i.email }}<br>
+          {# The link, in the open. Email is the normal way this travels, but
+             a lead who wants to send it over WhatsApp should not have to ask
+             anyone, and a lead whose invitee never got the mail needs it. #}
+          <span class="muted small">{{ base_url }}{{ invite_link(i.token) }}</span></td>
         <td class="mono">{{ i.created_at.strftime('%d %b %Y') }}</td>
         <td class="mono">{{ i.expires_at.strftime('%d %b %Y') }}</td>
         <td>

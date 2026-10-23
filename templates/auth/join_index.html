@@ -1,30 +1,87 @@
 {% extends "base.html" %}
-{% block title %}Find your university{% endblock %}
+{% block title %}Find your institution — {{ brand }}{% endblock %}
+{% block body_class %}gate landing-page{% endblock %}
+{% block main_class %}landing{% endblock %}
+
+{% from "shared/_pictures.html" import scene with context %}
+
+{% block chrome %}
+<header class="public-bar public-bar--dark">
+  <a class="mark mark--light" href="{{ url_for('home') }}">
+    <span class="mark-seal" aria-hidden="true"></span>
+    <span class="mark-name">{{ brand }}</span>
+  </a>
+  <nav class="public-nav">
+    <a href="{{ url_for('home') }}">What this is</a>
+    <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Sign in</a>
+    <a class="btn btn--small btn--gold" href="{{ url_for('auth.register', as='student') }}">Join free</a>
+  </nav>
+</header>
+{% endblock %}
+
 {% block content %}
-<section class="page-head">
-  <p class="record-label">Students and lecturers</p>
-  <h1 class="display">Find your university</h1>
-  <p class="lede">Every subscribed institution has its own portal. Registration and sign-in both happen there.</p>
+
+<section class="bleed hero-dark hero-dark--short">
+  <div class="hero-dark__art">{{ scene('review', eager=true) }}</div>
+  <div class="hero-dark__scrim" aria-hidden="true"></div>
+  <div class="hero-dark__inner">
+    <p class="eyebrow">Students and lecturers</p>
+    <h1 class="mega mega--sm">Find your<br>
+      <span class="mega__gold">institution.</span></h1>
+    <p class="lede lede--light">Every institution on {{ brand }} has a portal of
+      its own. Registration and sign-in both happen there, not here.</p>
+  </div>
 </section>
 
-{% if universities %}
-<div class="project-list">
-  {% for u in universities %}
-  <article class="project">
-    <div class="project-head">
-      <h2 class="project-title"><a href="{{ url_for('portal.home', slug=u.slug) }}">{{ u.name }}</a></h2>
-      {% if u.city %}<span class="status">{{ u.city }}</span>{% endif %}
-    </div>
-    {% if u.website %}<p class="project-client">{{ u.website }}</p>{% endif %}
-    <div class="project-actions">
-      <a class="btn btn--small" href="{{ url_for('portal.home', slug=u.slug) }}">Open portal</a>
-    </div>
-  </article>
-  {% endfor %}
-</div>
-{% else %}
-<p class="empty">No universities have an active subscription yet. Ask your school to subscribe on the <a href="{{ url_for('auth.register') }}">main signup page</a>.</p>
-{% endif %}
+<section class="band-inner section">
+  {% if universities %}
+  <p class="record-label">{{ universities|length }}
+    {{ 'institution' if universities|length == 1 else 'institutions' }} open</p>
+  <h2 class="display section-title">Open the one you belong to.</h2>
 
-<p class="card-foot"><a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
+  <div class="uni-grid">
+    {% for u in universities %}
+    <a class="uni-card" href="{{ url_for('portal.home', slug=u.slug) }}">
+      <span class="uni-card__seal mark-seal" aria-hidden="true"></span>
+      <span class="uni-card__name">{{ u.name }}</span>
+      {% if u.city %}<span class="uni-card__city">{{ u.city }}</span>{% endif %}
+      {% if u.website %}<span class="uni-card__site">{{ u.website }}</span>{% endif %}
+      <span class="uni-card__go">Open portal →</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="notice-card">
+    <p class="record-label">Nothing here yet</p>
+    <h2 class="notice-card__title">No institution has an open portal yet.</h2>
+    <p>Ask your school to register, and their portal appears on this page the
+      moment an administrator confirms them.</p>
+    <p><a href="{{ url_for('auth.register') }}">Register an institution</a></p>
+  </div>
+  {% endif %}
+</section>
+
+{# A lecturer has to come through a portal. A student does not, and telling
+   them so here saves the ones whose school is not listed from giving up on
+   the page. #}
+<section class="bleed band-dark section-dark">
+  <div class="band-inner">
+    <h2 class="band-title band-title--center">Not listed?
+      <span class="gold">You can still join.</span></h2>
+    <p class="band-sub">Students do not need an institution on {{ brand }} to
+      take on work. You can register on your own, apply for briefs directly,
+      and build the same verifiable record. Lecturers do need their
+      institution's portal and a passcode from it.</p>
+    <p style="text-align:center">
+      <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join as a student — free</a>
+    </p>
+  </div>
+</section>
+
+<footer class="bleed site-foot">
+  <div class="band-inner site-foot__legal" style="border-top:none">
+    <p>&copy; {{ now_year }} {{ brand }}. Students never pay to use this platform.</p>
+    <p><a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
+  </div>
+</footer>
 {% endblock %}

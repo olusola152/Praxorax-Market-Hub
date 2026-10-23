@@ -99,7 +99,11 @@ if to_invitee:
     step("it names who invited them",
          "Ada" in text or "Ada" in str(to_invitee[0]["Subject"]))
     step("it names the team", "Review Team" in text)
-    step("and carries the signup link", f"/register?invite={inv['token']}" in text)
+    # Since v19 the link opens the invitation page rather than the signup
+    # form: somebody who has never heard of the site reads what it is before
+    # being asked for a password. The point of this check is unchanged —
+    # the mail carries a working way in, keyed to the token.
+    step("and carries the invitation link", f"/invite/{inv['token']}" in text)
     step("the link is the only thing that identifies it",
          "stranger@v16.test" not in text.split("https://")[-1])
 
@@ -131,10 +135,13 @@ with app.app_context():
                 (TEAM, uid), one=True)
 step("the invitation is used up", inv2["status"] == "accepted")
 step("and attributed to them", inv2["accepted_by"] == uid)
-step("they are on the team, pending their acceptance",
-     mem is not None and mem["status"] == "invited", mem)
-step("joining is still their decision, not automatic",
-     mem["status"] != "active")
+# Since v19, signing up through the link they followed puts them on the team
+# outright. They read the invitation page and chose to join before the form
+# ever appeared, so a third confirmation on arrival was only friction. An
+# invitation they did NOT follow still waits to be accepted — v19 covers that.
+step("they are on the team", mem is not None, mem)
+step("as a member, because following the link was the decision",
+     mem is not None and mem["status"] == "active", mem)
 
 with app.app_context():
     told = scalar("""SELECT COUNT(*) FROM notifications n JOIN users u ON u.id=n.user_id

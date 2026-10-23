@@ -107,11 +107,26 @@ hero_body = open(hero).read()
 m = re.search(r'viewBox="0 0 (\d+) (\d+)"', hero_body)
 step("the hero declares a viewBox", bool(m))
 if m:
-    vw, vh = m.group(1), m.group(2)
     page = r.data.decode()
-    step("the page states the hero's own proportions, so it reserves the "
-         "right space before loading",
-         f'width="{vw}" height="{vh}"' in page, f"{vw}x{vh}")
+    # Since v20 the landing hero is a scene from static/img/scenes rather
+    # than hero-chain.svg, and the picture is chosen at render time — a real
+    # photograph dropped into static/img/photos replaces the drawing without
+    # a template edit. What this check is for is unchanged and matters more
+    # now: whatever ends up in the slot must state its own size, or the page
+    # lays out at zero height and everything below the hero jumps when the
+    # image lands.
+    import artwork
+    sizes = app.config["PHOTO_SIZES"]
+    step("every picture on the landing page declares its own size",
+         all(f'width="{w}" height="{h}"' in page
+             for slot, (w, h) in sizes.items()
+             if f"/{slot}." in page),
+         f"{len(sizes)} slots measured")
+    step("the hero in particular", bool(sizes.get("presenting")) and
+         'width="%d" height="%d"' % sizes["presenting"] in page,
+         sizes.get("presenting"))
+    step("and the hero is not deferred, being the first thing seen",
+         'loading="eager"' in page)
 
 step("the hero shows the certificate rather than a diagram of the software",
      "CERTIFICATE OF SUPERVISED PRACTICE" in hero_body)

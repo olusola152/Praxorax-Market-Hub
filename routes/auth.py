@@ -180,16 +180,40 @@ def register():
 
         if role == "student":
             # Somebody may have invited this address to a team before it had
-            # an account. Those invitations become membership now.
-            joined = invitations.claim_for(user_id, email)
+            # an account. Those invitations become membership now — and the
+            # one they followed to get here becomes membership outright,
+            # because reading the invitation and clicking Join is consent.
+            joined = invitations.claim_for(user_id, email, accepted_token=token)
             if joined:
-                names = ", ".join(f'"{j["team_name"]}"' for j in joined)
                 for j in joined:
-                    notify(j["invited_by"],
-                           f"{form['fullname']} has signed up and your "
-                           f"invitation to \"{j['team_name']}\" is waiting for "
-                           f"them to accept.",
-                           url_for("teams.detail", team_id=j["team_id"]))
+                    if j["active"]:
+                        notify(j["invited_by"],
+                               f"{form['fullname']} has signed up and joined "
+                               f"your team \"{j['team_name']}\".",
+                               url_for("teams.detail", team_id=j["team_id"]))
+                    else:
+                        notify(j["invited_by"],
+                               f"{form['fullname']} has signed up and your "
+                               f"invitation to \"{j['team_name']}\" is waiting "
+                               f"for them to accept.",
+                               url_for("teams.detail", team_id=j["team_id"]))
+
+                now_on = [j for j in joined if j["active"]]
+                waiting = [j for j in joined if not j["active"]]
+
+                if now_on:
+                    mine = ", ".join(f'"{j["team_name"]}"' for j in now_on)
+                    note = f"Welcome. You are on {mine}."
+                    if waiting:
+                        rest = ", ".join(f'"{j["team_name"]}"' for j in waiting)
+                        note += (f" You were also invited to {rest} — accept or "
+                                 f"decline those on this page.")
+                    flash(note + " Fill in your profile and you can apply for "
+                          "any brief.", "success")
+                    return redirect(url_for("teams.detail",
+                                            team_id=now_on[0]["team_id"]))
+
+                names = ", ".join(f'"{j["team_name"]}"' for j in waiting)
                 flash(f"Welcome. You were invited to {names} — accept on your "
                       f"Teams page. Then browse the open briefs.", "success")
                 return redirect(url_for("teams.index"))

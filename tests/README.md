@@ -40,10 +40,10 @@ export UPLOAD_FOLDER=/tmp/uploads
 | `test_v12_admin_deck.py` | `python seed_demo.py` run first | the admin deck, the chain board, and the public students view |
 | `test_v11_email.py` | `python seed_demo.py`, and `pip install aiosmtpd` | email alerts, against a real SMTP server on localhost — nothing mocked |
 | `test_v10_missing_files.py` | `python seed_demo.py` run first | downloads when a file record outlives its file |
-| `test_v9_full_chain.py` | `python seed_demo.py` run first | the entire journey: submit → supervisor → university → company → completed → portfolio → certificate → verified |
+| `test_v9_full_chain.py` | `python seed_demo.py` run first | the entire journey: submit → supervisor → university → company → completed → Praxfolio → certificate → verified |
 | `test_v8_one_click.py` | `python seed_demo.py` run first | one-click project requests and `clear_placements.sql` |
 | `test_v7_phase_signoff.py` | `python seed_demo.py` run first | signing a phase off from the review page and the alerts it sends |
-| `test_v6_portfolio.py` | an **empty** database | the rename, the portfolio, public sharing, the consolidated certificate and verification |
+| `test_v6_praxfolio.py` | an **empty** database | the rename, the Praxfolio, public sharing, the consolidated certificate and verification |
 
 Run one with:
 

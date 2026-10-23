@@ -6,7 +6,7 @@
 {% block content %}
 <p class="no-print certificate-actions">
   <button class="btn" onclick="window.print()">Print or save as PDF</button>
-  <a class="btn btn--quiet" href="{{ url_for('portfolio.verify') }}">Verify a reference</a>
+  <a class="btn btn--quiet" href="{{ url_for('praxfolio.verify') }}">Verify a reference</a>
 </p>
 
 {% if revoked %}
@@ -61,7 +61,7 @@
     </div>
     <div class="certificate-verify">
       <p class="certificate-small">Check this reference at</p>
-      <p class="mono">{{ request.url_root.rstrip('/') }}{{ url_for('portfolio.verify') }}</p>
+      <p class="mono">{{ request.url_root.rstrip('/') }}{{ url_for('praxfolio.verify') }}</p>
     </div>
   </footer>
 </article>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 620"
+     width="1400" height="620" role="img">
+  <defs>
+    <linearGradient id="c-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#132A21"/>
+      <stop offset="1" stop-color="#0C1714"/>
+    </linearGradient>
+    <radialGradient id="c-spot" cx=".5" cy=".62" r=".55">
+      <stop offset="0" stop-color="#D8A848" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#0C1714" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="c-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2F6A51"/>
+      <stop offset=".46" stop-color="#1E4B3A"/>
+      <stop offset="1" stop-color="#143328"/>
+    </linearGradient>
+    <linearGradient id="c-glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9FC4B4" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#3C6B59" stop-opacity=".92"/>
+    </linearGradient>
+    <linearGradient id="c-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  <filter id="g7" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  </defs>
+  
+  <rect width="1400" height="620" fill="url(#c-sky)"/>
+  <rect width="1400" height="620" fill="url(#c-spot)"/>
+
+  <!-- motion, so it reads as a car going somewhere -->
+  <rect x="30" y="300" width="150" height="5" rx="3" fill="#4FD6A0" opacity="0.22"/><rect x="44" y="346" width="128" height="5" rx="3" fill="#4FD6A0" opacity="0.18"/><rect x="58" y="392" width="106" height="5" rx="3" fill="#4FD6A0" opacity="0.14"/><rect x="72" y="438" width="84" height="5" rx="3" fill="#4FD6A0" opacity="0.1"/>
+
+  <!-- the road -->
+  <rect x="0" y="554" width="1400" height="4" fill="#9A6F22" opacity=".5"/>
+  <ellipse cx="700" cy="562" rx="520" ry="16" fill="#0A1210" opacity=".55"/>
+
+  <path d="M 150 404 C 150 372, 168 352, 204 342 L 430 318 C 486 276, 560 250, 660 242 C 790 234, 884 254, 952 288 L 1168 342 C 1222 356, 1248 378, 1248 408 L 1244 432 L 1104 432 A 104 104 0 0 0 908 432 L 496 432 A 104 104 0 0 0 288 432 L 152 432 Z" fill="url(#c-body)"/>
+  <path d="M 470 318 C 520 282, 580 262, 658 256 L 658 320 Z M 686 256 C 772 252, 846 268, 902 296 L 960 320 L 686 320 Z" fill="url(#c-glass)"/>
+
+  <!-- a highlight down the flank -->
+  <path d="M 240 372 L 1180 396" stroke="url(#c-shine)" stroke-width="7"
+        stroke-linecap="round" opacity=".55"/>
+  <!-- door shut line -->
+  <path d="M 672 322 L 666 424" stroke="#0A1210" stroke-width="3" opacity=".35"/>
+
+  <!-- lamps -->
+  <path d="M 152 368 L 196 362 L 196 386 L 154 390 Z" fill="#D8A848" opacity=".95"/>
+  <path d="M 1240 374 L 1200 370 L 1200 392 L 1240 396 Z" fill="#C04D3A" opacity=".9"/>
+
+  <!-- the name, on the door, where a name goes -->
+  <text x="700" y="400" font-family="Georgia, 'Times New Roman', serif"
+        font-size="50" font-weight="bold" fill="#F2F6EF" opacity=".96"
+        letter-spacing="1">PraxoraX</text>
+
+  
+  <circle cx="392" cy="470" r="86" fill="#0A1210"/>
+  <circle cx="392" cy="470" r="77" fill="#16211D"/>
+  <circle cx="392" cy="470" r="56" fill="#9A6F22"/>
+  <circle cx="392" cy="470" r="48" fill="#15231E"/>
+  <circle cx="392" cy="470" r="10" fill="#D8A848"/>
+  <rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(0 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(45 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(90 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(135 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(180 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(225 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(270 392 470)"/><rect x="389" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(315 392 470)"/>
+  
+  <circle cx="1012" cy="470" r="86" fill="#0A1210"/>
+  <circle cx="1012" cy="470" r="77" fill="#16211D"/>
+  <circle cx="1012" cy="470" r="56" fill="#9A6F22"/>
+  <circle cx="1012" cy="470" r="48" fill="#15231E"/>
+  <circle cx="1012" cy="470" r="10" fill="#D8A848"/>
+  <rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(0 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(45 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(90 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(135 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(180 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(225 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(270 1012 470)"/><rect x="1009" y="418" width="6" height="40" rx="3" fill="#D8A848" opacity=".8" transform="rotate(315 1012 470)"/>
+
+  <rect y="614" width="1400" height="6" fill="#9A6F22" opacity=".6"/>
+  <rect width="1400" height="620" filter="url(#g7)" opacity=".05"
+        style="mix-blend-mode:overlay"/>
+</svg>

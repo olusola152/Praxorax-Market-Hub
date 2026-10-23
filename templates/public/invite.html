@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}{% if invite and not problem %}{{ invite.invited_by_name }} invited you — {{ brand }}{% else %}Invitation — {{ brand }}{% endif %}{% endblock %}
+{% block body_class %}gate{% endblock %}
+{% block main_class %}gate-shell{% endblock %}
+
+{% block chrome %}
+<header class="public-bar">
+  <a class="mark" href="{{ url_for('home') }}">
+    <span class="mark-seal" aria-hidden="true"></span>
+    <span class="mark-name">{{ brand }}</span>
+  </a>
+  <nav class="public-nav">
+    <a href="{{ url_for('home') }}">What this is</a>
+    <a class="btn btn--small btn--quiet" href="{{ url_for('auth.login') }}">Sign in</a>
+  </nav>
+</header>
+{% endblock %}
+
+{% block content %}
+
+{# ------------------------------------------------- the invitation itself #}
+<section class="gate-pitch">
+  <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
+
+  {% if problem %}
+  <p class="record-label">Invitation</p>
+  <h1 class="display">This link<br>is closed.</h1>
+  <p class="lede">{{ problem }}</p>
+  <p class="lede">If you still want in, ask whoever invited you to send a fresh
+    one — or make an account anyway and join a team from inside. It is free for
+    students and there is nothing to pay, ever.</p>
+  {% else %}
+  <p class="record-label">You have been invited</p>
+  <h1 class="display">{{ invite.invited_by_name }}<br>wants you on<br>the team.</h1>
+  <p class="lede"><strong>{{ invite.invited_by_name }}</strong> is putting
+    together &ldquo;{{ invite.team_name }}&rdquo; on {{ brand }} and has asked
+    you to be part of it.</p>
+  {% endif %}
+
+  <dl class="record-strip record-strip--keep">
+    <div><dt>What this is</dt><dd>Real briefs posted by real companies</dd></div>
+    <div><dt>Who supervises</dt><dd>A lecturer reviews the work before it ships</dd></div>
+    <div><dt>What you leave with</dt><dd>A record an employer can verify</dd></div>
+  </dl>
+
+  <p class="lede" style="margin-top:1.6rem">Students never pay. Not for the
+    account, not for the work, not for the certificate at the end.</p>
+</section>
+
+{# ----------------------------------------------------------- what to do #}
+<section class="card">
+
+    {% if problem %}
+    <p class="record-label">No longer open</p>
+    <h2 class="card-title">Still worth a look</h2>
+    <p class="muted">{{ brand }} is open to any student, invitation or not.</p>
+    <p style="margin-top:1.2rem">
+      <a class="btn" href="{{ url_for('auth.register', as='student') }}">Create a student account</a>
+    </p>
+    <p class="muted small" style="margin-top:.8rem">
+      Already have one? <a href="{{ url_for('auth.login') }}">Sign in</a>.
+    </p>
+
+    {% elif signed_in_as and signed_in_as.email|lower == invite.email %}
+    {# They are already here, signed in, as the right person. One button. #}
+    <p class="record-label">Accept</p>
+    <h2 class="card-title">Join &ldquo;{{ invite.team_name }}&rdquo;</h2>
+    <p class="muted">You are signed in as {{ signed_in_as.fullname }}. Accepting
+      puts you on the team straight away.</p>
+    <form method="post" action="{{ url_for('invites.join', token=invite.token) }}"
+          style="margin-top:1.2rem">
+      <button class="btn" type="submit">Join the team</button>
+    </form>
+    <p class="muted small" style="margin-top:.8rem">
+      Not interested? Close this page — nothing happens and nobody is told.
+    </p>
+
+    {% elif signed_in_as %}
+    {# Right link, wrong person. Say so precisely. #}
+    <p class="record-label">Wrong account</p>
+    <h2 class="card-title">Signed in as somebody else</h2>
+    <p class="muted">This invitation was sent to <strong>{{ invite.email }}</strong>,
+      but you are signed in as {{ signed_in_as.email }}. An invitation belongs to
+      one address and cannot be passed on.</p>
+    <p style="margin-top:1.2rem">
+      <a class="btn" href="{{ url_for('auth.logout') }}">Sign out</a>
+    </p>
+
+    {% elif account %}
+    {# The address is registered. No account to create — just sign in. #}
+    <p class="record-label">Sign in</p>
+    <h2 class="card-title">You already have an account</h2>
+    <p class="muted">There is already an account for
+      <strong>{{ invite.email }}</strong>. Sign in and you can accept the
+      invitation on the next screen.</p>
+    <p style="margin-top:1.2rem">
+      <a class="btn" href="{{ url_for('auth.login', next=url_for('invites.landing', token=invite.token)) }}">Sign in and join</a>
+    </p>
+
+    {% else %}
+    {# The common case: a stranger who has just read the pitch. #}
+    <p class="record-label">Sign up</p>
+    <h2 class="card-title">Join &ldquo;{{ invite.team_name }}&rdquo;</h2>
+    <p class="muted">Create a student account with
+      <strong>{{ invite.email }}</strong> — the address this was sent to — and
+      you are on the team the moment you finish. It takes a minute and costs
+      nothing.</p>
+    <p style="margin-top:1.2rem">
+      <a class="btn" href="{{ url_for('auth.register', invite=invite.token) }}">Create my account and join</a>
+    </p>
+    <p class="muted small" style="margin-top:.8rem">
+      This invitation is good for {{ valid_days }} days from when it was sent.
+    </p>
+    {% endif %}
+
+</section>
+{% endblock %}

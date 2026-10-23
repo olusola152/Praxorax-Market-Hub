@@ -58,7 +58,8 @@ def create_app():
     from routes.company import company_bp
     from routes.deliverables import deliverables_bp
     from routes.files import files_bp
-    from routes.portfolio import portfolio_bp
+    from routes.invites import invites_bp
+    from routes.praxfolio import praxfolio_bp
     from routes.presentations import presentations_bp
     from routes.settings import settings_bp
     from routes.teams import teams_bp
@@ -68,17 +69,24 @@ def create_app():
     from routes.university import university_bp
 
     for bp in (auth_bp, portal_bp, student_bp, lecturer_bp, university_bp,
-               company_bp, admin_bp, files_bp, teams_bp,
-               deliverables_bp, portfolio_bp, presentations_bp, settings_bp):
+               company_bp, admin_bp, files_bp, teams_bp, invites_bp,
+               deliverables_bp, praxfolio_bp, presentations_bp, settings_bp):
         app.register_blueprint(bp)
+
+    # Pictures on the public site, and the folder a real photograph is
+    # dropped into to replace one. Read once, here, not per render.
+    import artwork
+    artwork.attach(app)
 
     @app.context_processor
     def inject_labels():
         # trial_days is here so the public copy can offer a trial only when
         # one is actually on. A site that advertises a free week and then
         # hands out a pending account is worse than one that never mentioned it.
+        from datetime import date
         return {"role_labels": ROLE_LABELS, "brand": app.config["BRAND"],
                 "trial_days": app.config["TRIAL_DAYS"],
+                "now_year": date.today().year,
                 "idle_seconds_left": seconds_left(),
                 "idle_warn_at": app.config["IDLE_WARN_SECONDS"]}
 
@@ -130,8 +138,16 @@ def create_app():
         from db import query
         from workflow import expire_lapsed
         expire_lapsed()
+
+        # There was a band of live counts here. On a platform this young it
+        # read "3 briefs, 1 institution", which argues against the product
+        # rather than for it, so it is gone along with the four queries that
+        # fed it. Worth restoring once the real numbers carry themselves.
         return render_template(
             "public/landing.html",
+            fields=query(
+                """SELECT name, faculty, image_url FROM fields
+                    WHERE image_url IS NOT NULL ORDER BY name LIMIT 8"""),
             universities=query(
                 """SELECT name, slug, city FROM universities
                     WHERE subscription_status IN ('active','trial')

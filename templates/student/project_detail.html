@@ -33,7 +33,7 @@
   <h2 class="panel-title">How to get on this project</h2>
 
   {% if not independent %}
-  <p class="empty">A lecturer in {{ project.field_name }} at your university applies to the company. Once approved, they choose students from their field. Make sure your portfolio and GitHub link are up to date so you're an obvious pick.</p>
+  <p class="empty">A lecturer in {{ project.field_name }} at your university applies to the company. Once approved, they choose students from their field. Make sure your Praxfolio and GitHub link are up to date so you're an obvious pick.</p>
 
   {% elif application and application.status == 'pending' %}
   <p class="empty">You applied on {{ application.created_at.strftime('%d %b %Y') }}.

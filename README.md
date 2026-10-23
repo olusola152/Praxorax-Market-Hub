@@ -3,14 +3,14 @@
 Flask + Supabase (PostgreSQL). Universities and companies subscribe. Companies
 post briefs in a field of study; lecturers with that expertise apply to
 supervise; once approved they place their own students and monitor the work
-through four phases to the deadline. Students browse and build portfolios but
+through four phases to the deadline. Students browse and build Praxfolios but
 never apply directly.
 
 ## Roles
 
 | Role | Gets in by | Can do |
 |---|---|---|
-| **Student** | Free signup on their university's portal | Browse projects, submit work, keep a GitHub portfolio. Cannot apply. |
+| **Student** | Free signup on their university's portal | Browse projects, submit work, keep a GitHub Praxfolio. Cannot apply. |
 | **Lecturer** | Passcode, on their university's portal | See projects matching their expertise, apply, place students, monitor phases |
 | **University** | Self-signup, admin activates subscription | Issue lecturer passcodes, see all lecturers/students/placements |
 | **Company** | Self-signup, admin activates subscription | Post projects, approve lecturers, watch progress |
@@ -452,7 +452,7 @@ a future migration, add it to both.
 
 ---
 
-## Update — PraxoraX, portfolios and certificates
+## Update — PraxoraX, Praxfolios and certificates
 
 Run `database/migration_v6.sql` after v5.
 
@@ -468,10 +468,10 @@ was rendering into the `<title>` tag. Tests passed because the text was still
 present in the HTML. Fixed, and the test now checks the band appears *after*
 `</title>`.
 
-### Student portfolio — `/student/portfolio`
+### Student Praxfolio — `/student/praxfolio`
 
 Every placement a company has signed off, newest first. Only approved work
-appears; a portfolio listing half-finished projects would be worth nothing to
+appears; a Praxfolio listing half-finished projects would be worth nothing to
 an employer.
 
 Each entry carries the brief, the company, the field and faculty, the
@@ -493,7 +493,7 @@ the token, so the old link dies for good.
 
 ### Consolidated certificate
 
-`/student/portfolio` → **Generate a certificate**. It covers everything
+`/student/praxfolio` → **Generate a certificate**. It covers everything
 completed as of that moment, with a reference like `PX-1A2B3C4D5E`.
 
 The certificate stores a **frozen snapshot** of what it said when issued. A
@@ -638,7 +638,7 @@ comes straight back.
 `tests/test_v9_full_chain.py` walks the entire journey the way a person does:
 student submits source and a guide together → supervisor forwards → university
 forwards → company approves → placement completes → the per-project certificate
-is issued → the portfolio fills → the consolidated certificate generates → a
+is issued → the Praxfolio fills → the consolidated certificate generates → a
 stranger verifies its reference. It also checks what the student sees at each
 stage, and that requesting corrections reopens the form. 30 checks, all passing.
 
@@ -826,7 +826,7 @@ No migration. Replace the files.
 ### Why admin looks different now
 
 The rest of PraxoraX is sage paper: a record you could print and file. That
-suits a student reading their portfolio or a company reading a submission.
+suits a student reading their Praxfolio or a company reading a submission.
 
 Administration is a different job. Nobody reads records there — they watch a
 system move and decide what is stuck. So admin now has its own visual language:

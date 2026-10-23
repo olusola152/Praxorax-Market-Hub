@@ -168,7 +168,7 @@ WELCOME = {
         "Here is how it goes. Companies post briefs — actual work they need "
         "done, with a deadline and a field of study. You apply for the ones "
         "that fit, send your work through the site, and it is reviewed before "
-        "it is accepted. Every project you finish goes on your portfolio with "
+        "it is accepted. Every project you finish goes on your Praxfolio with "
         "a certificate carrying a reference anyone can verify.\n\n"
         "Two things to do now. Finish your profile — it is what a company "
         "sees when it decides between applicants, and you cannot apply until "
@@ -239,14 +239,45 @@ def send_team_invite(app, to_address, from_name, team_name, token):
 
     brand = app.config["BRAND"]
     body = (f"{from_name} has invited you to join the team \"{team_name}\" on "
-            f"{brand}, where students take on real projects posted by companies "
-            f"and get a verified record of the work.\n\n"
-            f"You do not have an account yet. Create one with this address and "
-            f"you will find the invitation waiting on your Teams page. It is "
-            f"free for students, and the link below fills in the rest.")
+            f"{brand}.\n\n"
+            f"{brand} is where companies post work they actually need doing, "
+            f"students take it on in teams, a lecturer reviews it before it "
+            f"ships, and every finished project leaves a record an employer "
+            f"can check.\n\n"
+            f"The link below opens the invitation. Have a look at what the "
+            f"place is first — nothing is asked of you until you decide. If "
+            f"you want in, one button creates your account and puts you on "
+            f"{from_name}'s team. It is free for students and there is "
+            f"nothing to pay, ever.")
 
     return send(to_address, None, f"{from_name} invited you to a team on {brand}",
-                body, f"/register?invite={token}", app=app)
+                body, f"/invite/{token}", app=app)
+
+
+def send_team_invite_member(app, to_address, to_name, from_name, team_name):
+    """Ask someone who already has an account to join a team.
+
+    Deliberately not the same message as send_team_invite. That one is written
+    for a stranger and spends its words explaining what the platform is and
+    telling them to register; sent to a member it reads as nonsense and the
+    link goes to a signup page they cannot use. This one assumes they are
+    already here and points at the one thing they have to do: decide.
+    """
+    if not configured(app):
+        return False
+
+    brand = app.config["BRAND"]
+    body = (f"{from_name} has invited you to join the team \"{team_name}\" on "
+            f"{brand}.\n\n"
+            f"A team applies for a brief as one unit, and every member gets "
+            f"their own placement and their own certificate for the work.\n\n"
+            f"You are already signed up, so there is nothing to create. Open "
+            f"your Teams page to accept or decline — until you do, the team "
+            f"is holding a seat for you.")
+
+    return send(to_address, to_name,
+                f"{from_name} invited you to the team \"{team_name}\" - {brand}",
+                body, "/teams", app=app)
 
 
 def send_welcome(app, to_address, to_name, role):

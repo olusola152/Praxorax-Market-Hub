@@ -122,7 +122,11 @@ step("detail page renders a banner", r.status_code == 200 and b"detail-banner" i
 
 pub = app.test_client()
 r = pub.get("/")
-step("landing page shows the hero art", b"hero-chain.svg" in r.data)
+# Since v20 the hero is a scene that a real photograph can replace in place,
+# so the check is that the hero slot rendered something, not that one
+# particular file is hardcoded into the page.
+step("landing page shows the hero art",
+     b"img/scenes/presenting.svg" in r.data or b"img/photos/presenting" in r.data)
 step("landing page shows faculty tiles", b"img/fields/architecture.svg" in r.data)
 step("landing page sells the free week", b"free week" in r.data.lower())
 

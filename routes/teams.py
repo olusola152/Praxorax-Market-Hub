@@ -20,7 +20,9 @@ from workflow import notify, receipt
 
 teams_bp = Blueprint("teams", __name__, url_prefix="/teams")
 
-MAX_MEMBERS = 6
+# Defined alongside the invitation rules, because the invitation page has to
+# enforce the same ceiling from outside this blueprint.
+MAX_MEMBERS = invitations.MAX_MEMBERS
 
 
 def team_for(team_id, must_lead=False):
@@ -133,6 +135,8 @@ def detail(team_id):
         "student/team_detail.html", team=team, members=members_of(team_id),
         max_members=MAX_MEMBERS,
         invited=invitations.pending_for_team(team_id),
+        base_url=current_app.config["BASE_URL"],
+        invite_link=invitations.landing_url,
         placements=query(
             """SELECT a.id, u.fullname FROM assignments a
                  JOIN users u ON u.id = a.student_id
@@ -149,7 +153,8 @@ def invite(team_id):
 
     email = request.form.get("email", "").strip().lower()
     person = query(
-        "SELECT id, fullname, role FROM users WHERE email=%s AND status='active'",
+        """SELECT id, fullname, role, email, email_notifications
+             FROM users WHERE email=%s AND status='active'""",
         (email,), one=True)
 
     if not email or "@" not in email:
@@ -187,14 +192,15 @@ def invite(team_id):
 
         if sent:
             flash(f"{email} is not on {current_app.config['BRAND']} yet, so we "
-                  f"have emailed them an invitation. They join the team as "
-                  f"soon as they sign up.", "success")
+                  f"have emailed them an invitation. It explains what this "
+                  f"place is and lets them create an account and join in one "
+                  f"step.", "success")
         else:
             flash(f"{email} is not here yet. The invitation is saved and will "
                   f"be waiting when they sign up — but this site cannot send "
                   f"email at the moment, so send them the link yourself: "
                   f"{current_app.config['BASE_URL']}"
-                  f"{url_for('auth.register', invite=row['token'])}", "success")
+                  f"{invitations.landing_url(row['token'])}", "success")
         return redirect(url_for("teams.detail", team_id=team_id))
 
     if person["role"] != "student":
@@ -221,9 +227,17 @@ def invite(team_id):
             "INSERT INTO team_members (team_id, user_id) VALUES (%s,%s)",
             (team_id, person["id"]))
 
+    # The in-app alert is written either way, but its generic email is held
+    # back: a team invitation gets its own message, written for someone who
+    # already has an account, rather than the one-line alert text.
     notify(person["id"],
            f"{g.user['fullname']} invited you to join the team \"{team['name']}\".",
-           url_for("teams.index"))
+           url_for("teams.index"), email=False)
+    if person["email_notifications"]:
+        mailer.send_team_invite_member(
+            current_app._get_current_object(), person["email"],
+            person["fullname"], g.user["fullname"], team["name"])
+
     receipt(g.user["id"], f"Invitation sent: {person['fullname']}",
             f"You invited {person['fullname']} to join your team "
             f"\"{team['name']}\". They have been told and it is now waiting "

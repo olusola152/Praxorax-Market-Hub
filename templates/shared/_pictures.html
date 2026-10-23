@@ -1,0 +1,19 @@
+{# The one place a picture slot is turned into markup.
+
+   Kept apart from any single page because the landing page, the university
+   portals and the gate pages all draw from the same set, and three copies of
+   this would drift the moment one of them gained an attribute.
+
+   A slot renders a real photograph from static/img/photos when one has been
+   dropped in and the drawn scene otherwise; either way it states its own
+   measured size, so nothing below it moves when the picture arrives. #}
+
+{%- macro scene(slot, classes='', eager=false) -%}
+{%- set size = photo_size(slot) -%}
+<img class="scene {{ classes }}{{ ' scene--photo' if is_photo(slot) }}"
+     src="{{ url_for('static', filename=photo_for(slot)) }}"
+     alt="{{ photo_alt(slot) }}"
+     {%- if size %} width="{{ size[0] }}" height="{{ size[1] }}"{% endif %}
+     loading="{{ 'eager' if eager else 'lazy' }}"
+     {%- if eager %} fetchpriority="high"{% endif %}>
+{%- endmacro -%}

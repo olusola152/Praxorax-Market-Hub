@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760"
+     width="1200" height="760" role="img">
+  <defs>
+    <linearGradient id="t-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#132A21"/>
+      <stop offset="1" stop-color="#0C1714"/>
+    </linearGradient>
+    <radialGradient id="t-pool" cx=".5" cy=".62" r=".5">
+      <stop offset="0" stop-color="#D8A848" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#0C1714" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="t-table" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C6349"/>
+      <stop offset="1" stop-color="#1E4B3A"/>
+    </linearGradient>
+  <filter id="g2" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="2"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  </defs>
+  
+  <rect width="1200" height="760" fill="url(#t-bg)"/>
+  <rect width="1200" height="760" fill="url(#t-pool)"/>
+
+  <!-- a window at night, so the light has somewhere to come from -->
+  <rect x="74" y="76" width="216" height="196" rx="8" fill="#2C6349" opacity=".3"/>
+  <line x1="182" y1="76" x2="182" y2="272" stroke="#0C1714" stroke-width="6"/>
+  <line x1="74" y1="174" x2="290" y2="174" stroke="#0C1714" stroke-width="6"/>
+
+  <!-- their work, pinned up behind them -->
+  <rect x="742" y="84" width="148" height="186" rx="6" fill="#E7EBE3" opacity=".93"/>
+  <rect x="766" y="114" width="100" height="9" rx="4" fill="#1E4B3A" opacity=".45"/>
+  <rect x="766" y="136" width="74" height="9" rx="4" fill="#1E4B3A" opacity=".3"/>
+  <rect x="766" y="174" width="100" height="62" rx="4" fill="#9A6F22" opacity=".35"/>
+  <rect x="918" y="84" width="148" height="186" rx="6" fill="#E7EBE3" opacity=".93"/>
+  <path d="M 942 222 L 982 180 L 1016 206 L 1044 164" fill="none"
+        stroke="#1E4B3A" stroke-width="5" stroke-linecap="round"
+        stroke-linejoin="round" opacity=".55"/>
+
+  <path d="M 362.4 564 C 362.4 454.79999999999995, 381.328 423.59999999999997, 430 423.59999999999997 C 478.672 423.59999999999997, 497.6 454.79999999999995, 497.6 564 Z" fill="#0A1210"/>
+    <circle cx="430" cy="387.19999999999993" r="33.800000000000004" fill="#0A1210"/>
+    <clipPath id="rim8"><path d="M 362.4 564 C 362.4 454.79999999999995, 381.328 423.59999999999997, 430 423.59999999999997 C 478.672 423.59999999999997, 497.6 454.79999999999995, 497.6 564 Z"/><circle cx="430" cy="387.19999999999993" r="33.800000000000004"/></clipPath>
+    <g clip-path="url(#rim8)"><rect x="294.79999999999995" y="319.5999999999999" width="270.40000000000003" height="278.20000000000005" fill="#4FD6A0"/><g transform="translate(18.2,6.369999999999999)"><path d="M 362.4 564 C 362.4 454.79999999999995, 381.328 423.59999999999997, 430 423.59999999999997 C 478.672 423.59999999999997, 497.6 454.79999999999995, 497.6 564 Z" fill="#0A1210"/><circle cx="430" cy="387.19999999999993" r="33.800000000000004" fill="#0A1210"/></g></g><path d="M 662.4 564 C 662.4 454.79999999999995, 681.328 423.59999999999997, 730 423.59999999999997 C 778.672 423.59999999999997, 797.6 454.79999999999995, 797.6 564 Z" fill="#0A1210"/>
+    <circle cx="730" cy="387.19999999999993" r="33.800000000000004" fill="#0A1210"/>
+    <clipPath id="rim9"><path d="M 662.4 564 C 662.4 454.79999999999995, 681.328 423.59999999999997, 730 423.59999999999997 C 778.672 423.59999999999997, 797.6 454.79999999999995, 797.6 564 Z"/><circle cx="730" cy="387.19999999999993" r="33.800000000000004"/></clipPath>
+    <g clip-path="url(#rim9)"><rect x="594.8" y="319.5999999999999" width="270.40000000000003" height="278.20000000000005" fill="#4FD6A0"/><g transform="translate(-18.2,6.369999999999999)"><path d="M 662.4 564 C 662.4 454.79999999999995, 681.328 423.59999999999997, 730 423.59999999999997 C 778.672 423.59999999999997, 797.6 454.79999999999995, 797.6 564 Z" fill="#0A1210"/><circle cx="730" cy="387.19999999999993" r="33.800000000000004" fill="#0A1210"/></g></g><path d="M 120.60000000000001 608 C 120.60000000000001 486.20000000000005, 141.71200000000002 451.40000000000003, 196 451.40000000000003 C 250.28799999999998 451.40000000000003, 271.4 486.20000000000005, 271.4 608 Z" fill="#0E1C17"/>
+    <circle cx="196" cy="410.80000000000007" r="37.699999999999996" fill="#0E1C17"/>
+    <clipPath id="rim10"><path d="M 120.60000000000001 608 C 120.60000000000001 486.20000000000005, 141.71200000000002 451.40000000000003, 196 451.40000000000003 C 250.28799999999998 451.40000000000003, 271.4 486.20000000000005, 271.4 608 Z"/><circle cx="196" cy="410.80000000000007" r="37.699999999999996"/></clipPath>
+    <g clip-path="url(#rim10)"><rect x="45.20000000000002" y="335.4000000000001" width="301.59999999999997" height="310.29999999999995" fill="#D8A848"/><g transform="translate(-20.3,7.1049999999999995)"><path d="M 120.60000000000001 608 C 120.60000000000001 486.20000000000005, 141.71200000000002 451.40000000000003, 196 451.40000000000003 C 250.28799999999998 451.40000000000003, 271.4 486.20000000000005, 271.4 608 Z" fill="#0E1C17"/><circle cx="196" cy="410.80000000000007" r="37.699999999999996" fill="#0E1C17"/></g></g><path d="M 924.6 608 C 924.6 486.20000000000005, 945.712 451.40000000000003, 1000 451.40000000000003 C 1054.288 451.40000000000003, 1075.4 486.20000000000005, 1075.4 608 Z" fill="#0E1C17"/>
+    <circle cx="1000" cy="410.80000000000007" r="37.699999999999996" fill="#0E1C17"/>
+    <clipPath id="rim11"><path d="M 924.6 608 C 924.6 486.20000000000005, 945.712 451.40000000000003, 1000 451.40000000000003 C 1054.288 451.40000000000003, 1075.4 486.20000000000005, 1075.4 608 Z"/><circle cx="1000" cy="410.80000000000007" r="37.699999999999996"/></clipPath>
+    <g clip-path="url(#rim11)"><rect x="849.2" y="335.4000000000001" width="301.59999999999997" height="310.29999999999995" fill="#D8A848"/><g transform="translate(20.3,7.1049999999999995)"><path d="M 924.6 608 C 924.6 486.20000000000005, 945.712 451.40000000000003, 1000 451.40000000000003 C 1054.288 451.40000000000003, 1075.4 486.20000000000005, 1075.4 608 Z" fill="#0E1C17"/><circle cx="1000" cy="410.80000000000007" r="37.699999999999996" fill="#0E1C17"/></g></g>
+  <rect x="360" y="474" width="92" height="64" rx="4" fill="#E7EBE3"/><rect x="370" y="484" width="60" height="7" rx="3" fill="#1E4B3A" opacity=".35"/><path d="M 356 538 L 456 538 L 472 560 L 340 560 Z" fill="#6E8878"/><rect x="672" y="474" width="92" height="64" rx="4" fill="#E7EBE3"/><rect x="682" y="484" width="60" height="7" rx="3" fill="#1E4B3A" opacity=".35"/><path d="M 668 538 L 768 538 L 784 560 L 652 560 Z" fill="#6E8878"/>
+
+  <!-- paper between them, and a pencil left across it -->
+  <g transform="rotate(-4 532 534)">
+    <rect x="474" y="514" width="126" height="40" rx="4" fill="#E7EBE3"/>
+    <rect x="492" y="526" width="78" height="5" rx="2" fill="#1E4B3A" opacity=".4"/>
+    <rect x="492" y="538" width="52" height="5" rx="2" fill="#1E4B3A" opacity=".25"/>
+  </g>
+  <rect x="604" y="536" width="78" height="7" rx="3" fill="#9A6F22"
+        transform="rotate(7 643 539)"/>
+
+  <!-- the table, and the floor it stands on -->
+  <rect x="96" y="560" width="1008" height="38" rx="10" fill="url(#t-table)"/>
+  <rect x="96" y="598" width="1008" height="12" rx="6" fill="#0A1210" opacity=".22"/>
+  <rect x="186" y="610" width="26" height="150" fill="#0A1210" opacity=".7"/>
+  <rect x="988" y="610" width="26" height="150" fill="#0A1210" opacity=".7"/>
+  <ellipse cx="600" cy="756" rx="520" ry="26" fill="#0A1210" opacity=".5"/>
+
+  <rect y="755" width="1200" height="5" fill="#9A6F22" opacity=".5"/>
+  <rect width="1200" height="760" filter="url(#g2)" opacity=".05"
+        style="mix-blend-mode:overlay"/>
+</svg>
