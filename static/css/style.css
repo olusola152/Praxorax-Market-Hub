@@ -68,7 +68,10 @@ a { color: var(--seal); text-underline-offset: 3px; }
   display: inline-block;
   width: 26px;
   height: 26px;
-  background: url("../img/seal.svg") center / contain no-repeat;
+  /* The light-ground default. The crest's medallion is dark, so on paper it
+     needs its own tile or the silver P sits on white and disappears. Dark
+     grounds get the cut-out instead, below. */
+  background: url("../img/logo-tile.png") center / contain no-repeat;
   flex: none;
 }
 
@@ -2770,17 +2773,15 @@ body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .preview-ba
 @media (max-width: 900px) { .uni-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .uni-grid { grid-template-columns: 1fr; } }
 
-/* ---------- the car ---------- */
+/* ---------- the showcase ---------- */
 
-/* The car is drawn to be seen end to end, so this one card contains its
-   picture rather than cropping into it the way the others do. */
-.car-card__art { min-height: 0; background: var(--night); }
-.car-card__art img {
-  position: static; width: 100%; height: auto;
-  object-fit: contain; object-position: center;
-}
+/* A photograph rather than a drawing now, so it crops like every other
+   picture on the page instead of being shown whole. The subject sits above
+   the middle, so the crop favours the upper half. */
+.showcase-card__art { min-height: 300px; background: var(--night); }
+.showcase-card__art img { object-position: 50% 42%; }
 @media (max-width: 980px) {
-  .car-card__art { order: -1; }
+  .showcase-card__art { order: -1; min-height: 240px; }
 }
 
 /* ==========================================================================
@@ -2881,3 +2882,44 @@ body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .preview-ba
 /* The company's channels, inline under a brief's title. */
 .social-row--inline { align-items: center; margin-top: .6rem; }
 .share-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0 .4rem; }
+
+
+/* ==========================================================================
+   THE CREST
+   --------------------------------------------------------------------------
+   One mark, two cut-outs. Which one is used depends only on what is behind
+   it, so a template never has to choose: anything inside a dark bar, a dark
+   band or the admin deck gets the transparent crest; everything else gets
+   the tiled one set above.
+   ========================================================================== */
+
+.public-bar--dark .mark-seal,
+.band-dark .mark-seal,
+.site-foot .mark-seal,
+.hero-dark .mark-seal,
+.mark--light .mark-seal,
+.deck .mark-seal,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .mark-seal {
+  background-image: url("../img/logo-mark.png");
+}
+
+/* The crest is wider than it is tall, so a square box crops the wreath.
+   It is also an ornate mark, and ornate marks do not survive being shrunk:
+   below about 40px the crown and the wreath collapse into one gold smudge.
+   So the bar carries it a little larger than the old flat seal did, and the
+   bar's padding gives way instead. */
+.mark-seal { width: 52px; height: 36px; }
+.mark-seal--lg { width: 132px; height: 92px; }
+.mark { gap: .55rem; }
+.public-bar { padding-top: .7rem; padding-bottom: .7rem; }
+
+/* On a certificate it is printed, so it uses the variant that keeps the
+   medallion dark without carrying a tile around with it. */
+.certificate-page .mark-seal,
+.certificate-sheet .mark-seal {
+  background-image: url("../img/logo-print.png");
+}
+
+/* The fleet image is a photograph rather than a drawing on a flat ground,
+   so it fills its half of the card instead of being contained inside it. */
+.showcase-card__art img { object-fit: cover; height: 100%; }

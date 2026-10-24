@@ -177,6 +177,7 @@ def create_app():
         user = g.get("user")
         return {
             "mail_configured": mailer.configured(app),
+            "mail_test_only": mailer.sender_is_test_only(app),
             "user_email_alerts": bool(user and user.get("email_notifications", True)),
         }
 

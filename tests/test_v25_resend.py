@@ -188,6 +188,53 @@ with app.app_context():
     step("and send_now explains itself", sent is False and bool(detail), detail)
     mailer.RESEND_ENDPOINT = old
 
+# ============================== sending with no domain of your own
+print("\n--- Resend without a domain ---\n")
+
+# resend.dev is the address somebody uses before they have a domain. It
+# delivers only to the Resend account holder and 403s every other
+# recipient, which means a site can look configured, pass its own test
+# email, and send not one student anything.
+with app.app_context():
+    app.config.update(MAIL_TRANSPORT="resend", RESEND_API_KEY="re_x",
+                      MAIL_ENABLED=True, MAIL_FROM="onboarding@resend.dev")
+    step("a resend.dev sender is recognised as test-only",
+         mailer.sender_is_test_only(app) is True)
+
+    app.config["MAIL_FROM"] = "alerts@praxorax.com"
+    step("an address on a real domain is not",
+         mailer.sender_is_test_only(app) is False)
+
+    app.config.update(MAIL_TRANSPORT="smtp", MAIL_FROM="onboarding@resend.dev")
+    step("and over SMTP the address does not matter",
+         mailer.sender_is_test_only(app) is False)
+
+# The refusal has to explain itself rather than repeat the API.
+CAUGHT.clear()
+use_resend()
+with app.app_context():
+    app.config["MAIL_FROM"] = "onboarding@resend.dev"
+    sent, detail = mailer.send_now(app, "someone@example.com", "Someone",
+                                   "REFUSE this", "body")
+step("a 403 from a test sender is explained", sent is False)
+step("naming the restriction, not just the code",
+     "only delivers to" in detail, detail)
+step("and saying what to do about it",
+     "verified" in detail and "SMTP" in detail, detail)
+
+# It must be visible before somebody ships, not after.
+app.config.update(MAIL_TRANSPORT="resend", RESEND_API_KEY="re_x",
+                  MAIL_ENABLED=True, MAIL_FROM="onboarding@resend.dev")
+page = login("ada@demo.marketplace").get("/student/notifications").data
+step("the Alerts page warns about it", b"can only email you" in page)
+step("and says SMTP needs no domain", b"needs no domain" in page)
+
+app.config["MAIL_FROM"] = "alerts@praxorax.test"
+page = login("ada@demo.marketplace").get("/student/notifications").data
+step("the warning is gone once the sender is on a real domain",
+     b"can only email you" not in page)
+use_resend()
+
 # ================================================ the test-email button
 print("\n--- the button an administrator presses ---\n")
 

@@ -46,9 +46,24 @@ for name in ("seal.svg", "favicon.svg"):
             step(f"{name} is well-formed XML", False, str(exc))
 
 r = client.get("/")
-step("the tab icon is linked", b'rel="icon"' in r.data and b"favicon.svg" in r.data)
+# Since the crest replaced the flat seal the icon is a PNG, because an
+# ornate mark rasterised by the browser at 32px is better than an SVG the
+# browser scales badly. What this checks is unchanged: an icon is linked
+# and the file behind it is actually served.
+step("the tab icon is linked", b'rel="icon"' in r.data)
+icon = re.search(rb'rel="icon" href="([^"]+)"', r.data)
+step("and points at a file", bool(icon), icon and icon.group(1))
+if icon:
+    step("that is served",
+         client.get(icon.group(1).decode()).status_code == 200,
+         icon.group(1).decode())
+step("a touch icon is linked too", b"apple-touch-icon" in r.data)
 step("the mark is served as the header logo",
-     client.get("/static/img/seal.svg").status_code == 200)
+     client.get("/static/img/logo-mark.png").status_code == 200)
+step("with a variant for light grounds",
+     client.get("/static/img/logo-tile.png").status_code == 200)
+step("and one for print",
+     client.get("/static/img/logo-print.png").status_code == 200)
 step("the tab icon is served",
      client.get("/static/img/favicon.svg").status_code == 200)
 

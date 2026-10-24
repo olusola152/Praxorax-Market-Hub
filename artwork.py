@@ -59,7 +59,8 @@ SLOTS = {
               "received, and the person who sent it has been told so",
     "alerts-portal": "A student checking a PraxoraX confirmation on their "
                      "phone moments after submitting their work",
-    "car": "A PraxoraX car, side on, moving",
+    "fleet": "A PraxoraX aircraft in flight above the clouds, the crest on "
+             "its tail",
 }
 
 

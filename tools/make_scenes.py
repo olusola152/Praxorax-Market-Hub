@@ -500,115 +500,89 @@ def alerts():
 
 
 
-# ====================================================================== car
-def car():
-    """A PraxoraX car, side on.
+# ==================================================================== fleet
+def fleet():
+    """An aircraft above cloud, in the house palette.
 
-    Asked for directly, after the client pointed at a broker site that puts a
-    supercar in the middle of its homepage. Drawn rather than photographed
-    because nothing here can fetch a photograph of a car, and drawn in the
-    house palette so it reads as this platform's vehicle rather than as a
-    stock image somebody dropped in.
+    The fallback behind the photographed plane. It exists for the same
+    reason every other fallback does: removing a photograph should leave a
+    drawing, not a broken image.
 
-    Deliberately not framed as a prize. The site it sits on is a real
-    client's, and a page implying a giveaway is a promise somebody then has
-    to keep.
+    Drawn from directly ahead and slightly below, because a side-on
+    aeroplane is a long thin shape that leaves a card mostly empty.
     """
-    w, h = 1400, 620
+    w, h = 1400, 820
     defs = f"""
-    <linearGradient id="c-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="{DEEP_2}"/>
-      <stop offset="1" stop-color="{DEEP}"/>
+    <linearGradient id="f-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="{DEEP}"/>
+      <stop offset="0.55" stop-color="{DEEP_2}"/>
+      <stop offset="1" stop-color="#1B3A2E"/>
     </linearGradient>
-    <radialGradient id="c-spot" cx=".5" cy=".62" r=".55">
-      <stop offset="0" stop-color="{BRASS_LIT}" stop-opacity=".22"/>
+    <radialGradient id="f-sun" cx=".74" cy=".2" r=".42">
+      <stop offset="0" stop-color="{BRASS_LIT}" stop-opacity=".40"/>
       <stop offset="1" stop-color="{DEEP}" stop-opacity="0"/>
     </radialGradient>
-    <linearGradient id="c-body" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2F6A51"/>
-      <stop offset=".46" stop-color="{SEAL}"/>
-      <stop offset="1" stop-color="#143328"/>
+    <linearGradient id="f-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6F8F3"/>
+      <stop offset="0.62" stop-color="#C8D2C9"/>
+      <stop offset="1" stop-color="#7E8C84"/>
     </linearGradient>
-    <linearGradient id="c-glass" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#9FC4B4" stop-opacity=".92"/>
-      <stop offset="1" stop-color="#3C6B59" stop-opacity=".92"/>
-    </linearGradient>
-    <linearGradient id="c-shine" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".5"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    <linearGradient id="f-wing" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8D9A91"/>
+      <stop offset="0.5" stop-color="#E8EDE6"/>
+      <stop offset="1" stop-color="#8D9A91"/>
     </linearGradient>"""
 
-    GROUND = 470
-    FX, RX = 392, 1012          # wheel centres
-    WR = 86                     # wheel radius
-
-    def wheel(cx):
-        return f"""
-  <circle cx="{cx}" cy="{GROUND}" r="{WR}" fill="#0A1210"/>
-  <circle cx="{cx}" cy="{GROUND}" r="{WR - 9}" fill="#16211D"/>
-  <circle cx="{cx}" cy="{GROUND}" r="{WR - 30}" fill="{BRASS}"/>
-  <circle cx="{cx}" cy="{GROUND}" r="{WR - 38}" fill="#15231E"/>
-  <circle cx="{cx}" cy="{GROUND}" r="10" fill="{BRASS_LIT}"/>
-  {"".join(f'<rect x="{cx - 3}" y="{GROUND - WR + 34}" width="6" height="{WR - 46}" rx="3" fill="{BRASS_LIT}" opacity=".8" transform="rotate({a} {cx} {GROUND})"/>' for a in range(0, 360, 45))}"""
-
-    # One path for the whole silhouette: nose, bonnet, screen, roof, tail,
-    # then back along the sill with a cut-out over each wheel.
-    body = (f"M 150 404 "
-            f"C 150 372, 168 352, 204 342 "
-            f"L 430 318 "
-            f"C 486 276, 560 250, 660 242 "
-            f"C 790 234, 884 254, 952 288 "
-            f"L 1168 342 "
-            f"C 1222 356, 1248 378, 1248 408 "
-            f"L 1244 432 L 1104 432 "
-            f"A {WR + 18} {WR + 18} 0 0 0 {RX - WR - 18} 432 "
-            f"L {FX + WR + 18} 432 "
-            f"A {WR + 18} {WR + 18} 0 0 0 {FX - WR - 18} 432 "
-            f"L 152 432 Z")
-
-    glass = (f"M 470 318 C 520 282, 580 262, 658 256 "
-             f"L 658 320 Z "
-             f"M 686 256 C 772 252, 846 268, 902 296 "
-             f"L 960 320 L 686 320 Z")
+    CX, CY = 700, 430
+    clouds = []
+    for cx, cy, rx, ry, op in ((230, 690, 260, 54, .20), (640, 740, 330, 62, .26),
+                               (1120, 700, 290, 56, .18), (900, 780, 380, 70, .30),
+                               (380, 760, 300, 58, .24)):
+        clouds.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" '
+                      f'fill="{CANVAS}" opacity="{op}"/>')
 
     return wrap(w, h, defs, f"""
-  <rect width="{w}" height="{h}" fill="url(#c-sky)"/>
-  <rect width="{w}" height="{h}" fill="url(#c-spot)"/>
+  <rect width="{w}" height="{h}" fill="url(#f-sky)"/>
+  <rect width="{w}" height="{h}" fill="url(#f-sun)"/>
+  {''.join(clouds)}
 
-  <!-- motion, so it reads as a car going somewhere -->
-  {"".join(f'<rect x="{30 + i * 14}" y="{300 + i * 46}" width="{150 - i * 22}" height="5" rx="3" fill="{MINT}" opacity="{0.22 - i * 0.04}"/>' for i in range(4))}
+  <!-- wings, swept back from the fuselage -->
+  <path d="M {CX - 26} {CY + 6} L {CX - 540} {CY + 92} L {CX - 520} {CY + 118}
+           L {CX - 20} {CY + 46} Z" fill="url(#f-wing)"/>
+  <path d="M {CX + 26} {CY + 6} L {CX + 540} {CY + 92} L {CX + 520} {CY + 118}
+           L {CX + 20} {CY + 46} Z" fill="url(#f-wing)"/>
 
-  <!-- the road -->
-  <rect x="0" y="{GROUND + WR - 2}" width="{w}" height="4" fill="{BRASS}" opacity=".5"/>
-  <ellipse cx="700" cy="{GROUND + WR + 6}" rx="520" ry="16" fill="{INK}" opacity=".55"/>
+  <!-- engines -->
+  <ellipse cx="{CX - 250}" cy="{CY + 72}" rx="44" ry="30" fill="{INK}"/>
+  <ellipse cx="{CX - 250}" cy="{CY + 72}" rx="30" ry="19" fill="{BRASS}"/>
+  <ellipse cx="{CX + 250}" cy="{CY + 72}" rx="44" ry="30" fill="{INK}"/>
+  <ellipse cx="{CX + 250}" cy="{CY + 72}" rx="30" ry="19" fill="{BRASS}"/>
 
-  <path d="{body}" fill="url(#c-body)"/>
-  <path d="{glass}" fill="url(#c-glass)"/>
+  <!-- fuselage and nose -->
+  <path d="M {CX} {CY - 150}
+           C {CX + 58} {CY - 140} {CX + 76} {CY - 40} {CX + 76} {CY + 40}
+           C {CX + 76} {CY + 104} {CX + 44} {CY + 140} {CX} {CY + 140}
+           C {CX - 44} {CY + 140} {CX - 76} {CY + 104} {CX - 76} {CY + 40}
+           C {CX - 76} {CY - 40} {CX - 58} {CY - 140} {CX} {CY - 150} Z"
+        fill="url(#f-body)"/>
 
-  <!-- a highlight down the flank -->
-  <path d="M 240 372 L 1180 396" stroke="url(#c-shine)" stroke-width="7"
-        stroke-linecap="round" opacity=".55"/>
-  <!-- door shut line -->
-  <path d="M 672 322 L 666 424" stroke="{INK}" stroke-width="3" opacity=".35"/>
+  <!-- tail fin, carrying the mark's colours -->
+  <path d="M {CX} {CY - 150} L {CX + 16} {CY - 268} L {CX - 16} {CY - 268} Z"
+        fill="{INK}"/>
+  <circle cx="{CX}" cy="{CY - 218}" r="15" fill="{BRASS_LIT}"/>
 
-  <!-- lamps -->
-  <path d="M 152 368 L 196 362 L 196 386 L 154 390 Z" fill="{BRASS_LIT}" opacity=".95"/>
-  <path d="M 1240 374 L 1200 370 L 1200 392 L 1240 396 Z" fill="#C04D3A" opacity=".9"/>
+  <!-- a brass stripe down the flank -->
+  <path d="M {CX - 70} {CY + 10} L {CX + 70} {CY + 10}" stroke="{BRASS}"
+        stroke-width="7" opacity=".85"/>
 
-  <!-- the name, on the door, where a name goes -->
-  <text x="700" y="400" font-family="Georgia, 'Times New Roman', serif"
-        font-size="50" font-weight="bold" fill="#F2F6EF" opacity=".96"
-        letter-spacing="1">PraxoraX</text>
+  <!-- windows -->
+  <ellipse cx="{CX}" cy="{CY - 92}" rx="40" ry="17" fill="{SEAL}" opacity=".85"/>
 
-  {wheel(FX)}
-  {wheel(RX)}
-
-  <rect y="{h - 6}" width="{w}" height="6" fill="{BRASS}" opacity=".6"/>""", 7)
+  <rect y="{h - 6}" width="{w}" height="6" fill="{BRASS}" opacity=".6"/>""", 8)
 
 
 SCENES = {"presenting": presenting, "teamwork": teamwork, "review": review,
-          "brief": brief, "certificate": certificate, "alerts": alerts, "car": car}
+          "brief": brief, "certificate": certificate, "alerts": alerts, "fleet": fleet}
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)

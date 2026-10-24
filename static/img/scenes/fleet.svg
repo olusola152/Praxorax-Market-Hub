@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 820"
+     width="1400" height="820" role="img">
+  <defs>
+    <linearGradient id="f-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0C1714"/>
+      <stop offset="0.55" stop-color="#132A21"/>
+      <stop offset="1" stop-color="#1B3A2E"/>
+    </linearGradient>
+    <radialGradient id="f-sun" cx=".74" cy=".2" r=".42">
+      <stop offset="0" stop-color="#D8A848" stop-opacity=".40"/>
+      <stop offset="1" stop-color="#0C1714" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="f-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6F8F3"/>
+      <stop offset="0.62" stop-color="#C8D2C9"/>
+      <stop offset="1" stop-color="#7E8C84"/>
+    </linearGradient>
+    <linearGradient id="f-wing" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8D9A91"/>
+      <stop offset="0.5" stop-color="#E8EDE6"/>
+      <stop offset="1" stop-color="#8D9A91"/>
+    </linearGradient>
+  <filter id="g8" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="8"/>
+    <feColorMatrix type="saturate" values="0"/>
+  </filter>
+  </defs>
+  
+  <rect width="1400" height="820" fill="url(#f-sky)"/>
+  <rect width="1400" height="820" fill="url(#f-sun)"/>
+  <ellipse cx="230" cy="690" rx="260" ry="54" fill="#E7EBE3" opacity="0.2"/><ellipse cx="640" cy="740" rx="330" ry="62" fill="#E7EBE3" opacity="0.26"/><ellipse cx="1120" cy="700" rx="290" ry="56" fill="#E7EBE3" opacity="0.18"/><ellipse cx="900" cy="780" rx="380" ry="70" fill="#E7EBE3" opacity="0.3"/><ellipse cx="380" cy="760" rx="300" ry="58" fill="#E7EBE3" opacity="0.24"/>
+
+  <!-- wings, swept back from the fuselage -->
+  <path d="M 674 436 L 160 522 L 180 548
+           L 680 476 Z" fill="url(#f-wing)"/>
+  <path d="M 726 436 L 1240 522 L 1220 548
+           L 720 476 Z" fill="url(#f-wing)"/>
+
+  <!-- engines -->
+  <ellipse cx="450" cy="502" rx="44" ry="30" fill="#0A1210"/>
+  <ellipse cx="450" cy="502" rx="30" ry="19" fill="#9A6F22"/>
+  <ellipse cx="950" cy="502" rx="44" ry="30" fill="#0A1210"/>
+  <ellipse cx="950" cy="502" rx="30" ry="19" fill="#9A6F22"/>
+
+  <!-- fuselage and nose -->
+  <path d="M 700 280
+           C 758 290 776 390 776 470
+           C 776 534 744 570 700 570
+           C 656 570 624 534 624 470
+           C 624 390 642 290 700 280 Z"
+        fill="url(#f-body)"/>
+
+  <!-- tail fin, carrying the mark's colours -->
+  <path d="M 700 280 L 716 162 L 684 162 Z"
+        fill="#0A1210"/>
+  <circle cx="700" cy="212" r="15" fill="#D8A848"/>
+
+  <!-- a brass stripe down the flank -->
+  <path d="M 630 440 L 770 440" stroke="#9A6F22"
+        stroke-width="7" opacity=".85"/>
+
+  <!-- windows -->
+  <ellipse cx="700" cy="338" rx="40" ry="17" fill="#1E4B3A" opacity=".85"/>
+
+  <rect y="814" width="1400" height="6" fill="#9A6F22" opacity=".6"/>
+  <rect width="1400" height="820" filter="url(#g8)" opacity=".05"
+        style="mix-blend-mode:overlay"/>
+</svg>

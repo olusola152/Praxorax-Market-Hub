@@ -306,25 +306,25 @@
 {% endif %}
 
 {# ====================================================================
-   THE CAR. Asked for directly. Framed around going somewhere, which is
-   the actual proposition — not around winning it, which would be a
-   promise this platform has not made and could not keep.
+   THE SHOWCASE. Brand imagery about reaching people wherever they are —
+   not a claim that this platform owns aircraft.
    ==================================================================== #}
 <section class="band-inner section section--tight">
-  <article class="feature-card car-card">
+  <article class="feature-card feature-card--flip showcase-card">
+    <div class="feature-card__art showcase-card__art">{{ scene('fleet') }}</div>
     <div class="feature-card__body">
-      <p class="eyebrow">Go further</p>
-      <h2 class="feature-card__title">Work that
-        <span class="gold">actually goes somewhere</span></h2>
-      <p>Coursework stops at a grade. Work done here is commissioned by a real
-        company, supervised by a real lecturer and signed off by your
-        institution — and it leaves with you, as a record anybody can check
-        long after you have graduated.</p>
+      <p class="eyebrow">Wherever you are</p>
+      <h2 class="feature-card__title">Your university does not have to be
+        <span class="gold">on our list</span></h2>
+      <p>Students join from any institution, and from none. If your school is
+        already here you come in through its portal; if it is not, you register
+        on your own and apply for briefs directly. The work and the record at
+        the end are the same either way.</p>
       <p class="hero-dark__actions">
         <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join {{ brand }} — free</a>
+        <a class="btn btn--ghost btn--lg" href="{{ url_for('auth.join_index') }}">Find your institution</a>
       </p>
     </div>
-    <div class="feature-card__art car-card__art">{{ scene('car') }}</div>
   </article>
 </section>
 

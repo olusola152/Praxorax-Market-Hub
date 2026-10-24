@@ -39,6 +39,20 @@
   {% if not mail_configured %}
   <p class="card-foot">Email is not switched on for this site yet, so nothing is
     being sent. An administrator sets this up in the server configuration.</p>
+  {% elif mail_test_only %}
+  {# Configured, and will pass its own test email, and will reach nobody
+     else. Worth saying loudly before a hundred students sign up and hear
+     nothing. #}
+  <p class="flash flash--error" style="margin-top:1rem">
+    <strong>This site can only email you.</strong> It is sending from
+    Resend's test address, which delivers to the address the Resend account
+    was opened with and refuses every other recipient. A test email below
+    will arrive; a student's welcome will not. To send to anybody else,
+    verify a domain at resend.com and set <span class="mono">MAIL_FROM</span>
+    to an address on it — or switch
+    <span class="mono">MAIL_TRANSPORT</span> to <span class="mono">smtp</span>
+    and use an SMTP provider, which needs no domain.
+  </p>
   {% else %}
   <p class="card-foot">Email is working on this site. The switch above controls
     whether <em>you</em> get any.</p>

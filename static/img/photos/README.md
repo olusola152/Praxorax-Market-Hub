@@ -14,6 +14,7 @@ The file name is what decides where it appears. Use exactly these:
 | `review.jpg` | the supervision section | a lecturer going through a submission on screen, marking it up |
 | `brief.jpg` | the companies section | a company lead writing up the work they need done |
 | `certificate.jpg` | the closing band | a graduate with the record their finished projects earned |
+| `fleet.jpg` | the "wherever you are" card | brand imagery — somewhere being travelled to |
 
 ### University portal only
 

@@ -40,6 +40,27 @@ log = logging.getLogger(__name__)
 
 RESEND_ENDPOINT = "https://api.resend.com/emails"
 
+#: Resend's own test sender. It works with no domain at all, which makes it
+#: the obvious thing to put in MAIL_FROM while getting started — and it
+#: delivers only to the address the Resend account was opened with. Every
+#: other recipient comes back 403. Left undetected that means a site that
+#: appears configured, passes its own test email, and silently fails to send
+#: a single student anything.
+RESEND_TEST_DOMAIN = "resend.dev"
+
+
+def sender_is_test_only(app=None):
+    """Whether MAIL_FROM can only reach the account holder.
+
+    True when sending over Resend from an address on resend.dev.
+    """
+    cfg = (app or current_app).config
+    if transport(app) != "resend":
+        return False
+    sender = (cfg.get("MAIL_FROM") or "").strip().lower()
+    return sender.endswith("@" + RESEND_TEST_DOMAIN) or sender.endswith(
+        "." + RESEND_TEST_DOMAIN)
+
 
 def transport(app=None):
     """Which way mail leaves: "resend" or "smtp"."""
@@ -183,6 +204,17 @@ def _send_resend(cfg, msg):
             detail = json.loads(detail).get("message", detail)
         except Exception:
             pass
+        # The commonest failure by far, and the least self-explanatory:
+        # sending from resend.dev to anybody but the account holder. Say
+        # what it actually means rather than passing on the API's wording.
+        if exc.code == 403 and RESEND_TEST_DOMAIN in str(cfg.get("MAIL_FROM", "")):
+            return False, (
+                f"Resend refused it (403). You are sending from "
+                f"{cfg['MAIL_FROM']}, which is Resend's test address — it "
+                f"only delivers to the email you opened your Resend account "
+                f"with. To reach anybody else you need your own domain "
+                f"verified on resend.com, and MAIL_FROM set to an address on "
+                f"it. Until then use SMTP for real mail.")
         return False, f"Resend refused it ({exc.code}): {detail}"
     except Exception as exc:
         return False, f"{type(exc).__name__}: {exc}"

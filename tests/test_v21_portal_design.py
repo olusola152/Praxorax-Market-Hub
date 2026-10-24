@@ -197,28 +197,31 @@ step("the README tells somebody how to use those slots",
          "README.md")).read() for k in artwork.BORROWS_FROM))
 
 
-# ------------------------------------------------------------------ the car
-print("\n--- the car ---\n")
+# ----------------------------------------------------------------- the fleet
+print("\n--- the fleet card ---\n")
 
+# A car was here first and has been taken out; the plane replaced it in the
+# same slot with the same framing.
 landing = pub.get("/").data.decode()
-step("the car is on the landing page", "img/scenes/car.svg" in landing
-     or "img/photos/car" in landing)
-step("it carries the name", "PraxoraX" in open(os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "static", "img", "scenes", "car.svg")).read())
-step("and the section asks people to join",
-     "Join PraxoraX" in landing or "Join {} ".format("PraxoraX") in landing)
-step("it states its size like every other picture",
-     'class="scene car-card' in landing or 'width="1400"' in landing,
-     "car width attribute")
+step("the aircraft is on the landing page",
+     "img/photos/fleet" in landing or "img/scenes/fleet.svg" in landing)
+step("and the car is gone",
+     "img/scenes/car.svg" not in landing and "img/photos/car" not in landing)
+step("the section asks people to join", "Join PraxoraX" in landing)
 
-# The client pointed at a broker site that gives a supercar away. This one
-# does not, and the copy must not imply otherwise — a promise on a real
-# client's site is a promise somebody has to keep.
-import re as _re
+import os as _os
+ROOT_DIR = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+step("the car drawing was removed rather than left to rot",
+     not _os.path.isfile(_os.path.join(ROOT_DIR, "static", "img", "scenes",
+                                       "car.svg")))
+
+# Brand imagery, not a claim. The client pointed at a broker homepage that
+# gives a supercar away; nothing here may imply this platform is giving
+# anything away, or owns an airline.
 lowered = landing.lower()
-for word in ("win a car", "giveaway", "prize draw", "win this"):
-    step(f"the page does not promise a {word!r}", word not in lowered)
+for word in ("win a car", "win a", "giveaway", "prize draw", "our fleet",
+             "our aircraft"):
+    step(f"the page does not claim {word!r}", word not in lowered)
 
 print(f"\n{P} passed, {F} failed")
 raise SystemExit(1 if F else 0)
