@@ -20,6 +20,9 @@
 
 DROP TABLE IF EXISTS
     -- v10
+    social_links,
+    feedback,
+    messages,
     team_invitations,
     -- v9
     presentation_attendees,

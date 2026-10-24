@@ -1,0 +1,76 @@
+{% extends shell|default("base.html") %}
+{% set active_section = 'links' %}
+{% block title %}Your contact details — {{ brand }}{% endblock %}
+
+{% block content %}
+<div class="{{ 'deck-inner' if deck }}">
+<section class="page-head">
+  <p class="record-label">Your account</p>
+  <h1 class="display">Where people can reach you</h1>
+  {% if g.user.role == 'company' %}
+  <p class="lede">A student working on one of your briefs may need to ask you
+    something. Fill in whichever of these you actually watch — the rest stay
+    blank and are simply not shown.</p>
+  {% else %}
+  <p class="lede">Fill in only what you want others to have. Nothing here is
+    shown to anybody until you switch it on at the bottom, and you can take
+    any of it down again at any time.</p>
+  {% endif %}
+</section>
+
+<form method="post">
+  {# Grouped by what each network is for, because they are not
+     interchangeable: one set is how somebody messages you, one is where
+     your finished work is worth showing. #}
+  {% for key, group in groups %}
+  <section class="panel">
+    <h2 class="panel-title">{{ group.title }}</h2>
+    <p class="muted">{{ blurb_for(group, g.user.role) }}</p>
+
+    <div class="field-row" style="margin-top:1.3rem">
+      {% for net_key in group.networks %}
+      {% set net = networks[net_key] %}
+      <label class="field{{ ' field--bad' if net_key in bad }}">
+        <span>{{ net.label }}</span>
+        <input type="text" name="{{ net_key }}" value="{{ handles.get(net_key, '') }}"
+               placeholder="{{ net.hint }}" autocomplete="off">
+      </label>
+      {% endfor %}
+    </div>
+
+    {% if key == 'profile' and g.user.role == 'student' %}
+    <p class="muted small" style="margin-top:.8rem">
+      Once you have a public Praxfolio link, the
+      <a href="{{ url_for('praxfolio.mine') }}">Praxfolio page</a> has a button
+      that posts it straight to LinkedIn.
+    </p>
+    {% endif %}
+  </section>
+  {% endfor %}
+
+  <section class="panel">
+    <h2 class="panel-title">Who sees them</h2>
+    <label class="field">
+      <span>
+        <input type="checkbox" name="links_public" style="width:auto"
+               {{ 'checked' if links_public }}>
+        Show these to people I work with
+      </span>
+      <span class="opt">
+        {%- if g.user.role == 'company' %}
+        The students placed on your briefs and their supervising lecturers.
+        Never on a public page and never to anybody else.
+        {%- else %}
+        Your supervising lecturer, the companies whose briefs you take on, and
+        your own team. Nobody else, and never on a public page.
+        {%- endif %}
+      </span>
+    </label>
+
+    <p style="margin-top:1.2rem">
+      <button class="btn" type="submit">Save</button>
+    </p>
+  </section>
+</form>
+</div>
+{% endblock %}

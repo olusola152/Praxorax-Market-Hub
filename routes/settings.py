@@ -6,13 +6,25 @@ about email has nothing to do with being a lecturer or a company.
 """
 import time
 
-from flask import Blueprint, current_app, flash, g, redirect, request, session, url_for
+from flask import (Blueprint, current_app, flash, g, redirect, render_template,
+                   request, session, url_for)
 
 import mailer
 from auth_utils import login_required
 from db import execute
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
+
+
+def _shell():
+    """Administrators stay inside the dark deck; everyone else gets paper.
+
+    Same arrangement the presentation pages use, so a shared page is one
+    template rather than an admin copy drifting out of step with it.
+    """
+    if g.user["role"] == "admin":
+        return {"shell": "admin/_shell_plain.html", "deck": True}
+    return {"shell": "base.html", "deck": False}
 
 
 @settings_bp.post("/email-alerts")
@@ -86,3 +98,39 @@ def test_email():
               "error")
 
     return redirect(request.referrer or url_for("home"))
+
+
+@settings_bp.route("/links", methods=["GET", "POST"])
+@login_required
+def links():
+    """Somebody's own social accounts.
+
+    Here rather than on each role's profile page because the three profile
+    pages are different templates and this is the same for all of them —
+    which is the reason this blueprint exists.
+    """
+    import social
+    from db import query
+
+    bad = []
+    if request.method == "POST":
+        bad = social.save(g.user["id"], request.form)
+        execute("UPDATE users SET links_public=%s WHERE id=%s",
+                (request.form.get("links_public") == "on", g.user["id"]))
+        if bad:
+            flash("Saved, except " + ", ".join(
+                social.NETWORKS[k]["label"] for k in bad) +
+                " — check what you pasted there.", "error")
+        else:
+            flash("Your contact details are saved.", "success")
+            return redirect(url_for("settings.links"))
+
+    me = query("SELECT links_public FROM users WHERE id=%s",
+               (g.user["id"],), one=True)
+    return render_template("shared/links.html", **_shell(),
+                           networks=social.NETWORKS,
+                           blurb_for=social.blurb_for,
+                           groups=social.groups_for_role(g.user["role"]),
+                           handles=social.handles_for(g.user["id"]),
+                           links_public=me["links_public"] if me else False,
+                           bad=bad)

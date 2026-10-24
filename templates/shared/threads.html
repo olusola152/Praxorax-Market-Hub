@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% set active_section = 'messages' %}
+{% block title %}Messages — {{ brand }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <p class="record-label">Messages</p>
+  <h1 class="display">{{ 'Your supervisors' if is_student else 'Your students' }}</h1>
+  <p class="lede">One thread per placement, private to the two of you. The
+    company cannot see it and neither can anyone else — ask the awkward
+    question here rather than not asking it.</p>
+</section>
+
+{% if threads %}
+<div class="trail-list">
+  {% for t in threads %}
+  <article class="panel {{ 'panel--ask' if t.unread }}">
+    <div class="project-head">
+      <h2 class="project-title">
+        <a href="{{ url_for('messages.thread', assignment_id=t.id) }}">{{ t.title }}</a>
+      </h2>
+      {% if t.unread %}<span class="status status--act">{{ t.unread }} new</span>{% endif %}
+    </div>
+    <p class="muted">
+      {{ t.lecturer_name if is_student else t.student_name }}
+      {% if t.company_name %} · {{ t.company_name }}{% endif %}
+      · {{ t.total }} message{{ '' if t.total == 1 else 's' }}
+      {% if t.last_at %} · last {{ t.last_at.strftime('%d %b %Y') }}{% endif %}
+    </p>
+    <p class="action-foot">
+      <a class="btn btn--small" href="{{ url_for('messages.thread', assignment_id=t.id) }}">
+        {{ 'Read' if t.unread else 'Open' }}</a>
+    </p>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">No supervision threads yet. One appears here for every
+  placement you are on that has a supervising lecturer.</p>
+{% endif %}
+{% endblock %}

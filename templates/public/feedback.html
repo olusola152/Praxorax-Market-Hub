@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Give feedback — {{ brand }}{% endblock %}
+{% block body_class %}gate plain-page{% endblock %}
+{% block main_class %}gate-shell{% endblock %}
+
+{% block content %}
+<section class="gate-pitch">
+  <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
+  <p class="record-label">Feedback</p>
+  <h1 class="display">What is this<br>platform missing?</h1>
+  <p class="lede">This is the {{ brand }} survey. Three questions: how it is
+    overall, what is missing or broken, and anything you would add. Only the
+    rating is required — one sentence in the boxes is worth more than nothing,
+    and a form that asks for an essay collects silence.</p>
+  <p class="lede">What you send is saved against our records and shown to an
+    administrator straight away. Leave your email only if you want a reply;
+    without one it is anonymous.</p>
+
+  <dl class="record-strip record-strip--keep">
+    <div><dt>Who reads it</dt><dd>An administrator, on the operations deck</dd></div>
+    <div><dt>Account needed</dt><dd>No — anyone can send this</dd></div>
+    <div><dt>A reply</dt><dd>Only if you leave an address</dd></div>
+  </dl>
+</section>
+
+<section class="card">
+  <p class="record-label">The survey</p>
+  <h2 class="card-title">Rate {{ brand }}</h2>
+
+  <form method="post" novalidate>
+    <fieldset class="fieldset stars">
+      <legend>How is it, overall?</legend>
+      {# Radio buttons rather than script, so this works with JavaScript off
+         and reads correctly to a screen reader: five labelled choices, not a
+         row of decorative stars. #}
+      <div class="star-row">
+        {% for n in [1, 2, 3, 4, 5] %}
+        <label class="star">
+          <input type="radio" name="rating" value="{{ n }}"
+                 {{ 'checked' if form.rating == n|string }}>
+          <span class="star-face">
+            <span class="star-mark" aria-hidden="true">
+              {% for _ in range(n) %}★{% endfor %}
+            </span>
+            <span class="star-word">{{ words[n] }}</span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <label class="field">
+      <span>What is missing, or not working?</span>
+      <textarea name="missing" rows="4"
+                placeholder="The thing you went looking for and could not find.">{{ form.missing }}</textarea>
+    </label>
+
+    <label class="field">
+      <span>What would you add?</span>
+      <textarea name="suggestion" rows="4"
+                placeholder="Anything you would change, however small.">{{ form.suggestion }}</textarea>
+    </label>
+
+    <label class="field">
+      <span>Your email <span class="opt">optional</span></span>
+      <input type="email" name="reply_to" value="{{ form.reply_to }}"
+             placeholder="Only if you want a reply">
+      <span class="opt">Leave this blank and the feedback is anonymous.</span>
+    </label>
+
+    <button class="btn btn--full" type="submit">Send feedback</button>
+  </form>
+
+  <p class="card-foot"><a href="{{ url_for('contact.index') }}">Other ways to reach us</a></p>
+</section>
+{% endblock %}

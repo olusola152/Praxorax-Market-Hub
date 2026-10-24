@@ -48,6 +48,20 @@
       <p class="lede">Your public link:</p>
       <p class="mono share-link">{{ request.url_root.rstrip('/') }}{{ url_for('praxfolio.public', token=profile.portfolio_token) }}</p>
       <p class="card-foot">Anyone holding it sees your finished work and nothing else — no email, no placements in progress.</p>
+
+      {# The point of a verifiable record is that it goes where employers
+         look. One button, rather than asking a student to copy a URL and
+         find the right place to paste it. #}
+      {% set public_url = request.url_root.rstrip('/') ~ url_for('praxfolio.public', token=profile.portfolio_token) %}
+      <p class="share-actions">
+        <a class="btn btn--small" target="_blank" rel="noopener noreferrer"
+           href="{{ share_to('linkedin', public_url) }}">Share on LinkedIn</a>
+        <button class="btn btn--small btn--quiet" type="button"
+                onclick="navigator.clipboard &amp;&amp; navigator.clipboard.writeText('{{ public_url }}').then(function(){this.textContent='Copied';}.bind(this))">Copy link</button>
+      </p>
+      <p class="muted small">Posting it to LinkedIn is what turns a finished
+        placement into something an employer runs into without being asked.</p>
+
       <form method="post" action="{{ url_for('praxfolio.share') }}">
         <button class="btn btn--small btn--quiet" type="submit">Make it private again</button>
       </form>

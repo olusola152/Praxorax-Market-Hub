@@ -1,0 +1,42 @@
+{% extends "admin/_shell.html" %}
+{% set active_section = 'contacts' %}
+{% block title %}Contacts{% endblock %}
+{% block deck %}
+<section class="page-head">
+  <p class="record-label">Admin</p>
+  <h1 class="display">Contacts</h1>
+  <p class="lede">{{ brand }}'s own accounts. Whatever you fill in appears on
+    the contact page and in the site footer; anything left blank is simply not
+    shown, so there are never dead links to networks you are not on.</p>
+  <p class="lede">The groups below are not decoration. YouTube and TikTok are
+    where {{ brand }} publishes; the messaging apps are how somebody reaches
+    {{ brand }} directly. Companies fill in their own messaging apps on their
+    own account, and students their own LinkedIn — this page is only ours.</p>
+</section>
+
+<form method="post" class="panel">
+  <h2 class="panel-title">Where {{ brand }} can be found</h2>
+  <p class="muted">Paste a full link or just the handle — either works. A
+    WhatsApp number needs its country code.</p>
+
+  {% for key, group in groups %}
+  <h3 class="sub">{{ group.title }}</h3>
+  <p class="muted small">{{ blurb_for(group, None) }}</p>
+  <div class="field-row" style="margin:.9rem 0 1.6rem">
+    {% for net_key in group.networks %}
+    {% set net = networks[net_key] %}
+    <label class="field{{ ' field--bad' if net_key in bad }}">
+      <span>{{ net.label }}</span>
+      <input type="text" name="{{ net_key }}" value="{{ handles.get(net_key, '') }}"
+             placeholder="{{ net.hint }}" autocomplete="off">
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  <p style="margin-top:1.4rem">
+    <button class="btn" type="submit">Save contacts</button>
+    <a class="btn btn--quiet" href="{{ url_for('contact.index') }}">See the public page</a>
+  </p>
+</form>
+{% endblock %}

@@ -25,9 +25,21 @@ def close_db(exception=None):
 
 def query(sql, params=None, one=False):
     """SELECT. Returns a list of dict-like rows, or one row / None when one=True."""
-    with get_db().cursor() as cur:
-        cur.execute(sql, params or ())
-        rows = cur.fetchall()
+    conn = get_db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, params or ())
+            rows = cur.fetchall()
+    except Exception:
+        # A failed SELECT leaves the connection in an aborted transaction,
+        # and Postgres then refuses every later statement on it with
+        # "current transaction is aborted". One bad read would take down
+        # the rest of the request — including any handler that caught the
+        # original error and meant to carry on without that piece of data.
+        # Rolling back here keeps a failure local to the query that caused
+        # it. The error is still raised; it is just no longer contagious.
+        conn.rollback()
+        raise
     if one:
         return rows[0] if rows else None
     return rows
@@ -56,9 +68,14 @@ def execute(sql, params=None, returning=False):
 
 def scalar(sql, params=None, default=0):
     """Convenience for COUNT(*) style queries."""
-    with get_db().cursor() as cur:
-        cur.execute(sql, params or ())
-        row = cur.fetchone()
+    conn = get_db()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, params or ())
+            row = cur.fetchone()
+    except Exception:
+        conn.rollback()          # see query(): keep the failure local
+        raise
     if not row:
         return default
     value = next(iter(row.values()))

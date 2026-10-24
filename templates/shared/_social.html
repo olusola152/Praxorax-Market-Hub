@@ -1,0 +1,17 @@
+{# The platform's own accounts, wherever a footer needs them.
+
+   One partial so that adding a network in the admin deck shows it in every
+   footer at once, and so a network nobody has filled in is simply absent
+   rather than a dead link. #}
+
+{%- macro social_row(classes='') -%}
+{%- set links = platform_links() -%}
+{%- if links -%}
+<p class="social-row {{ classes }}">
+  {%- for l in links %}
+  <a href="{{ l.url }}" target="_blank" rel="noopener noreferrer"
+     title="{{ l.label }}">{{ l.label }}</a>
+  {%- endfor %}
+</p>
+{%- endif -%}
+{%- endmacro -%}

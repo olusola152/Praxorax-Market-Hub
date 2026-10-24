@@ -8,6 +8,15 @@
   <p class="record-label">{{ project.field_name }}</p>
   <h1 class="display">{{ project.title }}</h1>
   <p class="lede">{{ project.company_name }}</p>
+  {% if company_links %}
+  <p class="social-row social-row--inline">
+    <span class="muted small">Reach {{ project.company_name }}:</span>
+    {% for l in company_links %}
+    <a class="btn btn--small btn--quiet" href="{{ l.url }}"
+       target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+    {% endfor %}
+  </p>
+  {% endif %}
 </section>
 
 <section class="stat-grid">

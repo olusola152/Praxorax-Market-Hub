@@ -4,6 +4,7 @@
 {% block main_class %}landing{% endblock %}
 
 {% from "shared/_pictures.html" import scene with context %}
+{% from "shared/_social.html" import social_row with context %}
 
 {% block chrome %}
 {% if g.user %}
@@ -217,7 +218,10 @@
   <div class="band-inner site-foot__legal" style="border-top:none">
     <p>{{ uni.name }}{% if uni.city %} · {{ uni.city }}{% endif %} · Practical
       experience portal on {{ brand }}</p>
-    <p><a href="{{ url_for('home') }}">About {{ brand }}</a></p>
+    <p><a href="{{ url_for('home') }}">About {{ brand }}</a> ·
+       <a href="{{ url_for('contact.index') }}">Contact</a> ·
+       <a href="{{ url_for('contact.feedback') }}">Feedback</a></p>
+    {{ social_row() }}
   </div>
 </footer>
 {% endblock %}

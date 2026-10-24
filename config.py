@@ -84,6 +84,11 @@ class Config:
     # Supabase cannot send these — its email service only covers auth mail
     # (confirmations, magic links, password resets) — so this talks to an
     # SMTP server directly. Any provider works.
+    # How mail leaves: "resend" (HTTP API) or "smtp". Left unset it picks
+    # resend when a key is present and smtp otherwise, so setting the key is
+    # enough to switch.
+    MAIL_TRANSPORT = os.environ.get("MAIL_TRANSPORT", "")
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
     MAIL_ENABLED = _flag("MAIL_ENABLED")
     MAIL_HOST = os.environ.get("MAIL_HOST", "")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))
@@ -91,6 +96,9 @@ class Config:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
     MAIL_FROM = os.environ.get("MAIL_FROM", "")
     MAIL_REPLY_TO = os.environ.get("MAIL_REPLY_TO", "")
+    # Where feedback and contact-form mail lands. Falls back to the reply-to
+    # address and then to the sending address, so this works unconfigured.
+    CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "")
     MAIL_STARTTLS = _flag("MAIL_STARTTLS", True)
     MAIL_SSL = _flag("MAIL_SSL")            # port 465 style
     MAIL_TIMEOUT = int(os.environ.get("MAIL_TIMEOUT", "20"))

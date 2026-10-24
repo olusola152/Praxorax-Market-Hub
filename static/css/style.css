@@ -2666,7 +2666,12 @@ body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) {
   color: var(--night-text);
 }
 
-/* Everything inside <main> sits above the backdrop, whatever classes it
+/* The exclusions above are repeated on every rule that assumes a dark
+   ground. A page that opts out of the backdrop also opts out of the white
+   text that went with it — otherwise it renders white on paper, which is
+   how the feedback form first came out.
+
+   Everything inside <main> sits above the backdrop, whatever classes it
    uses. The first version of this raised .gate-shell, .card and .panel by
    name and silently buried any page built from something else — which is
    exactly what happened to the certificate and the verification page, the
@@ -2694,38 +2699,38 @@ body.gate:not(.landing-page) main { position: relative; z-index: 1; }
 
 
 
-body.gate:not(.landing-page) .gate-pitch .display,
-body.gate:not(.landing-page) .gate-pitch h1,
-body.gate:not(.landing-page) .gate-pitch h2 { color: #fff; }
-body.gate:not(.landing-page) .gate-pitch .lede,
-body.gate:not(.landing-page) .gate-pitch p { color: rgba(231,239,233,.8); }
-body.gate:not(.landing-page) .gate-pitch a { color: var(--gold); }
-body.gate:not(.landing-page) .gate-pitch .record-label,
-body.gate:not(.landing-page) .gate-pitch .hero-tag { color: var(--gold); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .display,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch h1,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch h2 { color: #fff; }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .lede,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch p { color: rgba(231,239,233,.8); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch a { color: var(--gold); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .record-label,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .hero-tag { color: var(--gold); }
 
 /* The record strip sits on dark here, so its rules and labels have to flip
    with it — left as ink on ink it simply disappears. */
-body.gate:not(.landing-page) .gate-pitch .record-strip,
-body.gate:not(.landing-page) .gate-pitch .record-strip > div {
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .record-strip,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .record-strip > div {
   border-color: rgba(231,239,233,.18);
 }
-body.gate:not(.landing-page) .gate-pitch .record-strip dt { color: var(--gold); }
-body.gate:not(.landing-page) .gate-pitch .record-strip dd { color: rgba(231,239,233,.82); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .record-strip dt { color: var(--gold); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .gate-pitch .record-strip dd { color: rgba(231,239,233,.82); }
 
 /* The form keeps its paper. It is the point of the page. */
-body.gate:not(.landing-page) .card,
-body.gate:not(.landing-page) .panel {
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .card,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .panel {
   position: relative; z-index: 1;
   background: var(--surface); color: var(--ink);
   border-radius: 20px; border: 1px solid rgba(255,255,255,.12);
   box-shadow: 0 24px 60px rgba(0,0,0,.4);
 }
-body.gate:not(.landing-page) .card .lede,
-body.gate:not(.landing-page) .panel .lede { color: var(--ink-soft); }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .card .lede,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .panel .lede { color: var(--ink-soft); }
 
 /* Flash messages and the preview bar also sit over the photograph. */
-body.gate:not(.landing-page) .flashes,
-body.gate:not(.landing-page) .preview-bar { position: relative; z-index: 2; }
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .flashes,
+body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .preview-bar { position: relative; z-index: 2; }
 
 /* On a phone the two columns stack, the pitch is pushed off the top of the
    screen, and the form is all anybody sees. Keep the photograph, drop the
@@ -2777,3 +2782,102 @@ body.gate:not(.landing-page) .preview-bar { position: relative; z-index: 2; }
 @media (max-width: 980px) {
   .car-card__art { order: -1; }
 }
+
+/* ==========================================================================
+   CONTACTS, FEEDBACK AND MESSAGES
+   ========================================================================== */
+
+/* ---------- social ---------- */
+
+.social-row { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin: 0 0 .8rem; }
+
+/* Colour belongs to the context, not to the row. The same partial renders
+   into a dark footer and onto a white panel in a supervision thread; setting
+   the link colour here once made the buttons on the light panel almost
+   invisible. */
+.site-foot .social-row a,
+.band-dark .social-row a {
+  color: var(--night-dim); text-decoration: none; font-size: .88rem;
+}
+.site-foot .social-row a:hover,
+.band-dark .social-row a:hover { color: var(--gold); }
+.site-foot__social {
+  padding-top: 1.6rem; padding-bottom: .4rem;
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.site-foot__social p { margin: 0; font-size: .88rem; }
+.site-foot__social a { color: var(--night-dim); text-decoration: none; }
+.site-foot__social a:hover { color: #fff; }
+
+.social-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.social-card {
+  display: flex; flex-direction: column; gap: .25rem;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 16px; padding: 1.3rem 1.2rem;
+  text-decoration: none; color: var(--ink);
+  transition: border-color .15s ease, transform .15s ease;
+}
+.social-card:hover { border-color: var(--seal); transform: translateY(-2px); }
+.social-card__name { font-family: var(--display); font-size: 1.1rem; }
+.social-card__handle {
+  font-family: var(--mono); font-size: .76rem; color: var(--ink-soft);
+  word-break: break-all;
+}
+.social-card__go { margin-top: .7rem; font-size: .85rem; color: var(--seal); font-weight: 600; }
+
+/* A field the form could not read. */
+.field--bad input { border-color: var(--brass); background: #FFFBF2; }
+
+/* ---------- the star rating ---------- */
+
+.stars { border: none; padding: 0; margin: 0 0 1.4rem; }
+.stars legend { font-weight: 600; font-size: .9rem; margin-bottom: .7rem; }
+.star-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: .4rem; }
+.star input {
+  /* Kept in the page rather than display:none, so it is still reachable by
+     keyboard and still announced. */
+  position: absolute; opacity: 0; width: 1px; height: 1px;
+}
+.star-face {
+  display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  padding: .7rem .3rem; border: 1px solid var(--line); border-radius: 12px;
+  cursor: pointer; text-align: center; background: var(--surface);
+  transition: border-color .12s ease, background .12s ease;
+}
+.star-mark { color: var(--brass); font-size: .78rem; letter-spacing: -1px; line-height: 1; }
+.star-word { font-size: .72rem; color: var(--ink-soft); }
+.star:hover .star-face { border-color: var(--brass); }
+.star input:checked + .star-face {
+  border-color: var(--seal); background: var(--seal-soft);
+  box-shadow: 0 0 0 1px var(--seal) inset;
+}
+.star input:focus-visible + .star-face { outline: 2px solid var(--ink); outline-offset: 2px; }
+.stars-read { color: var(--brass); letter-spacing: 1px; }
+
+@media (max-width: 520px) {
+  .star-row { grid-template-columns: repeat(5, 1fr); gap: .25rem; }
+  .star-word { display: none; }
+  .star-face { padding: .6rem .2rem; }
+}
+
+/* ---------- the thread ---------- */
+
+.thread { display: grid; gap: .8rem; margin: 0 0 1.6rem; }
+.bubble {
+  max-width: 44rem; padding: .9rem 1.1rem; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--line);
+}
+/* Your own messages sit to the right, which is the one convention every
+   messaging app shares and the fastest way to read who said what. */
+.bubble--mine {
+  margin-left: auto; background: var(--seal-soft); border-color: var(--seal);
+}
+.bubble__who { margin: 0 0 .35rem; font-weight: 600; font-size: .85rem; }
+.bubble__body { margin: 0; white-space: pre-wrap; }
+
+@media (max-width: 900px) { .social-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .social-grid { grid-template-columns: 1fr; } }
+
+/* The company's channels, inline under a brief's title. */
+.social-row--inline { align-items: center; margin-top: .6rem; }
+.share-actions { display: flex; gap: .6rem; flex-wrap: wrap; margin: 1rem 0 .4rem; }

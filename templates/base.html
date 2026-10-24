@@ -59,6 +59,7 @@
       <a href="{{ url_for('student.bookmarks') }}">Saved</a>
       <a href="{{ url_for('praxfolio.mine') }}">Praxfolio</a>
       <a href="{{ url_for('presentations.index') }}">Presentations</a>
+      <a href="{{ url_for('messages.index') }}">Messages{% if unread_messages %} <span class="pip">{{ unread_messages }}</span>{% endif %}</a>
       <a href="{{ url_for('student.profile') }}">Profile</a>
       <a href="{{ url_for('student.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'lecturer' %}
@@ -67,6 +68,7 @@
       <a href="{{ url_for('lecturer.students') }}">Students</a>
       <a href="{{ url_for('lecturer.inbox') }}">Inbox</a>
       <a href="{{ url_for('presentations.index') }}">Presentations</a>
+      <a href="{{ url_for('messages.index') }}">Messages{% if unread_messages %} <span class="pip">{{ unread_messages }}</span>{% endif %}</a>
       <a href="{{ url_for('lecturer.profile') }}">Profile</a>
       <a href="{{ url_for('lecturer.notifications') }}">Alerts{% if unread %} <span class="pip">{{ unread }}</span>{% endif %}</a>
     {% elif g.user.role == 'university' %}

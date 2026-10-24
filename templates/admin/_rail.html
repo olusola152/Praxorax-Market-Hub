@@ -13,6 +13,8 @@
   <p class="rail-group">Decide</p>
   <a class="rail-link {{ 'rail-link--on' if active == 'kyc' }}" href="{{ url_for('admin.kyc') }}">Verification</a>
   <a class="rail-link {{ 'rail-link--on' if active == 'subscriptions' }}" href="{{ url_for('admin.subscriptions') }}">Subscriptions</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'feedback' }}" href="{{ url_for('admin.feedback') }}">Feedback</a>
+  <a class="rail-link {{ 'rail-link--on' if active == 'contacts' }}" href="{{ url_for('admin.contacts') }}">Contacts</a>
 
   <p class="rail-group">People</p>
   <a class="rail-link {{ 'rail-link--on' if active == 'users' }}" href="{{ url_for('admin.users') }}">All accounts</a>

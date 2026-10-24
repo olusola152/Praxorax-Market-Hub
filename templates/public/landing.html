@@ -4,6 +4,7 @@
 {% block main_class %}landing{% endblock %}
 
 {% from "shared/_pictures.html" import scene with context %}
+{% from "shared/_social.html" import social_row with context %}
 
 {% block chrome %}
 <header class="public-bar public-bar--dark">
@@ -16,6 +17,7 @@
     <a href="#who">Who it's for</a>
     <a href="#fields">Fields</a>
     <a href="{{ url_for('auth.join_index') }}">Institutions</a>
+    <a href="{{ url_for('contact.index') }}">Contact us</a>
     <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Sign in</a>
     <a class="btn btn--small btn--gold" href="{{ url_for('auth.register') }}">{{ 'Start free trial' if trial_days else 'Get started' }}</a>
   </nav>
@@ -384,6 +386,12 @@
       <a href="#who">What you get</a>
       <a href="#how">The review chain</a>
     </div>
+  </div>
+
+  <div class="band-inner site-foot__social">
+    {{ social_row() }}
+    <p><a href="{{ url_for('contact.index') }}">Contact</a> ·
+       <a href="{{ url_for('contact.feedback') }}">Give feedback</a></p>
   </div>
 
   <div class="band-inner site-foot__legal">

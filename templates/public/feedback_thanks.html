@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Thank you — {{ brand }}{% endblock %}
+{% block body_class %}gate plain-page{% endblock %}
+{% block main_class %}gate-shell{% endblock %}
+
+{% block content %}
+<section class="gate-pitch">
+  <span class="mark-seal mark-seal--lg" aria-hidden="true"></span>
+  <p class="record-label">Feedback</p>
+  <h1 class="display">That reached us.</h1>
+  <p class="lede">It is on the deck in front of an administrator now, not in
+    an inbox nobody opens. If you left an address we will reply when there is
+    something worth saying.</p>
+</section>
+
+<section class="card">
+  <p class="record-label">What next</p>
+  <h2 class="card-title">Carry on</h2>
+  <p class="lede">Nothing else is needed from you.</p>
+  <p style="margin-top:1.2rem">
+    <a class="btn" href="{{ url_for('home') }}">Back to {{ brand }}</a>
+  </p>
+  <p class="muted small" style="margin-top:.9rem">
+    Something else to add? <a href="{{ url_for('contact.feedback') }}">Send another</a>.
+  </p>
+</section>
+{% endblock %}

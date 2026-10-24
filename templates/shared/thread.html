@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% set active_section = 'messages' %}
+{% block title %}{{ placement.title }} — messages{% endblock %}
+
+{% block content %}
+<p class="back-link"><a href="{{ url_for('messages.index') }}">All messages</a></p>
+
+<section class="page-head">
+  <p class="record-label">Supervision</p>
+  <h1 class="display">{{ other_name }}</h1>
+  <p class="lede">About <strong>{{ placement.title }}</strong>{% if placement.company_name %}
+    for {{ placement.company_name }}{% endif %}. Private to the two of you.</p>
+</section>
+
+{% if outside %}
+<section class="panel">
+  <h2 class="panel-title">Also reachable on</h2>
+  <p class="muted">{{ other_name }} chose to share these. Messages sent there
+    are not part of the record of this placement.</p>
+  <p class="social-row">
+    {% for l in outside %}
+    <a class="btn btn--small btn--quiet" href="{{ l.url }}"
+       target="_blank" rel="noopener noreferrer">{{ l.label }}</a>
+    {% endfor %}
+  </p>
+</section>
+{% endif %}
+
+<section class="thread">
+  {% if msgs %}
+  {% for m in msgs %}
+  <article class="bubble {{ 'bubble--mine' if m.sender_id == me }}">
+    <p class="bubble__who">{{ m.fullname }}
+      <span class="muted small">{{ m.sent_at.strftime('%d %b %Y, %H:%M') }}</span></p>
+    <p class="bubble__body">{{ m.body }}</p>
+  </article>
+  {% endfor %}
+  {% else %}
+  <p class="empty">Nothing yet. Whatever you send first goes only to
+    {{ other_name }}.</p>
+  {% endif %}
+</section>
+
+<form method="post" class="panel">
+  <label class="field">
+    <span>Message {{ other_name }}</span>
+    <textarea name="body" rows="4" required
+              placeholder="Ask the question."></textarea>
+  </label>
+  <button class="btn" type="submit">Send</button>
+</form>
+{% endblock %}

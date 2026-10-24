@@ -10,14 +10,27 @@ Every in-app alert can also go out by email. The rules this follows:
 
 Supabase is not involved. Its email service only handles auth mail —
 confirmations, magic links, password resets — and has no API for sending
-arbitrary messages, so this talks to an SMTP server directly. Gmail, Zoho,
-Brevo, Mailgun or your own domain all work; put the details in .env.
+arbitrary messages.
+
+Two ways out, chosen by MAIL_TRANSPORT:
+
+  * "resend" posts to the Resend HTTP API. Nothing to install: it is one
+    HTTPS request made with the standard library. Needs RESEND_API_KEY and
+    a MAIL_FROM on a domain verified with Resend.
+  * "smtp" talks to any SMTP server — Gmail, Zoho, Brevo, your own domain.
+
+Both are kept because they fail differently and a site that cannot send
+should be able to switch without a code change. Everything above this line
+is true of either: the message is built once, and only the last step differs.
 """
 import html
+import json
 import logging
 import smtplib
 import ssl
 import threading
+import urllib.error
+import urllib.request
 from email.message import EmailMessage
 from email.utils import formataddr
 
@@ -25,11 +38,33 @@ from flask import current_app
 
 log = logging.getLogger(__name__)
 
+RESEND_ENDPOINT = "https://api.resend.com/emails"
+
+
+def transport(app=None):
+    """Which way mail leaves: "resend" or "smtp"."""
+    cfg = (app or current_app).config
+    name = (cfg.get("MAIL_TRANSPORT") or "").strip().lower()
+    if name in ("resend", "smtp"):
+        return name
+    # Unset but a key is present: the person configuring this clearly meant
+    # Resend, and making them set two variables to say one thing is a way to
+    # have mail silently not send.
+    return "resend" if cfg.get("RESEND_API_KEY") else "smtp"
+
 
 def configured(app=None):
+    """Whether mail can go out at all.
+
+    What counts as configured depends on the transport: Resend needs a key
+    and no host, SMTP needs a host and no key.
+    """
     cfg = (app or current_app).config
-    return bool(cfg.get("MAIL_ENABLED") and cfg.get("MAIL_HOST")
-                and cfg.get("MAIL_FROM"))
+    if not cfg.get("MAIL_ENABLED") or not cfg.get("MAIL_FROM"):
+        return False
+    if transport(app) == "resend":
+        return bool(cfg.get("RESEND_API_KEY"))
+    return bool(cfg.get("MAIL_HOST"))
 
 
 def _build(cfg, to_address, to_name, subject, body, url):
@@ -72,7 +107,20 @@ def _build(cfg, to_address, to_name, subject, body, url):
     return msg
 
 
-def _deliver(cfg, msg):
+def _parts(msg):
+    """The plain and HTML bodies out of a built message."""
+    text = markup = ""
+    for part in msg.walk():
+        kind = part.get_content_type()
+        if kind == "text/plain" and not text:
+            text = part.get_content()
+        elif kind == "text/html" and not markup:
+            markup = part.get_content()
+    return text, markup
+
+
+def _send_smtp(cfg, msg):
+    """Hand the message to an SMTP server. Returns (sent, detail)."""
     host, port = cfg["MAIL_HOST"], cfg["MAIL_PORT"]
     timeout = cfg.get("MAIL_TIMEOUT", 20)
     try:
@@ -87,13 +135,79 @@ def _deliver(cfg, msg):
             if cfg.get("MAIL_USER"):
                 server.login(cfg["MAIL_USER"], cfg["MAIL_PASSWORD"])
             server.send_message(msg)
-        log.info("mail sent to %s", msg["To"])
-        return True
+        return True, ""
     except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"
+
+
+def _send_resend(cfg, msg):
+    """Post the message to the Resend API. Returns (sent, detail).
+
+    One HTTPS request with the standard library rather than a dependency,
+    because adding a package to send an HTTP POST is a lot of moving parts
+    for a POST.
+
+    Resend's own error body is passed back rather than swallowed: "domain
+    not verified" and "invalid api key" are the two things that actually go
+    wrong here, and both are unguessable from a bare False.
+    """
+    text, markup = _parts(msg)
+    payload = {
+        "from": msg["From"],
+        "to": [msg["To"]],
+        "subject": msg["Subject"],
+    }
+    if markup:
+        payload["html"] = markup
+    if text:
+        payload["text"] = text
+    if msg["Reply-To"]:
+        payload["reply_to"] = msg["Reply-To"]
+
+    request = urllib.request.Request(
+        RESEND_ENDPOINT,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Authorization": f"Bearer {cfg['RESEND_API_KEY']}",
+                 "Content-Type": "application/json"},
+        method="POST")
+
+    try:
+        with urllib.request.urlopen(
+                request, timeout=cfg.get("MAIL_TIMEOUT", 20)) as response:
+            body = response.read().decode("utf-8", "replace")
+        log.info("resend accepted mail to %s (%s)", msg["To"], body[:120])
+        return True, ""
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", "replace")[:400]
+        try:                                   # Resend answers with JSON
+            detail = json.loads(detail).get("message", detail)
+        except Exception:
+            pass
+        return False, f"Resend refused it ({exc.code}): {detail}"
+    except Exception as exc:
+        return False, f"{type(exc).__name__}: {exc}"
+
+
+def _send(cfg, msg, how=None):
+    """Deliver by whichever transport is configured. Returns (sent, detail)."""
+    how = how or ("resend" if cfg.get("MAIL_TRANSPORT", "").lower() == "resend"
+                  or (not cfg.get("MAIL_TRANSPORT") and cfg.get("RESEND_API_KEY"))
+                  else "smtp")
+    if how == "resend":
+        return _send_resend(cfg, msg)
+    return _send_smtp(cfg, msg)
+
+
+def _deliver(cfg, msg):
+    """Fire-and-forget delivery, for the background thread."""
+    sent, detail = _send(cfg, msg)
+    if sent:
+        log.info("mail sent to %s", msg["To"])
+    else:
         # The in-app alert is already saved, so a mail failure costs nothing
         # but the email itself. Log it and carry on.
-        log.warning("mail to %s failed: %s", msg["To"], exc)
-        return False
+        log.warning("mail to %s failed: %s", msg["To"], detail)
+    return sent
 
 
 def send(to_address, to_name, subject, body, url=None, app=None):
@@ -121,34 +235,26 @@ def send_now(app, to_address, to_name, subject, body, url=None):
 
     Returns (sent, detail). detail is empty on success.
     """
+    how = transport(app)
     if not app.config.get("MAIL_ENABLED"):
         return False, "Email is switched off for this site (MAIL_ENABLED)."
-    if not app.config.get("MAIL_HOST"):
-        return False, "No mail server is configured (MAIL_HOST)."
     if not app.config.get("MAIL_FROM"):
         return False, "No sending address is configured (MAIL_FROM)."
+    if how == "resend" and not app.config.get("RESEND_API_KEY"):
+        return False, "No Resend API key is configured (RESEND_API_KEY)."
+    if how == "smtp" and not app.config.get("MAIL_HOST"):
+        return False, "No mail server is configured (MAIL_HOST)."
     if not to_address:
         return False, "This account has no email address."
 
+    # Deliberately the same delivery code every other message goes through.
+    # A test button with its own copy of the sending logic can pass while
+    # real mail fails, which makes it worse than no button.
     msg = _build(app.config, to_address, to_name, subject, body, url)
-    try:
-        host, port = app.config["MAIL_HOST"], app.config["MAIL_PORT"]
-        timeout = app.config.get("MAIL_TIMEOUT", 20)
-        if app.config.get("MAIL_SSL"):
-            server = smtplib.SMTP_SSL(host, port, timeout=timeout,
-                                      context=ssl.create_default_context())
-        else:
-            server = smtplib.SMTP(host, port, timeout=timeout)
-        with server:
-            if app.config.get("MAIL_STARTTLS") and not app.config.get("MAIL_SSL"):
-                server.starttls(context=ssl.create_default_context())
-            if app.config.get("MAIL_USER"):
-                server.login(app.config["MAIL_USER"], app.config["MAIL_PASSWORD"])
-            server.send_message(msg)
-        return True, ""
-    except Exception as exc:
-        log.warning("test mail to %s failed: %s", to_address, exc)
-        return False, f"{type(exc).__name__}: {exc}"
+    sent, detail = _send(app.config, msg, how)
+    if not sent:
+        log.warning("test mail to %s failed: %s", to_address, detail)
+    return sent, detail
 
 
 def subject_for(body, brand):

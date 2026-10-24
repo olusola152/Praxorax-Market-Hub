@@ -557,3 +557,74 @@ def public_students():
 
     return render_template("admin/public_students.html", rows=rows, totals=totals,
                            search=search, state=state, today=date.today())
+
+
+# ------------------------------------------------------------- contacts
+@admin_bp.route("/contacts", methods=["GET", "POST"])
+@role_required("admin")
+def contacts():
+    """The platform's own social accounts.
+
+    Stored in the same table as everybody else's, with user_id NULL. Editing
+    them here rather than in an environment variable means whoever runs the
+    site can change a handle without a deploy.
+    """
+    import social
+
+    bad = []
+    if request.method == "POST":
+        bad = social.save(None, request.form)
+        if bad:
+            flash("Saved, except " + ", ".join(
+                social.NETWORKS[k]["label"] for k in bad) +
+                " — check what you pasted there.", "error")
+        else:
+            flash("Contact accounts saved. They are live on the site now.",
+                  "success")
+            return redirect(url_for("admin.contacts"))
+
+    return render_template("admin/contacts.html",
+                           networks=social.NETWORKS,
+                           blurb_for=social.blurb_for,
+                           groups=social.groups_for_role(None),
+                           handles=social.handles_for(None),
+                           bad=bad)
+
+
+# ------------------------------------------------------------- feedback
+@admin_bp.route("/feedback")
+@role_required("admin")
+def feedback():
+    """Everything people have said about the platform.
+
+    Newest and unhandled first, because the point of a feedback page nobody
+    is forced to visit is that the thing needing attention is at the top.
+    """
+    rows = query(
+        """SELECT f.*, u.fullname, u.role AS user_role,
+                  h.fullname AS handled_by_name
+             FROM feedback f
+             LEFT JOIN users u ON u.id = f.user_id
+             LEFT JOIN users h ON h.id = f.handled_by
+            ORDER BY (f.status = 'new') DESC, f.created_at DESC
+            LIMIT 200""")
+
+    stats = query(
+        """SELECT COUNT(*) AS total,
+                  COUNT(*) FILTER (WHERE status='new') AS unread,
+                  ROUND(AVG(rating)::numeric, 1) AS average
+             FROM feedback""", one=True)
+
+    return render_template("admin/feedback.html", rows=rows, stats=stats)
+
+
+@admin_bp.post("/feedback/<int:feedback_id>/<decision>")
+@role_required("admin")
+def feedback_decide(feedback_id, decision):
+    if decision not in ("read", "actioned", "declined"):
+        abort(400)
+    execute("""UPDATE feedback SET status=%s, handled_by=%s, handled_at=NOW()
+                WHERE id=%s""", (decision, g.user["id"], feedback_id))
+    log_action("feedback_" + decision, "feedback", feedback_id, decision)
+    flash("Marked as " + decision + ".", "success")
+    return redirect(url_for("admin.feedback"))

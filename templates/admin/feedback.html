@@ -1,0 +1,69 @@
+{% extends "admin/_shell.html" %}
+{% set active_section = 'feedback' %}
+{% block title %}Feedback{% endblock %}
+{% block deck %}
+<section class="page-head">
+  <p class="record-label">Admin</p>
+  <h1 class="display">Feedback</h1>
+  <p class="lede">What people say about the platform when asked. Unread first,
+    then newest. Nothing is deleted here — marking something actioned or
+    declined records who decided and when.</p>
+</section>
+
+<dl class="stat-strip">
+  <div><dt>{{ stats.total or 0 }}</dt><dd>Total</dd></div>
+  <div class="{{ 'stat--act' if stats.unread }}">
+    <dt>{{ stats.unread or 0 }}</dt><dd>Unread</dd></div>
+  <div><dt>{{ stats.average or '—' }}</dt><dd>Average rating</dd></div>
+</dl>
+
+{% if rows %}
+<div class="trail-list">
+  {% for f in rows %}
+  <article class="panel {{ 'panel--ask' if f.status == 'new' }}">
+    <p class="record-label">
+      <span class="stars-read" aria-label="{{ f.rating }} out of 5">
+        {% for _ in range(f.rating) %}★{% endfor %}{% for _ in range(5 - f.rating) %}☆{% endfor %}
+      </span>
+      · {{ f.created_at.strftime('%d %b %Y, %H:%M') }}
+      · {% if f.fullname %}{{ f.fullname }} ({{ f.user_role }}){% else %}a visitor{% endif %}
+      {% if f.status != 'new' %}· <strong>{{ f.status }}</strong>
+        {% if f.handled_by_name %}by {{ f.handled_by_name }}{% endif %}{% endif %}
+    </p>
+
+    {% if f.missing %}
+    <h3 class="sub">Missing or not working</h3>
+    <p>{{ f.missing }}</p>
+    {% endif %}
+    {% if f.suggestion %}
+    <h3 class="sub">Suggestion</h3>
+    <p>{{ f.suggestion }}</p>
+    {% endif %}
+    {% if not f.missing and not f.suggestion %}
+    <p class="muted">A rating, with nothing written.</p>
+    {% endif %}
+
+    <p class="muted small">
+      {% if f.reply_to %}Reply to <a href="mailto:{{ f.reply_to }}">{{ f.reply_to }}</a>{% else %}No address left — anonymous{% endif %}
+      {% if f.page %} · sent from <span class="mono">{{ f.page }}</span>{% endif %}
+    </p>
+
+    {% if f.status == 'new' %}
+    <p class="action-foot">
+      {% for d, label in [('actioned','Actioned'), ('read','Mark read'), ('declined','Decline')] %}
+      <form method="post" class="inline"
+            action="{{ url_for('admin.feedback_decide', feedback_id=f.id, decision=d) }}">
+        <button class="btn btn--small{{ ' btn--quiet' if d != 'actioned' }}" type="submit">{{ label }}</button>
+      </form>
+      {% endfor %}
+    </p>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="empty">Nobody has sent feedback yet. The form is at
+  <a href="{{ url_for('contact.feedback') }}">/feedback</a> and is linked from
+  the footer of every public page.</p>
+{% endif %}
+{% endblock %}

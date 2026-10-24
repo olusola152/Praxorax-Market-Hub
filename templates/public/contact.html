@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Contact — {{ brand }}{% endblock %}
+{% block body_class %}gate landing-page{% endblock %}
+{% block main_class %}landing{% endblock %}
+
+{% from "shared/_pictures.html" import scene with context %}
+{% from "shared/_social.html" import social_row with context %}
+
+{% block chrome %}
+<header class="public-bar public-bar--dark">
+  <a class="mark mark--light" href="{{ url_for('home') }}">
+    <span class="mark-seal" aria-hidden="true"></span>
+    <span class="mark-name">{{ brand }}</span>
+  </a>
+  <nav class="public-nav">
+    <a href="{{ url_for('home') }}">What this is</a>
+    <a href="{{ url_for('contact.feedback') }}">Give feedback</a>
+    <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Sign in</a>
+    <a class="btn btn--small btn--gold" href="{{ url_for('auth.register', as='student') }}">Join free</a>
+  </nav>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="bleed hero-dark hero-dark--short">
+  <div class="hero-dark__art">{{ scene('alerts', eager=true) }}</div>
+  <div class="hero-dark__scrim" aria-hidden="true"></div>
+  <div class="hero-dark__inner">
+    <p class="eyebrow">Contact</p>
+    <h1 class="mega mega--sm">Talk to <span class="mega__gold">{{ brand }}</span></h1>
+    <p class="lede lede--light">Three different things, so that you do not
+      have to guess which one you want: somewhere to follow {{ brand }},
+      somewhere to message us, and a form for telling us what is wrong with
+      the platform. That last one reaches an administrator directly.</p>
+    <p class="hero-dark__actions">
+      <a class="btn btn--gold btn--lg" href="{{ url_for('contact.feedback') }}">Tell us what is missing</a>
+      <a class="btn btn--ghost btn--lg" href="#find-us">Find us online</a>
+    </p>
+  </div>
+</section>
+
+<section class="band-inner section" id="find-us">
+  {% if links %}
+  <p class="record-label">Find us</p>
+  <h2 class="display section-title">On the networks you use.</h2>
+  <p class="lede" style="margin:-1.6rem 0 2.4rem">Our channels, not anybody
+    else's. A company you are working with has its own, which appear on the
+    brief once you are placed on it; your supervising lecturer's are on your
+    supervision thread if they chose to share them.</p>
+  <div class="social-grid">
+    {% for l in links %}
+    <a class="social-card" href="{{ l.url }}" target="_blank" rel="noopener noreferrer">
+      <span class="social-card__name">{{ l.label }}</span>
+      <span class="social-card__handle">{{ l.handle }}</span>
+      <span class="social-card__go">Open →</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="notice-card">
+    <p class="record-label">Not set up yet</p>
+    <h2 class="notice-card__title">No accounts have been added.</h2>
+    <p>An administrator adds {{ brand }}'s Facebook, WhatsApp, Telegram,
+      Instagram, YouTube, TikTok, X and LinkedIn in the operations deck, under
+      Contacts. They appear here and in the footer as soon as they are saved.</p>
+  </div>
+  {% endif %}
+</section>
+
+<section class="bleed band-dark section-dark">
+  <div class="band-inner">
+    <h2 class="band-title band-title--center">The survey: tell us what is
+      <span class="gold">missing</span></h2>
+    <p class="band-sub">Two minutes, no account needed. You give {{ brand }} a
+      rating out of five, say what is not working or what you went looking for
+      and could not find, and add anything you would change. It goes into our
+      records and in front of an administrator the moment you send it — not
+      into an inbox nobody opens.</p>
+    <p style="text-align:center">
+      <a class="btn btn--gold btn--lg" href="{{ url_for('contact.feedback') }}">Give feedback</a>
+    </p>
+  </div>
+</section>
+
+<footer class="bleed site-foot">
+  <div class="band-inner site-foot__legal" style="border-top:none">
+    {{ social_row() }}
+    <p>&copy; {{ now_year }} {{ brand }}. Students never pay to use this platform.</p>
+    <p><a href="{{ url_for('home') }}">Back to the main page</a></p>
+  </div>
+</footer>
+{% endblock %}

@@ -196,10 +196,14 @@ def request_project(project_id):
                f"take on \"{project['title']}\" for {places} student(s).",
                url_for("company.requests", project_id=project_id))
         log_action("request_project", "project", project_id)
-        receipt(g.user["id"], "Request sent to the company",
-                "Your request to take on a brief has been sent. The company "
-                "decides, and you will be emailed either way. You can place "
-                "students on it once they accept.",
+        receipt(g.user["id"],
+                f"Applied to supervise: {project['title']}",
+                f"You have applied to take on \"{project['title']}\""
+                f"{' for ' + project['company_name'] if project.get('company_name') else ''} "
+                f"with {places} place(s) for your students.\n\n"
+                f"The company decides, and you will be emailed either way. "
+                f"Once they accept you can place students on it, and each "
+                f"student you place is emailed too.",
                 url_for("lecturer.dashboard"))
         flash("Request sent. The company decides before you can place students.", "success")
     else:
@@ -211,8 +215,14 @@ def request_project(project_id):
 @role_required("lecturer")
 @subscription_required
 def assign(project_id):
+    # The company's name comes along because the emails sent at the end of
+    # this name the brief and who it is for; a student placed on something
+    # should not have to go and look up which company it was.
     project = query(
-        "SELECT * FROM projects WHERE id=%s AND status IN ('open','engaged')",
+        """SELECT p.*, c.name AS company_name
+             FROM projects p
+             LEFT JOIN companies c ON c.id = p.company_id
+            WHERE p.id=%s AND p.status IN ('open','engaged')""",
         (project_id,), one=True)
     if not project:
         abort(404)
@@ -228,6 +238,7 @@ def assign(project_id):
     picked = request.form.getlist("students")
     conn = get_db()
     placed = 0
+    placed_rows = []
     try:
         with conn.cursor() as cur:
             # Lock the project first, then count — two lecturers assigning at once
@@ -273,12 +284,14 @@ def assign(project_id):
                         """INSERT INTO milestones (assignment_id, phase, title, due_date)
                            VALUES (%s,%s,%s,%s)""", (new["id"], phase, title, due))
 
-                cur.execute(
-                    "INSERT INTO notifications (user_id, body, url) VALUES (%s,%s,%s)",
-                    (int(sid),
-                     f"{g.user['fullname']} assigned you to \"{project['title']}\". "
-                     f"Due {project['deadline'].strftime('%d %b %Y')}.",
-                     url_for("student.work", assignment_id=new["id"])))
+                # Remembered rather than told now. Writing the alert here,
+                # inside the transaction and with a raw INSERT, meant the
+                # student got an in-app line and never an email — notify()
+                # was bypassed and with it every email anybody actually
+                # reads. Mail also has no business inside a transaction
+                # that is placing students: a mail server timing out must
+                # not roll back the placement.
+                placed_rows.append((int(sid), new["id"]))
                 placed += 1
                 room -= 1
         conn.commit()
@@ -287,10 +300,33 @@ def assign(project_id):
         raise
 
     log_action("assign_students", "project", project_id, f"{placed} placed")
+
+    # Now that the placements are committed, tell the people involved. Each
+    # student hears by email as well as in the app, which is the whole point
+    # of being placed on something.
+    names = []
+    for student_id, assignment_id in placed_rows:
+        who = query("SELECT fullname FROM users WHERE id=%s",
+                    (student_id,), one=True)
+        if who:
+            names.append(who["fullname"])
+        notify(student_id,
+               f"{g.user['fullname']} placed you on \"{project['title']}\" "
+               f"for {project['company_name']}. It is due "
+               f"{project['deadline'].strftime('%d %b %Y')}. Your submissions "
+               f"go to {g.user['fullname']} first, then to the institution, "
+               f"then to the company.",
+               url_for("student.work", assignment_id=assignment_id))
+
     if placed:
-        receipt(g.user["id"], f"{placed} student(s) placed",
-                f"You have placed {placed} student(s) on a brief. Each has been "
-                f"told and can start work; their submissions come to you first.",
+        who = ", ".join(names) if names else f"{placed} student(s)"
+        receipt(g.user["id"],
+                f"Placed on \"{project['title']}\": {who}",
+                f"You placed {who} on \"{project['title']}\" for "
+                f"{project['company_name']}, due "
+                f"{project['deadline'].strftime('%d %b %Y')}. "
+                f"{'Each has' if placed > 1 else 'They have'} been emailed and "
+                f"can start work now. Their submissions come to you first.",
                 url_for("lecturer.students"))
 
     flash(f"{placed} student(s) assigned. They have been notified." if placed

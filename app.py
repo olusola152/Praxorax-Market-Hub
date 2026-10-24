@@ -56,8 +56,10 @@ def create_app():
     from routes.admin import admin_bp
     from routes.auth import auth_bp
     from routes.company import company_bp
+    from routes.contact import contact_bp
     from routes.deliverables import deliverables_bp
     from routes.files import files_bp
+    from routes.messages import messages_bp
     from routes.invites import invites_bp
     from routes.praxfolio import praxfolio_bp
     from routes.presentations import presentations_bp
@@ -70,6 +72,7 @@ def create_app():
 
     for bp in (auth_bp, portal_bp, student_bp, lecturer_bp, university_bp,
                company_bp, admin_bp, files_bp, teams_bp, invites_bp,
+               contact_bp, messages_bp,
                deliverables_bp, praxfolio_bp, presentations_bp, settings_bp):
         app.register_blueprint(bp)
 
@@ -77,6 +80,49 @@ def create_app():
     # dropped into to replace one. Read once, here, not per render.
     import artwork
     artwork.attach(app)
+
+    def _share_to(network, link, title=""):
+        """A share link for one network, for the Praxfolio page."""
+        import social
+        return social.share_url(network, link, title) or "#"
+
+    def _platform_links():
+        """PraxoraX's own social accounts, for the footers.
+
+        A function rather than a value so the query runs on the handful of
+        templates that show them, not on every render of every page.
+        """
+        import social
+        try:
+            return social.links_for(None)
+        except Exception:
+            # A footer must never be the thing that takes a page down.
+            return []
+
+    def _unread_messages():
+        """Messages waiting, for the badge in the top bar.
+
+        Only the two roles that can have a supervision thread pay for the
+        query; everybody else gets zero without touching the database.
+
+        Guarded, like the footer links, because this runs on every render
+        for those two roles. Code reaches a server before a migration does
+        — that is the normal order of a deploy — and when it did, a missing
+        messages table took down every page a student could open rather
+        than the one feature that needed it. A badge is worth none of that:
+        if the count cannot be had, there is no badge.
+        """
+        user = g.get("user")
+        if not user or user["role"] not in ("student", "lecturer"):
+            return 0
+        try:
+            from routes.messages import unread_for
+            return unread_for(user["id"])
+        except Exception:
+            app.logger.warning(
+                "unread message count unavailable — has migration_v12 been run?",
+                exc_info=True)
+            return 0
 
     @app.context_processor
     def inject_labels():
@@ -88,6 +134,9 @@ def create_app():
                 "trial_days": app.config["TRIAL_DAYS"],
                 "now_year": date.today().year,
                 "idle_seconds_left": seconds_left(),
+                "unread_messages": _unread_messages(),
+                "platform_links": _platform_links,
+                "share_to": _share_to,
                 "idle_warn_at": app.config["IDLE_WARN_SECONDS"]}
 
     @app.context_processor

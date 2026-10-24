@@ -4,6 +4,7 @@
 {% block main_class %}landing{% endblock %}
 
 {% from "shared/_pictures.html" import scene with context %}
+{% from "shared/_social.html" import social_row with context %}
 
 {% block chrome %}
 <header class="public-bar public-bar--dark">
@@ -13,6 +14,7 @@
   </a>
   <nav class="public-nav">
     <a href="{{ url_for('home') }}">What this is</a>
+    <a href="{{ url_for('contact.index') }}">Contact us</a>
     <a class="btn btn--small btn--ghost" href="{{ url_for('auth.login') }}">Sign in</a>
     <a class="btn btn--small btn--gold" href="{{ url_for('auth.register', as='student') }}">Join free</a>
   </nav>
@@ -80,6 +82,7 @@
 
 <footer class="bleed site-foot">
   <div class="band-inner site-foot__legal" style="border-top:none">
+    {{ social_row() }}
     <p>&copy; {{ now_year }} {{ brand }}. Students never pay to use this platform.</p>
     <p><a href="{{ url_for('auth.login') }}">Back to sign in</a></p>
   </div>

@@ -149,7 +149,20 @@ def project_detail(project_id):
                   AND t.status IN ('forming','applied')
                 ORDER BY t.name""", (g.user["id"],))
 
+    # The company's own messaging channels, but only once this student is
+    # actually placed on the brief and only if the company chose to show
+    # them. A brief feed is not a directory of company phone numbers.
+    import social
+    company_links = []
+    if application and application["status"] in ("accepted", "assigned"):
+        owner = query("""SELECT u.id, u.links_public FROM companies c
+                           JOIN users u ON u.id = c.user_id
+                          WHERE c.id = %s""", (project["company_id"],), one=True)
+        if owner and owner["links_public"]:
+            company_links = social.links_for(owner["id"], contactable_only=True)
+
     return render_template("student/project_detail.html", project=project,
+                           company_links=company_links,
                            today=date.today(), application=application,
                            independent=is_independent_student(),
                            my_teams=my_teams,
