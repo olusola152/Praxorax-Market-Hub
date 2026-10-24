@@ -54,7 +54,10 @@
    THE SHOWCASE. Brand imagery about reaching people wherever they are —
    not a claim that this platform owns aircraft.
    ==================================================================== #}
-<section class="band-inner section section--tight">
+{# Full section padding, not --tight: that variant has no top padding,
+   which was right when this sat under another section and wrong directly
+   beneath the hero, where it crowded the band above it. #}
+<section class="band-inner section">
   <article class="feature-card feature-card--flip showcase-card">
     <div class="feature-card__art showcase-card__art">{{ scene('fleet') }}</div>
     <div class="feature-card__body">
