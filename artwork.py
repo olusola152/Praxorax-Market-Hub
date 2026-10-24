@@ -55,8 +55,8 @@ SLOTS = {
     # The receipts feature, shown rather than described. Both of these are
     # photographs of a phone whose screen carries the PraxoraX mark — see
     # tools/brand_screens.py, which put it there.
-    "alerts": "A phone showing a PraxoraX confirmation: the work was "
-              "received, and the person who sent it has been told so",
+    "alerts": "A phone on a desk showing the PraxoraX crest, the way it "
+              "looks when a confirmation arrives",
     "alerts-portal": "A student checking a PraxoraX confirmation on their "
                      "phone moments after submitting their work",
     "fleet": "A PraxoraX aircraft in flight above the clouds, the crest on "

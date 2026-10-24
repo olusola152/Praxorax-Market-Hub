@@ -51,6 +51,29 @@
 </section>
 
 {# ====================================================================
+   THE SHOWCASE. Brand imagery about reaching people wherever they are —
+   not a claim that this platform owns aircraft.
+   ==================================================================== #}
+<section class="band-inner section section--tight">
+  <article class="feature-card feature-card--flip showcase-card">
+    <div class="feature-card__art showcase-card__art">{{ scene('fleet') }}</div>
+    <div class="feature-card__body">
+      <p class="eyebrow">Wherever you are</p>
+      <h2 class="feature-card__title">Your university does not have to be
+        <span class="gold">on our list</span></h2>
+      <p>Students join from any institution, and from none. If your school is
+        already here you come in through its portal; if it is not, you register
+        on your own and apply for briefs directly. The work and the record at
+        the end are the same either way.</p>
+      <p class="hero-dark__actions">
+        <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join {{ brand }} — free</a>
+        <a class="btn btn--ghost btn--lg" href="{{ url_for('auth.join_index') }}">Find your institution</a>
+      </p>
+    </div>
+  </article>
+</section>
+
+{# ====================================================================
    WHO IT'S FOR. Four cards, each with what that party gets.
    ==================================================================== #}
 <section class="band-inner section" id="who">
@@ -305,28 +328,6 @@
 </section>
 {% endif %}
 
-{# ====================================================================
-   THE SHOWCASE. Brand imagery about reaching people wherever they are —
-   not a claim that this platform owns aircraft.
-   ==================================================================== #}
-<section class="band-inner section section--tight">
-  <article class="feature-card feature-card--flip showcase-card">
-    <div class="feature-card__art showcase-card__art">{{ scene('fleet') }}</div>
-    <div class="feature-card__body">
-      <p class="eyebrow">Wherever you are</p>
-      <h2 class="feature-card__title">Your university does not have to be
-        <span class="gold">on our list</span></h2>
-      <p>Students join from any institution, and from none. If your school is
-        already here you come in through its portal; if it is not, you register
-        on your own and apply for briefs directly. The work and the record at
-        the end are the same either way.</p>
-      <p class="hero-dark__actions">
-        <a class="btn btn--gold btn--lg" href="{{ url_for('auth.register', as='student') }}">Join {{ brand }} — free</a>
-        <a class="btn btn--ghost btn--lg" href="{{ url_for('auth.join_index') }}">Find your institution</a>
-      </p>
-    </div>
-  </article>
-</section>
 
 {# ====================================================================
    CLOSING BAND.
