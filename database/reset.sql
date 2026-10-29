@@ -19,6 +19,8 @@
 -- your uploads/submissions/ folder too, or you will keep orphaned files.
 
 DROP TABLE IF EXISTS
+    -- v13
+    employer_feedback,
     -- v10
     social_links,
     feedback,

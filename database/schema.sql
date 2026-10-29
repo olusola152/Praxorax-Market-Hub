@@ -6,6 +6,7 @@
 -- Kept in step with every migration, so re-running this really does start
 -- clean. database/reset.sql holds the same list on its own.
 DROP TABLE IF EXISTS
+  employer_feedback,
   social_links, feedback, messages,
   team_invitations,
   presentation_attendees, presentations,

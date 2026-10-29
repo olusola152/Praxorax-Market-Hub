@@ -1291,7 +1291,11 @@ input[type="file"] {
 
 .certificate-shell { max-width: 60rem; margin-inline: auto; }
 
-.certificate-actions { display: flex; gap: .7rem; margin-bottom: 1.4rem; }
+/* A column now that the share panel sits under the buttons; the buttons
+   keep their own row inside it. */
+.certificate-actions { margin-bottom: 1.4rem; }
+.certificate-actions > p { display: flex; gap: .7rem; flex-wrap: wrap;
+                           margin: 0; }
 
 .certificate {
   padding: clamp(1.8rem, 5vw, 3.6rem);
@@ -1373,7 +1377,12 @@ input[type="file"] {
 .certificate-verify .mono { font-size: .76rem; word-break: break-all; }
 
 @media print {
-  .no-print, .topbar, .trial-bar, .demo-bar, footer { display: none !important; }
+  /* The exclusion matters: .certificate-foot is a <footer>, and a bare
+     "footer" selector here took the reference number and the verification
+     URL off every printed certificate — removing the only two things on the
+     page that let a reader check it was real. */
+  .no-print, .topbar, .trial-bar, .demo-bar,
+  footer:not(.certificate-foot) { display: none !important; }
   body { background: #fff; }
   .certificate {
     border: 0;
@@ -2923,3 +2932,99 @@ body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .mark-seal 
 /* The fleet image is a photograph rather than a drawing on a flat ground,
    so it fills its half of the card instead of being contained inside it. */
 .showcase-card__art img { object-fit: cover; height: 100%; }
+
+/* ------------------------------------------------- employer feedback
+   Stars are radio buttons. The input stays in the DOM and keeps focus and
+   keyboard behaviour; only its appearance is replaced, so the control is
+   still a radio group to a screen reader and to the arrow keys.
+
+   The markup runs 5 down to 1 and the row is reversed in CSS. That is what
+   makes "~" work: a checked input can only style its later siblings, which
+   in this order are the lower scores, and reversing the row puts them back
+   on the left where a reader expects them. */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.stars { display: inline-flex; flex-direction: row-reverse;
+         justify-content: flex-end; gap: .2rem; }
+.stars input { position: absolute; opacity: 0; width: 0; height: 0; }
+.stars label { cursor: pointer; line-height: 1; font-size: 1.7rem;
+               color: var(--line); transition: color .12s ease; }
+.stars label::before { content: "\2605"; }
+.stars input:checked ~ label,
+.stars label:hover,
+.stars label:hover ~ label { color: var(--brass); }
+.stars input:focus-visible + label { outline: 2px solid var(--brass);
+                                     outline-offset: 2px; border-radius: 2px; }
+
+.rate { border: 0; padding: 0; margin: 0 0 1.5rem; }
+.rate__label { font-weight: 600; padding: 0; }
+.rate__help { color: var(--ink-soft); font-size: .9rem; margin: .15rem 0 .5rem; }
+.feedback-form__why { color: var(--ink-soft); margin-bottom: 1.75rem; }
+
+/* The read-only version, on a Praxfolio. Stars here are text, not controls:
+   a rating nobody can change should not look like something you can click. */
+.score-row { display: flex; align-items: baseline; gap: .6rem;
+             margin: .3rem 0; }
+.score-row__label { flex: 1; color: var(--ink-soft); font-size: .92rem; }
+.score-row__stars { color: var(--brass); letter-spacing: .08em; }
+.score-row__stars .is-off { color: var(--line); }
+
+.verdict { border: 1px solid var(--line); border-radius: var(--radius);
+           padding: 1.1rem 1.25rem; margin: 1rem 0; background: var(--surface); }
+.verdict__head { display: flex; flex-wrap: wrap; align-items: baseline;
+                 gap: .5rem; margin-bottom: .75rem; }
+.verdict__who { font-weight: 600; }
+.verdict__overall { font-family: var(--mono); color: var(--brass); }
+.verdict__quote { margin: .85rem 0 0; }
+.verdict__attrib { color: var(--ink-soft); font-size: .88rem;
+                   margin: .4rem 0 0; }
+
+/* The employer-feedback section on the landing page. Card and copy sit
+   side by side on a wide screen and stack on a phone, card first: the
+   specimen is the argument, and the prose beside it is the explanation. */
+.feedback-split { display: grid; gap: 2.5rem; align-items: start; }
+@media (min-width: 860px) {
+  .feedback-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+                    gap: 3.5rem; }
+}
+/* .band-title and .band-sub were written for dark bands and hardcode white
+   and a dim green. This is the first place either appears on paper, so both
+   colours are restated here rather than loosened at source, where every
+   existing dark band would have to be re-checked. */
+.feedback-split .band-title { text-align: left; margin-top: 0;
+                              color: var(--ink); }
+.feedback-split .band-sub { margin: 0 0 .5rem; text-align: left;
+                            max-width: 52ch; color: var(--ink-soft); }
+
+/* Flat, not floating: this is an illustration inside a section, not a card
+   the reader can act on, and a shadow would invite a click that does
+   nothing. */
+.verdict--specimen { box-shadow: none; }
+.specimen-note { color: var(--ink-soft); font-size: .85rem; margin: .6rem 0 0; }
+
+.plain-list { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+.plain-list li { padding: 0 0 0 1.5rem; margin-bottom: 1rem; position: relative; }
+.plain-list li::before { content: "\2605"; position: absolute; left: 0;
+                         top: .05em; color: var(--brass); font-size: .9em; }
+
+/* ------------------------------------------------ certificate sharing
+   The share panel sits above the document and never prints. */
+.share-row--cert { margin-top: 1.25rem; padding-top: 1.25rem;
+                   border-top: 1px solid var(--line); }
+
+/* Skills as tags on the certificate. Outlined rather than filled so they
+   survive a black-and-white print, which is where most of these end up. */
+.certificate-skills__label { font-family: var(--mono); font-size: .72rem;
+                             letter-spacing: .12em; text-transform: uppercase;
+                             color: var(--ink-soft); margin: 0 0 .55rem; }
+.tag-row { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem;
+           padding: 0; margin: 0; }
+.tag { border: 1px solid var(--line); border-radius: 999px;
+       padding: .18rem .7rem; font-size: .82rem; color: var(--ink);
+       background: transparent; }
+@media print {
+  .tag { border-color: #999; }
+}

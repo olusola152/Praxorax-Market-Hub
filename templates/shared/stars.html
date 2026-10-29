@@ -1,0 +1,21 @@
+{# A score out of five, as text rather than as controls.
+
+   Filled and empty stars are separate spans so the empty ones can be greyed
+   without relying on a second font or an image, and the number is written
+   out for anyone not reading the glyphs. #}
+{% macro stars(score, label=None) -%}
+<span class="score-row__stars" role="img"
+      aria-label="{{ '%.1f'|format(score|float) }} out of 5{% if label %} for {{ label|lower }}{% endif %}">
+  {%- set filled = score|float|round(0, 'common')|int -%}
+  {%- for _ in range(filled) %}★{% endfor -%}
+  {%- if filled < 5 %}<span class="is-off">{% for _ in range(5 - filled) %}★{% endfor %}</span>{% endif -%}
+</span>
+{%- endmacro %}
+
+{% macro score_row(label, score) -%}
+<div class="score-row">
+  <span class="score-row__label">{{ label }}</span>
+  {{ stars(score, label) }}
+  <span class="mono">{{ '%.1f'|format(score|float) }}</span>
+</div>
+{%- endmacro %}

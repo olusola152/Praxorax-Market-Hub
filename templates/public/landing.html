@@ -5,6 +5,7 @@
 
 {% from "shared/_pictures.html" import scene with context %}
 {% from "shared/_social.html" import social_row with context %}
+{% from "shared/stars.html" import score_row %}
 
 {% block chrome %}
 <header class="public-bar public-bar--dark">
@@ -275,6 +276,60 @@
         <p>Every finished project leaves a Praxfolio entry an employer can
           open and check against the company that commissioned it.</p>
       </article>
+    </div>
+  </div>
+</section>
+
+{# ====================================================================
+   EMPLOYER FEEDBACK. The specimen card is deliberately a specimen: no
+   invented company, no invented graduate, and a caption saying so. A
+   made-up testimonial with a real-looking name on it is a fabricated
+   review, and the one thing this section is arguing is that the ratings
+   on this platform are not made up.
+   ==================================================================== #}
+<section class="band-inner section" id="feedback">
+  <div class="feedback-split">
+    <div class="feedback-split__demo">
+      <p class="eyebrow">What goes on the record</p>
+      <div class="verdict verdict--specimen">
+        <div class="verdict__head">
+          <span class="record-label">Employer verified feedback</span>
+          <span class="verdict__overall">4.5 / 5</span>
+        </div>
+        {{ score_row('Communication', 5) }}
+        {{ score_row('Problem solving', 4) }}
+        {{ score_row('Quality of work', 4) }}
+        {{ score_row('Professionalism', 5) }}
+        <blockquote class="verdict__quote">Rebuilt our stock report and
+          explained the numbers to the warehouse team without being asked
+          to.</blockquote>
+        <p class="verdict__attrib">The company that commissioned the brief
+          and signed off the work</p>
+      </div>
+      <p class="specimen-note">An example of the format. Real entries name
+        the company and the date.</p>
+    </div>
+
+    <div class="feedback-split__copy">
+      <h2 class="band-title">Feedback the student <span class="gold">cannot write</span></h2>
+      <p class="band-sub">A certificate proves the work happened. This says
+        how it went — and it comes from the account that posted the brief
+        and approved the delivery.</p>
+
+      <ul class="plain-list">
+        <li><strong>Written by the client, not the candidate.</strong>
+          Only the company that commissioned the brief can leave it, from
+          the account that signed the work off.</li>
+        <li><strong>Only on finished work.</strong> The form does not exist
+          until the deliverable has been through the lecturer, the
+          institution and the company.</li>
+        <li><strong>Four competencies, not one star.</strong> Communication,
+          problem solving, quality and professionalism, so a reader learns
+          what was good rather than how good.</li>
+        <li><strong>The student chooses what is public — and cannot edit a
+          word of it.</strong> Hiding a review is theirs to do. Changing one
+          is not.</li>
+      </ul>
     </div>
   </div>
 </section>

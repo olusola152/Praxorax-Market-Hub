@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from flask import (Blueprint, abort, flash, g, redirect, render_template,
                    request, url_for)
 
+import employer_feedback
 import storage
 from auth_utils import log_action, role_required, subscription_required
 from db import execute, get_db, query, scalar
@@ -408,6 +409,69 @@ def review(submission_id):
                            human_size=storage.human_size)
 
 
+@company_bp.route("/placements/<int:assignment_id>/feedback",
+                  methods=["GET", "POST"])
+@role_required("company")
+def feedback(assignment_id):
+    """Rate the student on a placement this company commissioned.
+
+    Deliberately not folded into the approval form. Approval is a decision
+    about the deliverable and it should not wait on somebody finding words
+    about the person; tying them together would mean either blocking the
+    certificate or collecting whatever gets typed to make the page go away.
+    """
+    placement = query(
+        """SELECT a.id, a.status, a.student_id,
+                  u.fullname AS student_name,
+                  p.id AS project_id, p.title, p.company_id
+             FROM assignments a
+             JOIN projects p ON p.id = a.project_id
+             JOIN users u ON u.id = a.student_id
+            WHERE a.id = %s""", (assignment_id,), one=True)
+
+    # 404 rather than 403 for another company's placement: a company that
+    # guesses ids should not be able to learn which ones exist.
+    if not placement or placement["company_id"] != g.user["company_id"]:
+        abort(404)
+
+    if placement["status"] != "completed":
+        flash("You can rate a student once the work is approved.", "error")
+        return redirect(url_for("company.progress",
+                                project_id=placement["project_id"]))
+
+    existing = employer_feedback.for_assignment(assignment_id)
+
+    if request.method == "POST":
+        scores, comment, errors = employer_feedback.parse(request.form)
+        if errors:
+            for message in errors:
+                flash(message, "error")
+            # Hand back what they typed rather than an empty form.
+            return render_template(
+                "company/feedback.html", placement=placement,
+                competencies=employer_feedback.COMPETENCIES,
+                existing={**(existing or {}), **scores, "comment": comment})
+
+        employer_feedback.save(assignment_id, g.user["id"], scores, comment)
+        log_action("employer_feedback", "assignment", assignment_id)
+
+        notify(placement["student_id"],
+               f"{g.user['fullname']} left feedback on your work for "
+               f"\"{placement['title']}\". You choose whether it appears on "
+               f"your public Praxfolio.",
+               url_for("praxfolio.mine"))
+
+        flash("Feedback saved. "
+              f"{placement['student_name'].split()[0]} has been told, and "
+              "decides whether it appears publicly.", "success")
+        return redirect(url_for("company.progress",
+                                project_id=placement["project_id"]))
+
+    return render_template("company/feedback.html", placement=placement,
+                           competencies=employer_feedback.COMPETENCIES,
+                           existing=existing)
+
+
 @company_bp.route("/projects/<int:project_id>/progress")
 @role_required("company")
 def progress(project_id):
@@ -429,6 +493,16 @@ def progress(project_id):
              LEFT JOIN universities uni ON uni.id=sp.university_id
              LEFT JOIN users lec ON lec.id=a.lecturer_id
             WHERE a.project_id=%s ORDER BY u.fullname""", (project_id,))
+
+    # Which of these already have feedback, so the button reads "Rate" or
+    # "Edit". A separate guarded read rather than a subquery in the join
+    # above: this table arrives with migration v13, and a deploy routinely
+    # puts code on the server minutes before the migration runs. A label on
+    # a button is not worth taking the progress page down for.
+    rated = employer_feedback.with_feedback(
+        [s["assignment_id"] for s in students])
+    for s in students:
+        s["has_feedback"] = s["assignment_id"] in rated
 
     return render_template("company/progress.html", project=project, students=students)
 

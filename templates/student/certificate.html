@@ -4,10 +4,34 @@
 {% block main_class %}certificate-shell{% endblock %}
 
 {% block content %}
-<p class="no-print certificate-actions">
-  <button class="btn" onclick="window.print()">Print or save as PDF</button>
-  <a class="btn btn--quiet" href="{{ url_for('praxfolio.verify') }}">Verify a reference</a>
-</p>
+{# This page is public by design, so the address bar is already a shareable
+   link — but expecting somebody to notice that, copy it, and find where to
+   paste it is how a verifiable record ends up never being seen. The buttons
+   are no-print: a URL bar printed across the top of a certificate is not
+   part of the document. #}
+{% set cert_url = request.url_root.rstrip('/') ~ url_for('praxfolio.certificate', reference=cert.reference) %}
+<div class="no-print certificate-actions">
+  <p>
+    <button class="btn" onclick="window.print()">Print or save as PDF</button>
+    <a class="btn btn--quiet" href="{{ url_for('praxfolio.verify') }}">Verify a reference</a>
+  </p>
+
+  {% if not revoked %}
+  <div class="share-row share-row--cert">
+    <p class="lede">Share this certificate</p>
+    <p class="mono share-link">{{ cert_url }}</p>
+    <p class="share-actions">
+      <a class="btn btn--small" target="_blank" rel="noopener noreferrer"
+         href="{{ share_to('linkedin', cert_url) }}">Post to LinkedIn</a>
+      <button class="btn btn--small btn--quiet" type="button"
+              onclick="navigator.clipboard &amp;&amp; navigator.clipboard.writeText('{{ cert_url }}').then(function(){this.textContent='Copied';}.bind(this))">Copy link</button>
+    </p>
+    <p class="muted small">Anyone opening it sees this document and can check
+      the reference themselves. They do not need an account, and it shows
+      them nothing else about you.</p>
+  </div>
+  {% endif %}
+</div>
 
 {% if revoked %}
 <p class="no-print flash flash--error">This certificate was revoked on
@@ -55,8 +79,16 @@
   </table>
 
   {% if snap.summary.skills %}
-  <p class="certificate-skills"><strong>Skills evidenced:</strong>
-    {{ snap.summary.skills|join(' · ') }}</p>
+  {# Tags rather than a run-on sentence. An employer scanning this is
+     looking for one word, and a middle dot list of fifteen makes them read
+     all fifteen. Bordered rather than filled so it survives a black and
+     white print, which is how most of these end up on a desk. #}
+  <div class="certificate-skills">
+    <p class="certificate-skills__label">Skills evidenced</p>
+    <ul class="tag-row">
+      {% for skill in snap.summary.skills %}<li class="tag">{{ skill }}</li>{% endfor %}
+    </ul>
+  </div>
   {% endif %}
 
   <footer class="certificate-foot">

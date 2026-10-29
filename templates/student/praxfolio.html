@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "shared/cover.html" import cover %}
+{% from "shared/stars.html" import stars, score_row %}
 {% block title %}{{ profile.fullname }} — Praxfolio{% endblock %}
 
 {% block content %}
@@ -24,6 +25,13 @@
     <div><dt>Files delivered</dt><dd>{{ summary.files }}</dd></div>
     {% if summary.median_days %}<div><dt>Typical length</dt><dd>{{ summary.median_days }} days</dd></div>{% endif %}
   </dl>
+  {% if verdict_summary %}
+  <p class="skill-line"><span class="record-label">Employer rated</span>
+    {{ stars(verdict_summary.overall) }}
+    <span class="mono">{{ '%.1f'|format(verdict_summary.overall) }} / 5</span>
+    across {{ verdict_summary.count }}
+    project{{ '' if verdict_summary.count == 1 else 's' }}</p>
+  {% endif %}
   {% if summary.skills %}
   <p class="skill-line"><span class="record-label">Skills used</span> {{ summary.skills|join(' · ') }}</p>
   {% endif %}
@@ -109,7 +117,12 @@
       <td class="mono">{{ c.reference }}</td>
       <td>{{ c.project_count }}</td>
       <td>{{ c.issued_at.strftime('%d %b %Y, %H:%M') }}</td>
-      <td style="text-align:right"><a href="{{ url_for('praxfolio.certificate', reference=c.reference) }}">Open</a></td>
+      {% set c_url = request.url_root.rstrip('/') ~ url_for('praxfolio.certificate', reference=c.reference) %}
+      <td style="text-align:right">
+        <a class="btn btn--small btn--quiet" href="{{ url_for('praxfolio.certificate', reference=c.reference) }}">Open</a>
+        <a class="btn btn--small btn--quiet" target="_blank" rel="noopener noreferrer"
+           href="{{ share_to('linkedin', c_url) }}">LinkedIn</a>
+      </td>
     </tr>
     {% endfor %}
   </table>
@@ -146,6 +159,35 @@
 
       <p class="prose">{{ w.description }}</p>
       {% if w.skills %}<p class="project-skills">{{ w.skills }}</p>{% endif %}
+
+      {% set v = verdicts.get(w.assignment_id) if verdicts else none %}
+      {% if v %}
+      <div class="verdict">
+        <div class="verdict__head">
+          <span class="record-label">Employer verified feedback</span>
+          <span class="verdict__overall">{{ '%.1f'|format(v.overall|float) }} / 5</span>
+        </div>
+        {% for key, label, _ in competencies %}{{ score_row(label, v[key]) }}{% endfor %}
+        {% if v.comment %}
+        <blockquote class="verdict__quote">{{ v.comment }}</blockquote>
+        {% endif %}
+        <p class="verdict__attrib">{{ w.company_name }}, who commissioned this
+          brief and signed off the work · {{ v.created_at.strftime('%d %b %Y') }}</p>
+
+        {% if owner %}
+        <form method="post" class="inline-form"
+              action="{{ url_for('praxfolio.verdict_visibility', assignment_id=w.assignment_id) }}">
+          <input type="hidden" name="show" value="{{ '0' if v.is_public else '1' }}">
+          <button class="btn btn--small btn--quiet" type="submit">
+            {{ 'Hide from your public link' if v.is_public
+               else 'Show on your public link' }}</button>
+          <span class="rate__help">
+            {{ 'Anyone with your public link can read this.' if v.is_public
+               else 'Only you can see this.' }}</span>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
 
       {% if owner %}
       <p><a class="btn btn--small btn--quiet" href="{{ url_for('student.record', assignment_id=w.assignment_id) }}">Full record and files</a></p>

@@ -9,7 +9,7 @@
 </section>
 {% if students %}
 <table class="ledger">
-  <thead><tr><th>Student</th><th>University</th><th>Supervisor</th><th>Phases done</th><th>Status</th><th>GitHub</th><th>Presentation</th></tr></thead>
+  <thead><tr><th>Student</th><th>University</th><th>Supervisor</th><th>Phases done</th><th>Status</th><th>GitHub</th><th>Presentation</th><th>Feedback</th></tr></thead>
   <tbody>
     {% for s in students %}
     <tr>
@@ -18,6 +18,13 @@
       <td><span class="status status--{{ s.status }}">{{ s.status }}</span></td>
       <td class="mono">{{ s.github_url or '—' }}</td>
       <td><a class="btn btn--small btn--quiet" href="{{ url_for('presentations.placement', assignment_id=s.assignment_id) }}">Book / view</a></td>
+      {# Only once the work is approved. Rating somebody mid-project would be
+         rating an unfinished thing, and the record says "on the delivered
+         work" — so the control does not exist until there is delivered work. #}
+      <td>{% if s.status == 'completed' %}
+        <a class="btn btn--small {{ 'btn--quiet' if s.has_feedback else 'btn--gold' }}"
+           href="{{ url_for('company.feedback', assignment_id=s.assignment_id) }}">{{ 'Edit' if s.has_feedback else 'Rate student' }}</a>
+      {% else %}<span class="muted">—</span>{% endif %}</td>
     </tr>
     {% endfor %}
   </tbody>

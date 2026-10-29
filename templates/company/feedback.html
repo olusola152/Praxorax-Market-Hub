@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Feedback on {{ placement.student_name }}{% endblock %}
+{% block content %}
+<p class="backlink"><a href="{{ url_for('company.progress', project_id=placement.project_id) }}">Back to progress</a></p>
+
+<section class="page-head">
+  <p class="record-label">Employer feedback</p>
+  <h1 class="display">{{ placement.student_name }}</h1>
+  <p class="lede">On “{{ placement.title }}”, which you approved.</p>
+</section>
+
+<form method="post" class="card feedback-form">
+  <p class="feedback-form__why">This goes on {{ placement.student_name.split()[0] }}’s
+    record as coming from you, because you commissioned the brief and signed
+    off the work. {{ placement.student_name.split()[0] }} decides whether it
+    appears on the Praxfolio they send to employers, but cannot edit a word
+    of it.</p>
+
+  {% for key, label, help in competencies %}
+  <fieldset class="rate">
+    <legend class="rate__label">{{ label }}</legend>
+    <p class="rate__help">{{ help }}</p>
+    <div class="stars">
+      {% for n in [5, 4, 3, 2, 1] %}
+      <input type="radio" id="{{ key }}-{{ n }}" name="{{ key }}" value="{{ n }}"
+             {% if existing and existing[key]|int == n %}checked{% endif %} required>
+      <label for="{{ key }}-{{ n }}">
+        <span class="sr-only">{{ n }} out of 5 for {{ label|lower }}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </fieldset>
+  {% endfor %}
+
+  <div class="field">
+    <label for="comment">What did they actually do?</label>
+    <p class="rate__help">Name the work. “Rebuilt our stock report and
+      explained the numbers to the warehouse team” tells the next employer
+      something; “hardworking and reliable” does not.</p>
+    <textarea id="comment" name="comment" rows="6" maxlength="1500"
+              required>{{ existing.comment if existing and existing.comment else '' }}</textarea>
+  </div>
+
+  <p class="form-actions">
+    <button class="btn btn--gold btn--lg" type="submit">
+      {{ 'Update feedback' if existing and existing.get('id') else 'Save feedback' }}</button>
+  </p>
+</form>
+{% endblock %}

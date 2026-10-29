@@ -17,6 +17,7 @@ from datetime import date, datetime, timezone
 from flask import (Blueprint, abort, current_app, flash, g, redirect,
                    render_template, request, url_for)
 
+import employer_feedback
 from auth_utils import role_required
 from db import execute, query, scalar
 
@@ -151,10 +152,17 @@ def mine():
                 row["stage"], "not submitted yet" if not row["stage"]
                 else row["stage"].replace("_", " "))
 
+    # The owner sees every piece of feedback, public or not — it is about
+    # them, and they cannot decide what to publish without reading it.
+    verdicts = employer_feedback.for_student(g.user["id"])
+
     return render_template(
         "student/praxfolio.html", profile=profile_of(g.user["id"]),
         work=rows, summary=summarise(rows), owner=True, today=date.today(),
         pending=pending,
+        verdicts=verdicts,
+        verdict_summary=employer_feedback.summarise(verdicts),
+        competencies=employer_feedback.COMPETENCIES,
         certificates=query(
             """SELECT * FROM portfolio_certificates
                 WHERE student_id=%s ORDER BY issued_at DESC""", (g.user["id"],)))
@@ -211,9 +219,33 @@ def public(token):
         abort(404)
 
     rows = completed_work(profile["user_id"])
+
+    # A stranger sees only what the student has chosen to show. Filtered in
+    # the query rather than in the template, so a template that forgets the
+    # condition cannot leak anything.
+    verdicts = employer_feedback.for_student(profile["user_id"],
+                                             public_only=True)
+
     return render_template("student/praxfolio.html", profile=profile, work=rows,
                            summary=summarise(rows), owner=False,
-                           today=date.today(), certificates=[], pending=[])
+                           today=date.today(), certificates=[], pending=[],
+                           verdicts=verdicts,
+                           verdict_summary=employer_feedback.summarise(verdicts),
+                           competencies=employer_feedback.COMPETENCIES)
+
+
+@praxfolio_bp.route("/student/praxfolio/verdict/<int:assignment_id>",
+                    methods=["POST"])
+@role_required("student")
+def verdict_visibility(assignment_id):
+    """Show or hide one employer's feedback on the public Praxfolio."""
+    wanted = request.form.get("show") == "1"
+    if not employer_feedback.set_public(assignment_id, g.user["id"], wanted):
+        abort(404)
+
+    flash("That feedback is now on your public Praxfolio." if wanted
+          else "That feedback is hidden from your public link.", "success")
+    return redirect(url_for("praxfolio.mine"))
 
 
 # ---------------------------------------------------- consolidated record
