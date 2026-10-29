@@ -339,6 +339,64 @@
    advertises a free week and then hands out a pending account is worse
    than one that never mentioned it.
    ==================================================================== #}
+{# ====================================================================
+   THE CERTIFICATE. A specimen again, and for the same reason: a
+   certificate is a document about a named person, and inventing one with
+   a plausible name, company and institution on it produces a forged
+   record rather than an advertisement. The placeholders say "yours", so
+   the reader fills them in and nothing on the page claims to be real.
+   ==================================================================== #}
+<section class="bleed band-dark section-dark" id="certificate">
+  <div class="band-inner cert-split">
+    <div class="cert-split__demo">
+      <article class="cert-demo" aria-label="Example certificate">
+        <p class="cert-demo__brand">{{ brand }}</p>
+        <p class="cert-demo__kind">Record of completed project work</p>
+        <p class="cert-demo__lead">This certifies that</p>
+        <p class="cert-demo__name">Your name</p>
+        <p class="cert-demo__body">completed supervised project work through
+          {{ brand }}, each project reviewed by a supervising lecturer,
+          passed by their institution and signed off by the company that
+          commissioned it.</p>
+        <dl class="cert-demo__grid">
+          <div><dt>Project</dt><dd>Yours</dd></div>
+          <div><dt>Company</dt><dd>Who set the brief</dd></div>
+          <div><dt>Supervised by</dt><dd>Your lecturer</dd></div>
+          <div><dt>Institution</dt><dd>Your university</dd></div>
+        </dl>
+        <p class="cert-demo__label">Skills evidenced</p>
+        <ul class="tag-row tag-row--dark">
+          <li class="tag">Python</li><li class="tag">Flask</li>
+          <li class="tag">PostgreSQL</li><li class="tag">Data analysis</li>
+        </ul>
+        <p class="cert-demo__foot">
+          <span class="mono">PX-XXXXXXXXXX</span>
+          <span>Checkable by anyone at {{ request.url_root.rstrip('/') }}/verify</span>
+        </p>
+      </article>
+      <p class="specimen-note specimen-note--dark">An example. Yours carries
+        your name, your projects and a reference number only you have.</p>
+    </div>
+
+    <div class="cert-split__copy">
+      <h2 class="band-title">A record you can <span class="gold">hand to anyone</span></h2>
+      <p class="band-sub">Issued the day you ask for it, covering everything
+        signed off so far. Not a badge this site made up — every line on it
+        names who stood behind the work.</p>
+      <ol class="numbered">
+        <li><strong>Post it to LinkedIn.</strong> One button on the
+          certificate itself.</li>
+        <li><strong>Put the reference on your CV.</strong> Ten characters an
+          employer can type in and check.</li>
+        <li><strong>Send the link to anybody.</strong> They need no account
+          and see nothing else about you.</li>
+        <li><strong>Print it.</strong> The reference and the address to check
+          it against print with it.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
 {% if trial_days %}
 <section class="band-inner section section--tight">
   <div class="trial-band">

@@ -138,5 +138,33 @@ mine = student.get("/student/praxfolio").data.decode()
 step("the certificate is listed", REF in mine)
 step("with a way to post it", "linkedin.com/sharing" in mine)
 
+# ------------------------------------------- advertised on the landing page
+print("\n--- the example on the front page ---\n")
+
+landing = app.test_client().get("/").data.decode()
+
+step("the front page shows what a certificate looks like",
+     'id="certificate"' in landing and "cert-demo" in landing)
+step("it says what you can do with one",
+     "LinkedIn" in landing and "CV" in landing)
+
+# The honesty rules for this block. A certificate is a document about a
+# named person, so an example carrying a plausible name, company and
+# institution is a forged record rather than an advertisement.
+specimen = landing.split('id="certificate"', 1)[1].split("</section>", 1)[0]
+
+step("the name slot is a placeholder, not a person",
+     "Your name" in specimen)
+step("the company and institution are placeholders too",
+     "Who set the brief" in specimen and "Your university" in specimen)
+step("the reference is visibly fake",
+     "PX-XXXXXXXXXX" in specimen)
+step("and it is captioned as an example",
+     "An example" in specimen)
+
+# Nothing real should leak into an advert.
+step("no issued certificate reference appears on the landing page",
+     REF not in landing, REF)
+
 print(f"\n{P} passed, {F} failed")
 raise SystemExit(1 if F else 0)

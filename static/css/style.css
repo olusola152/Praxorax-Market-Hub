@@ -3028,3 +3028,60 @@ body.gate:not(.landing-page):not(.certificate-page):not(.plain-page) .mark-seal 
 @media print {
   .tag { border-color: #999; }
 }
+
+/* ------------------------------------------- the certificate, advertised
+   A white document on a dark band, so the thing being sold looks like the
+   object a student ends up holding rather than another panel of copy. */
+.cert-split { display: grid; gap: 2.5rem; align-items: center; }
+@media (min-width: 880px) {
+  .cert-split { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+                gap: 4rem; }
+}
+.cert-split .band-title { text-align: left; }
+.cert-split .band-sub { margin: 0 0 1.5rem; text-align: left; max-width: 48ch; }
+
+.cert-demo {
+  background: #fff; color: #17211C; border-top: 4px solid var(--gold);
+  padding: 1.9rem 1.8rem 1.5rem;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7);
+}
+.cert-demo__brand { font-family: var(--display); font-size: 1.15rem; margin: 0; }
+.cert-demo__kind { font-family: var(--mono); font-size: .62rem;
+                   letter-spacing: .14em; text-transform: uppercase;
+                   color: #6B756E; margin: .1rem 0 1.4rem; }
+.cert-demo__lead { font-size: .85rem; color: #4B5560; margin: 0; }
+.cert-demo__name { font-family: var(--display); font-size: clamp(1.5rem, 4vw, 2.1rem);
+                   margin: .1rem 0 .7rem; color: #9A8042; }
+.cert-demo__body { font-size: .83rem; line-height: 1.55; color: #3C4752;
+                   margin: 0 0 1.2rem; }
+.cert-demo__grid { display: grid; grid-template-columns: 1fr 1fr;
+                   gap: .7rem 1.2rem; margin: 0 0 1.2rem; }
+.cert-demo__grid dt { font-family: var(--mono); font-size: .58rem;
+                      letter-spacing: .12em; text-transform: uppercase;
+                      color: #7C867F; }
+.cert-demo__grid dd { margin: .1rem 0 0; font-size: .86rem; }
+.cert-demo__label { font-family: var(--mono); font-size: .58rem;
+                    letter-spacing: .12em; text-transform: uppercase;
+                    color: #7C867F; margin: 0 0 .45rem; }
+.cert-demo__foot { display: flex; flex-wrap: wrap; justify-content: space-between;
+                   gap: .4rem; align-items: baseline; margin: 1.4rem 0 0;
+                   padding-top: .9rem; border-top: 1px solid #DDE3DC;
+                   font-size: .68rem; color: #6B756E; }
+.cert-demo__foot .mono { font-size: .78rem; color: #17211C; }
+
+.specimen-note--dark { color: var(--night-dim); }
+
+/* Tags sit on white inside the specimen even though the band is dark, so
+   they keep the certificate's own colours rather than the band's. */
+.tag-row--dark .tag { border-color: #D3DBD2; color: #2A3430; }
+
+.numbered { list-style: none; counter-reset: step; padding: 0; margin: 0; }
+.numbered li { counter-increment: step; position: relative;
+               padding-left: 2.4rem; margin-bottom: 1.1rem;
+               color: var(--night-dim); }
+.numbered li strong { color: var(--night-text); }
+.numbered li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: .05em;
+  font-family: var(--mono); font-size: .9rem; color: var(--gold);
+}
